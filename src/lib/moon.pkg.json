@@ -1,0 +1,9 @@
+{
+    "import": [
+      "peter-jerry-ye/parser-combinator",
+      {
+        "path": "peter-jerry-ye/parser-combinator",
+        "alias": "combinator"
+      }
+    ]
+  }
