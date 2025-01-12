@@ -8,31 +8,6 @@ typealias Seq[T] = @combinator.Seq[T]
 type! XMLParseError String
 
 ///|
-pub(all) struct XMLDocument {
-  version : String
-  encoding : String
-  standalone : Bool
-  root : Element
-} derive(Show)
-
-///|
-pub(all) struct Element {
-  name : String
-  attributes : Map[String, String]
-  children : @queue.T[Children]
-} derive(Show)
-
-///|
-pub(all) enum Children {
-  Element(Element)
-  Reference(String)
-  CDATA(String)
-  PI(String)
-  Comment(String)
-  Text(String)
-} derive(Show)
-
-///|
 let digit : Parser[Char, Char] = @combinator.one_of([
   '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '0',
 ])
@@ -100,12 +75,12 @@ fn is_name_char(c : Char) -> Bool {
 }
 
 ///|
-pub fn pwhite_space() -> Parser[Char, Unit] {
+pub fn pwhite_space() -> Parser[Char, String] {
   @combinator.pchar_such_that(fn(c) {
     c == ' ' || c == '\t' || c == '\r' || c == '\n'
   })
   .repeat()
-  .map(fn(_ws) { () })
+  .map(fn(ws) { ws.iter().fold(init="", fn(s, c) { s + c.to_string() }) })
 }
 
 ///|
@@ -247,14 +222,34 @@ test "panic pattributes/invalid_format" {
 
 // 解析 XML 元素
 ///|
-pub fn pelement() -> Parser[Char, Element] {
-  let element_ref : Ref[Parser[Char, Element]] = {
-    val: Parser(fn { _ => None }),
+pub fn pelement() -> Parser[Char, XMLElement] {
+  let element_ref : Ref[Parser[Char, XMLElement]] = { val: fn { _ => None } }
+  let content_ref : Ref[Parser[Char, @queue.T[XMLChildren]]] = {
+    val: fn { _ => None },
   }
-  let content_ref : Ref[Parser[Char, @queue.T[Children]]] = {
-    val: Parser(fn { _ => None }),
+  fn trim_text(text : String) -> (String, String, String) {
+    // text should not be empty
+    let seq = Seq::from_string(text)
+    let (head_WS, rest) = match pwhite_space().parse(seq) {
+      Some((ws, rest)) => (ws, rest)
+      None => ("", seq)
+    }
+    if rest.is_empty() {
+      return (head_WS, "", "")
+    }
+    let seq = Seq::from_string(text.rev())
+    let tail_WS = match pwhite_space().parse(seq) {
+      Some((ws, _)) => ws.rev()
+      None => ""
+    }
+    let content = text.substring(
+      start=head_WS.length(),
+      end=text.length() - tail_WS.length(),
+    )
+    (head_WS, content, tail_WS)
   }
-  fn pcontent() -> Parser[Char, @queue.T[Children]] {
+
+  fn pcontent() -> Parser[Char, @queue.T[XMLChildren]] {
     let element_parser = @combinator.ref(element_ref).map(fn(e) { Element(e) })
     let reference_parser = preference().map(fn(s) { Reference(s) })
     let cdata_parser = pcdata().map(fn(s) { CDATA(s) })
@@ -271,7 +266,18 @@ pub fn pelement() -> Parser[Char, Element] {
       .optional()
       .map(fn(op) {
         match op {
-          Some(text) => @queue.of([Text(text)])
+          Some(text) =>
+            match trim_text(text) {
+              (head_WS, "", _) => @queue.of([WhiteSpace(head_WS)])
+              (head_WS, content, "") =>
+                @queue.of([WhiteSpace(head_WS), Text(content)])
+              (head_WS, content, tail_WS) =>
+                @queue.of([
+                  WhiteSpace(head_WS),
+                  Text(content),
+                  WhiteSpace(tail_WS),
+                ])
+            }
           None => @queue.new()
         }
       })
@@ -312,8 +318,6 @@ pub fn pelement() -> Parser[Char, Element] {
     .and_then(@combinator.pchar('>'))
     .omit_second()
     .map(fn(x) { x })
-    .and_then(pwhite_space())
-    .omit_second()
     .and_then(@combinator.ref(content_ref))
     .map(fn(x) { x })
     .and_then(
@@ -323,9 +327,6 @@ pub fn pelement() -> Parser[Char, Element] {
       .and_then(@combinator.pchar('>'))
       .omit_second(),
     )
-    .and_then(pwhite_space())
-    .omit_second()
-    // .and_then(pwhite_space().repeat()).omit_second()
     .map(fn(tuple) {
       let (((name_start, attrs), children), name_end) = tuple
       if name_start != name_end {
@@ -382,7 +383,6 @@ test "pelement/complex" {
     #|
   let result = pelement().parse(Seq::from_string(xml))
   let element = result.unwrap().0
-
   // Check root element
   inspect!(element.name, content="root")
   inspect!(element.attributes.get("id"), content="Some(\"main\")")
@@ -605,10 +605,7 @@ pub fn pxml() -> Parser[Char, XMLDocument] {
   pwhite_space()
   .and_then(pprolog().optional())
   .omit_first()
-  .map(fn(x) {
-    println(x)
-    return x
-  })
+  .map(fn(x) { return x })
   .and_then(pdtd().optional())
   .and_then(pwhite_space())
   .omit_second()
@@ -691,8 +688,6 @@ test "pxml/mixed_content" {
   // Check that root has children
   inspect!(doc.root.children.is_empty(), content="false")
 }
-
-
 
 test "pxml/basic_xml_no_attributes" {
   let xml = "<root></root>"

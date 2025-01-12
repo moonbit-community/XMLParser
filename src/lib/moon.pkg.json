@@ -4,6 +4,10 @@
       {
         "path": "peter-jerry-ye/parser-combinator",
         "alias": "combinator"
+      },
+      {
+        "path": "moonbitlang/quickcheck/lib",
+        "alias": "qc"
       }
     ]
   }
