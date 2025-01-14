@@ -1,6 +1,6 @@
 {
-  "name": "RuifengFu/XMLParser",
-  "version": "0.1.0",
+  "name": "ruifeng/XMLParser",
+  "version": "0.1.1",
   "deps": {
     "peter-jerry-ye/parser-combinator": "0.9.1",
     "moonbitlang/quickcheck": "0.7.1"
