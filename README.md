@@ -8,7 +8,26 @@ The library is implemented using parser combinators.
 # Examples
 
 ```Moonbit
-let xml = @lib.xml_from_string("<?xml version=\"1.0\"?><root><child>Content</child></root>")
-println(xml.root)
+let str =
+#|<?xml version="1.0"?>
+#|<root>
+#|  Text before
+#|  <child empty="true"/>
+#|  Text between
+#|  <?php echo "processing instruction" ?>
+#|  <![CDATA[Preserving <tags> in CDATA]]>
+#|  <!-- A comment here -->
+#|  <child>
+#|    Nested text
+#|    <grandchild />
+#|    More nested text
+#|  </child>
+#|  Text after
+#|</root>
+let xml = @lib.xml_from_string(str)
+let xml = @lib.xml_from_iter(str.iter())
+let (xml, ctx) = @lib.xml_from_string_with_ctx(str)
+let xml = xml.unwrap()
+println(xml)
 ```
 
