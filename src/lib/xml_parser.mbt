@@ -353,6 +353,28 @@ test "panic pname/invalid_name" {
   inspect!(result, content="None")
 }
 
+///|
+fn pattribute_quote_inner(quote : Char) -> Parser[Char, String] {
+  @combinator.pchar(quote)
+  .and_then(
+    @combinator.pchar_such_that(fn(c) { c != quote })
+    .repeat()
+    .and_then(@combinator.pchar(quote))
+    .map(fn(tuple) {
+      let chars = tuple.0
+      let mut value = ""
+      chars.each(fn(c) { value = value + c.to_string() })
+      value
+    }),
+  )
+  .omit_first()
+}
+
+///|
+let pattribute_quote : Parser[Char, String] = pattribute_quote_inner('"').or_else(
+  pattribute_quote_inner('\''),
+)
+
 // 解析 XML 属性
 ///|
 /// Parses an XML attribute, which consists of a name followed by an equals sign
@@ -381,50 +403,14 @@ test "panic pname/invalid_name" {
 /// ```
 pub fn pattribute() -> Parser[Char, (String, String)] {
   pname()
-  .and_then(
-    @combinator.pchar('=')
-    .and_then(
-      @combinator.pchar('"')
-      .and_then(
-        @combinator.pchar_such_that(fn(c) { c != '"' })
-        .repeat()
-        .and_then(@combinator.pchar('"'))
-        .map(fn(tuple) {
-          let chars = tuple.0
-          let mut value = ""
-          chars.each(fn(c) { value = value + c.to_string() })
-          value
-        }),
-      )
-      .omit_first(),
-    )
-    .omit_first(),
-  )
+  .and_then(@combinator.pchar('=').and_then(pattribute_quote).omit_first())
   .map(fn(tuple) { (tuple.0, tuple.1) })
 }
 
 ///|
 pub fn pattribute_with_ctx() -> Parser[Char, Context[(String, String)]] {
   let parser = pname_with_ctx()
-    .and_then(
-      @combinator.pchar('=')
-      .and_then(
-        @combinator.pchar('"')
-        .and_then(
-          @combinator.pchar_such_that(fn(c) { c != '"' })
-          .repeat()
-          .and_then(@combinator.pchar('"'))
-          .map(fn(tuple) {
-            let chars = tuple.0
-            let mut value = ""
-            chars.each(fn(c) { value = value + c.to_string() })
-            value
-          }),
-        )
-        .omit_first(),
-      )
-      .omit_first(),
-    )
+    .and_then(@combinator.pchar('=').and_then(pattribute_quote).omit_first())
     .map(fn(tuple) {
       let ((key, ctx_1), value) = tuple
       let input_array = (key + "=\"" + value + "\"").to_array()
@@ -445,6 +431,9 @@ test "pattribute/valid" {
   // Basic valid attribute
   let result = pattribute().parse(Seq::from_string("name=\"1234567890\""))
   inspect!(result, content="Some(((\"name\", \"1234567890\"), ))")
+  // Single quotes
+  let result2 = pattribute().parse(Seq::from_string("name='value'"))
+  inspect!(result2, content="Some(((\"name\", \"value\"), ))")
 }
 
 test "pattribute/invalid_format" {
@@ -455,6 +444,12 @@ test "pattribute/invalid_format" {
   // Missing equals sign
   let result2 = pattribute().parse(Seq::from_string("name\"value\""))
   inspect!(result2, content="None")
+
+  // quotes not matching
+  let result3 = pattribute().parse(Seq::from_string("name=\"value'"))
+  inspect!(result3, content="None")
+  let result4 = pattribute().parse(Seq::from_string("name='value\""))
+  inspect!(result4, content="None")
 }
 
 ///|
