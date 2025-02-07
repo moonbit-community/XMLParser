@@ -130,6 +130,7 @@ fn is_name_start_char(c : Char) -> Bool {
     '\u3001'..='\uD7FF' => true
     '\uF900'..='\uFDCF' => true
     '\uFDF0'..='\uFFFD' => true
+    '\u{10000}' ..= '\u{EFFFF}' => true
     _ => false
   }
 }
@@ -341,6 +342,10 @@ test "pname/valid_name" {
   // Boundary case: Valid XML name with mixed characters
   let result = pname().parse(Seq::from_string("xml:Root123"))
   inspect!(result, content="Some((\"xml:Root123\", ))")
+
+  // Boundary case: Valid XML name with extended characters
+  let result = pname().parse(Seq::from_string("🐇"))
+  inspect!(result, content="Some((\"🐇\", ))")
 }
 
 test "panic pname/invalid_name" {
@@ -350,6 +355,8 @@ test "panic pname/invalid_name" {
 
   // Boundary case: Invalid XML name with invalid character in the name
   let result = pname().parse(Seq::from_string("root%"))
+  inspect!(result, content="None")
+  let result = pname().parse(Seq::from_string("\u{FFFFF}"))
   inspect!(result, content="None")
 }
 
