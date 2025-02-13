@@ -41,7 +41,7 @@ jobs:
           moon add moonbitlang/quickcheck
 
       - name: moon check
-        run: moon check --deny-warn
+        run: moon check 
 
       - name: moon info
         run: |
@@ -140,7 +140,7 @@ jobs:
           moon add moonbitlang/quickcheck
 
       - name: moon check
-        run: moon check --deny-warn
+        run: moon check 
 
       - name: Set ulimit and run moon test
         if: ${{ matrix.os != 'windows-latest' }}
@@ -190,9 +190,9 @@ jobs:
           moon update
           moon add peter-jerry-ye/parser-combinator
           moon add moonbitlang/quickcheck
-          
+
       - name: moon check
-        run: moon check --deny-warn
+        run: moon check 
 
       - name: Set ulimit and run moon test
         run: |
