@@ -5,7 +5,7 @@
         "alias": "combinator"
       },
       {
-        "path": "moonbitlang/quickcheck/lib",
+        "path": "moonbitlang/quickcheck",
         "alias": "qc"
       }
     ]
