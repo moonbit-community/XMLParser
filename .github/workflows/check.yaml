@@ -34,6 +34,12 @@ jobs:
           moon version --all
           moonrun --version
 
+      - name: install deps
+        run: | 
+          moon update
+          moon add peter-jerry-ye/parser-combinator
+          moon add moonbitlang/quickcheck
+
       - name: moon check
         run: moon check --deny-warn
 
@@ -127,6 +133,12 @@ jobs:
           moon version --all
           moonrun --version
 
+      - name: install deps
+        run: | 
+          moon update
+          moon add peter-jerry-ye/parser-combinator
+          moon add moonbitlang/quickcheck
+
       - name: moon check
         run: moon check --deny-warn
 
@@ -173,6 +185,12 @@ jobs:
           moon version --all
           moonrun --version
 
+      - name: install deps
+        run: | 
+          moon update
+          moon add peter-jerry-ye/parser-combinator
+          moon add moonbitlang/quickcheck
+          
       - name: moon check
         run: moon check --deny-warn
 
