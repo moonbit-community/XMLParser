@@ -1,7 +1,7 @@
 {   
     "import": [
       {
-        "path": "peter-jerry-ye/parser-combinator",
+        "path": "illusory0x0/parserc",
         "alias": "combinator"
       },
       {
