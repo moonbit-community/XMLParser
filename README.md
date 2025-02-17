@@ -24,9 +24,9 @@ let str =
 #|  </child>
 #|  Text after
 #|</root>
-let xml = @lib.xml_from_string(str)
-let xml = @lib.xml_from_iter(str.iter())
-let (xml, ctx) = @lib.xml_from_string_with_ctx(str)
+let xml = @parser.xml_from_string(str)
+let xml = @parser.xml_from_iter(str.iter())
+let (xml, ctx) = @parser.xml_from_string_with_ctx(str)
 let xml = xml.unwrap()
 println(xml)
 ```

@@ -1,4 +1,4 @@
-package ruifeng/XMLParser/lib
+package ruifeng/XMLParser
 
 alias @illusory0x0/parserc as @parserc
 
