@@ -2,8 +2,8 @@
   "name": "ruifeng/XMLParser",
   "version": "0.1.3",
   "deps": {
-    "peter-jerry-ye/parser-combinator": "0.9.1",
-    "moonbitlang/quickcheck": "0.8.4"
+    "moonbitlang/quickcheck": "0.8.4",
+    "illusory0x0/parserc": "0.1.1"
   },
   "readme": "README.md",
   "repository": "https://github.com/moonbit-community/XMLParser",
