@@ -53,7 +53,10 @@ impl @quickcheck.Arbitrary for XMLElement with arbitrary(size, rs) {
 
 ///|
 impl @quickcheck.Arbitrary for XMLChildren with arbitrary(size, rs) {
-  let strGen : Gen[String] = Gen::spawn()
+  fn valid_string(s: String) -> Bool {
+    s.iter().all(fn(c) { is_char(c)})
+  }
+  let strGen : Gen[String] = Gen::spawn().such_that(valid_string)
   let refGen : Gen[String] = Gen::new(fn(size, rs) {
     let charGen : @qc.Gen[Char] = Gen::spawn()
     let name = charGen.such_that(is_name_start_char).run(size, rs).to_string() +
@@ -96,7 +99,7 @@ impl @quickcheck.Arbitrary for XMLChildren with arbitrary(size, rs) {
   }
 
   fn is_comment(s : String) -> Bool {
-    not(s.contains("-->"))
+    not(s.ends_with("-")) && not(s.contains("-->"))
   }
 
   let childGen : Gen[XMLChildren] = @qc.one_of([

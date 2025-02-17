@@ -151,6 +151,13 @@ fn is_name_char(c : Char) -> Bool {
   }
 }
 
+fn is_char(c: Char) -> Bool {
+  match c {
+    '\u0009' | '\u000A' | '\u000D' | '\u0020'..='\uD7FF' | '\uE000'..='\uFFFD' | '\u{10000}'..='\u{10FFFF}' => true
+    _ => false 
+  }
+}
+
 ///|
 /// Parses a sequence of whitespace characters (space, tab, carriage return, line
 /// feed) into a string.
@@ -1023,49 +1030,19 @@ pub fn pcdata_with_ctx() -> Parser[Char, Context[String]] {
 /// }
 /// ```
 pub fn pcomment() -> Parser[Char, String] {
-  let ptail_comment : Parser[Char, Char] = @combinator.Parser::new(fn(seq) {
-    let peek3 = peek_char_seq(seq, 3)
-    match peek3 {
-      Some("-->") => None
-      _ =>
-        match seq.uncons() {
-          Some((c, rest)) => Some((c, rest))
-          None => None
-        }
-    }
-  })
+  let pvalidNonDashChar = @combinator.pchar_such_that(fn(c) { is_char(c) && c != '-' }).map(fn {c => c.to_string()})
+  let pdashFollowedByValidChar = @combinator.pchar('-').and_then(pvalidNonDashChar).map(fn { (_, c) => "-" + c })
+  let pcommentContent = pvalidNonDashChar.or_else(pdashFollowedByValidChar).repeat().map(fn {arr => @string.concat(arr, separator="")})
   @combinator.pstring("<!--")
-  .and_then(ptail_comment.repeat())
+  .and_then(pcommentContent)
   .omit_first()
   .and_then(@combinator.pstring("-->"))
   .omit_second()
-  .map(fn {
-    chars => chars.fold(init="", fn(str, char) { str + char.to_string() })
-  })
 }
 
 ///|
 pub fn pcomment_with_ctx() -> Parser[Char, Context[String]] {
-  let ptail_comment : Parser[Char, Char] = @combinator.Parser::new(fn(seq) {
-    let peek3 = peek_char_seq(seq, 3)
-    match peek3 {
-      Some("-->") => None
-      _ =>
-        match seq.uncons() {
-          Some((c, rest)) => Some((c, rest))
-          None => None
-        }
-    }
-  })
-  @combinator.pstring("<!--")
-  .and_then(ptail_comment.repeat())
-  .omit_first()
-  .and_then(@combinator.pstring("-->"))
-  .omit_second()
-  .map(fn {
-    chars => chars.fold(init="", fn(str, char) { str + char.to_string() })
-  })
-  .map(fn(s) { (s, new_context("<!--\{s}-->")) })
+  pcomment().map(fn(s) { (s, new_context("<!--\{s}-->")) })
 }
 
 ///|
