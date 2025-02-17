@@ -1,0 +1,2 @@
+[files]
+extend-exclude = ["src/lib/xml_unit_test.mbt"]
