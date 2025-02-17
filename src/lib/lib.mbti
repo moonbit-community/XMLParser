@@ -70,7 +70,12 @@ fn xml_from_string(String) -> XMLDocument?
 fn xml_from_string_with_ctx(String) -> (XMLDocument?, XMLParserContext)
 
 // Types and methods
-type Location
+pub(all) struct Location {
+  index : Int
+  line : Int
+  column : Int
+  length : Int
+}
 impl Show for Location
 
 pub(all) enum XMLChildren {
@@ -82,6 +87,7 @@ pub(all) enum XMLChildren {
   Text(String)
   WhiteSpace(String)
 }
+impl Show for XMLChildren
 
 pub(all) struct XMLDocument {
   version : String
@@ -90,6 +96,7 @@ pub(all) struct XMLDocument {
   dtd : String?
   root : XMLElement
 }
+impl Show for XMLDocument
 
 pub(all) struct XMLElement {
   name : String
@@ -97,11 +104,23 @@ pub(all) struct XMLElement {
   attributes : Map[String, String]
   children : Array[XMLChildren]
 }
+impl Show for XMLElement
 
-type XMLErrorKind
+pub(all) enum XMLErrorKind {
+  SyntaxError
+  ValidationError
+  EncodingError
+  MalformedReference
+  MismatchedTags(String, String)
+  InternalParserError
+}
 impl Show for XMLErrorKind
 
-type XMLParseError
+pub(all) struct XMLParseError {
+  kind : XMLErrorKind
+  message : String
+  location : Location
+}
 impl Show for XMLParseError
 
 type XMLParserContext

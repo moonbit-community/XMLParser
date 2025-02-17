@@ -153,4 +153,3 @@ test "fuzzing" {
   @qc.quick_check_fn!(trivial_iter)
   @qc.quick_check_fn!(trivial_ctx)
 }
-

@@ -33,7 +33,7 @@ pub(all) enum XMLChildren {
 }
 
 ///|
-enum XMLErrorKind {
+pub(all) enum XMLErrorKind {
   SyntaxError
   ValidationError
   EncodingError
@@ -43,14 +43,14 @@ enum XMLErrorKind {
 } derive(Show)
 
 ///|
-struct XMLParseError {
+pub(all) struct XMLParseError {
   kind : XMLErrorKind
   message : String
   location : Location
 } derive(Show)
 
 ///|
-struct Location {
+pub(all) struct Location {
   mut index : Int
   mut line : Int
   mut column : Int
@@ -58,22 +58,22 @@ struct Location {
 } derive(Show)
 
 ///|
-impl Show for XMLDocument with output(self, logger) {
+pub impl Show for XMLDocument with output(self, logger) {
   logger.write_string("XMLDocument: " + self.to_string())
 }
 
 ///|
-impl Show for XMLDocument with to_string(self) {
+pub impl Show for XMLDocument with to_string(self) {
   "<?xml version=\"\{self.version}\" encoding=\"\{self.encoding}\" standalone=\"\{self.standalone}\" ?>\n\{self.root}"
 }
 
 ///|
-impl Show for XMLElement with output(self, logger) {
+pub impl Show for XMLElement with output(self, logger) {
   logger.write_string("XMLElement: " + self.to_string())
 }
 
 ///|
-impl Show for XMLElement with to_string(self) {
+pub impl Show for XMLElement with to_string(self) {
   let attributes = @string.concat(
     self.attributes.iter().map(fn(kv) { "\{kv.0}=\"\{kv.1}\"" }).collect(),
     separator=" ",
@@ -91,12 +91,12 @@ impl Show for XMLElement with to_string(self) {
 }
 
 ///|
-impl Show for XMLChildren with output(self, logger) {
+pub impl Show for XMLChildren with output(self, logger) {
   logger.write_string("XMLChildren: " + self.to_string())
 }
 
 ///|
-impl Show for XMLChildren with to_string(self) {
+pub impl Show for XMLChildren with to_string(self) {
   match self {
     Element(e) => e.to_string()
     Reference(s) => "\{s}"
