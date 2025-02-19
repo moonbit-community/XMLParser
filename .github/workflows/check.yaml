@@ -46,6 +46,9 @@ jobs:
         run: |
           moon info --target wasm,wasm-gc,js,native
           git diff --exit-code
+      
+      - name: download testsuite
+        run: sh init.sh
 
       - name: Set ulimit and run moon test
         if: ${{ matrix.os != 'windows-latest' }}
@@ -139,6 +142,9 @@ jobs:
 
       - name: moon check
         run: moon check 
+      
+      - name: download testsuite
+        run: sh init.sh
 
       - name: Set ulimit and run moon test
         if: ${{ matrix.os != 'windows-latest' }}
