@@ -27,7 +27,7 @@ fn pcomment() -> @parserc.Parser[Char, String]
 
 fn pcomment_with_ctx() -> @parserc.Parser[Char, (String, XMLParserContext)]
 
-fn pdtd() -> @parserc.Parser[Char, String]
+fn pdtd() -> @parserc.Parser[Char, DocTypeDecl]
 
 fn pdtd_with_ctx() -> @parserc.Parser[Char, (String, XMLParserContext)]
 
@@ -70,6 +70,91 @@ fn xml_from_string(String) -> XMLDocument?
 fn xml_from_string_with_ctx(String) -> (XMLDocument?, XMLParserContext)
 
 // Types and methods
+pub(all) struct AttDef {
+  name : String
+  att_type : AttType
+  default_decl : DefaultDecl
+}
+impl Show for AttDef
+
+pub(all) enum AttType {
+  StringType(String)
+  TokenizedType(String)
+  NotationType(Array[String])
+  Enumeration(Array[String])
+}
+impl Show for AttType
+
+pub(all) struct AttlistDecl {
+  name : String
+  att_defs : Array[AttDef]
+}
+impl Show for AttlistDecl
+
+pub(all) enum ChildrenContentSpecOp {
+  Optional
+  ZeroOrMore
+  OneOrMore
+}
+impl Show for ChildrenContentSpecOp
+
+pub(all) type ContentParticle (SingleContentParticle, ChildrenContentSpecOp?)
+impl Show for ContentParticle
+
+pub(all) enum ContentSpec {
+  EMPTY
+  ANY
+  Mixed(Array[String])
+  Children(ContentParticle)
+}
+impl Show for ContentSpec
+
+pub(all) enum DTDStatement {
+  Decl(MarkUpDecl)
+  Sep(String)
+}
+impl Show for DTDStatement
+
+pub(all) enum DefaultDecl {
+  Required
+  Implied
+  Fixed(String)
+  Value(String)
+}
+impl Show for DefaultDecl
+
+pub(all) struct DocTypeDecl {
+  name : String
+  externalID : ExternalID?
+  intSubset : Array[DTDStatement]?
+}
+impl Show for DocTypeDecl
+
+pub(all) struct ElementDecl {
+  name : String
+  content_spec : ContentSpec
+}
+impl Show for ElementDecl
+
+pub(all) enum EntityDecl {
+  GEDecl(String, EntityDef)
+  PEDecl(String, EntityDef)
+}
+impl Show for EntityDecl
+
+pub(all) enum EntityDef {
+  EntityValue(String)
+  GExternalID(ExternalID, String?)
+  PExternalID(ExternalID)
+}
+impl Show for EntityDef
+
+pub(all) enum ExternalID {
+  System(String)
+  Public(String, String)
+}
+impl Show for ExternalID
+
 pub(all) struct Location {
   index : Int
   line : Int
@@ -77,6 +162,35 @@ pub(all) struct Location {
   length : Int
 }
 impl Show for Location
+
+pub(all) enum MarkUpDecl {
+  ElementDecl(ElementDecl)
+  AttListDecl(AttlistDecl)
+  EntityDecl(EntityDecl)
+  NotationDecl(NotationDecl)
+  PI(String)
+  Comment(String)
+}
+impl Show for MarkUpDecl
+
+pub(all) struct NotationDecl {
+  name : String
+  id : NotationDeclID
+}
+impl Show for NotationDecl
+
+pub(all) enum NotationDeclID {
+  PublicID(String)
+  ExternalID(ExternalID)
+}
+impl Show for NotationDeclID
+
+pub(all) enum SingleContentParticle {
+  Name(String)
+  Seq(Array[ContentParticle])
+  Choice(Array[ContentParticle])
+}
+impl Show for SingleContentParticle
 
 pub(all) enum XMLChildren {
   Element(XMLElement)
@@ -93,7 +207,7 @@ pub(all) struct XMLDocument {
   version : String
   encoding : String
   standalone : Bool
-  dtd : String?
+  dtd : DocTypeDecl?
   root : XMLElement
 }
 impl Show for XMLDocument
@@ -127,6 +241,7 @@ type XMLParserContext
 impl Show for XMLParserContext
 
 // Type aliases
+pub typealias ChildrenContentSpec = ContentParticle
 
 // Traits
 

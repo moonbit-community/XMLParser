@@ -23,7 +23,7 @@ impl @quickcheck.Arbitrary for XMLElement with arbitrary(size, rs) {
     .iter()
     .fold(init="", fn(s, c) { s + c.to_string() })
   fn is_value(s : String) -> Bool {
-    not(s.contains("\""))
+    not(s.contains("\"") || s.contains("<") || s.contains("&"))
   }
 
   let iterGen : @qc.Gen[Array[String]] = Gen::spawn()

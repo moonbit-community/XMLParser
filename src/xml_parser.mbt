@@ -394,26 +394,27 @@ test "panic pname/invalid_name" {
 }
 
 ///|
-fn pattribute_quote_inner(quote : Char) -> Parser[Char, String] {
-  @combinator.pchar(quote)
-  .and_then(
-    @combinator.pchar_such_that(fn(c) { c != quote })
-    .repeat()
-    .and_then(@combinator.pchar(quote))
-    .map(fn(tuple) {
-      let chars = tuple.0
-      let mut value = ""
-      chars.each(fn(c) { value = value + c.to_string() })
-      value
-    }),
-  )
-  .omit_first()
-}
+fn pattValue() -> Parser[Char, String] {
+  fn pattValue_quote(quote : Char) -> Parser[Char, String] {
+    @combinator.pchar(quote)
+    .and_then(
+      @combinator.pchar_such_that(fn(c) { c != quote && c != '<' && c != '&' })
+      .map(fn(c) { c.to_string() })
+      .or_else(preference())
+      .repeat()
+      .and_then(@combinator.pchar(quote))
+      .map(fn(tuple) {
+        let chars = tuple.0
+        let mut value = ""
+        chars.each(fn(s) { value = value + s })
+        value
+      }),
+    )
+    .omit_first()
+  }
 
-///|
-let pattribute_quote : Parser[Char, String] = pattribute_quote_inner('"').or_else(
-  pattribute_quote_inner('\''),
-)
+  pattValue_quote('"').or_else(pattValue_quote('\''))
+}
 
 // 解析 XML 属性
 ///|
@@ -443,14 +444,14 @@ let pattribute_quote : Parser[Char, String] = pattribute_quote_inner('"').or_els
 /// ```
 pub fn pattribute() -> Parser[Char, (String, String)] {
   pname()
-  .and_then(@combinator.pchar('=').and_then(pattribute_quote).omit_first())
+  .and_then(@combinator.pchar('=').and_then(pattValue()).omit_first())
   .map(fn(tuple) { (tuple.0, tuple.1) })
 }
 
 ///|
 pub fn pattribute_with_ctx() -> Parser[Char, Context[(String, String)]] {
   let parser = pname_with_ctx()
-    .and_then(@combinator.pchar('=').and_then(pattribute_quote).omit_first())
+    .and_then(@combinator.pchar('=').and_then(pattValue()).omit_first())
     .map(fn(tuple) {
       let ((key, ctx_1), value) = tuple
       let input_array = (key + "=\"" + value + "\"").to_array()
@@ -543,9 +544,9 @@ pub fn pattributes_with_ctx() -> Parser[Char, Context[Map[String, String]]] {
         warnings: [],
       }
       let map = pairs.fold(init=Map::new(), fn(map, pair) {
-        let (((key, value), ctx_1), (ws, ctx_2)) = pair
+        let (((key, value), ctx_1), (_ws, ctx_2)) = pair
         if map.contains(key) {
-          let ctx = raise_error(
+          let _ctx = raise_error(
             ctx_1,
             ValidationError,
             ctx.index + 1,
@@ -660,8 +661,8 @@ pub fn pelement() -> Parser[Char, XMLElement] {
     })
     let reference_parser = preference().map(fn(s) { Reference(s) })
     let cdata_parser = pcdata().map(fn(s) { CDATA(s) })
-    let pi_parser = ppi().map(fn(pi) { PI(pi) })
-    let comment_parser = pcomment().map(fn(s) { Comment(s) })
+    let pi_parser = ppi().map(fn(pi) { XMLChildren::PI(pi) })
+    let comment_parser = pcomment().map(fn(s) { XMLChildren::Comment(s) })
     let tail_parser = element_parser
       .or_else(reference_parser)
       .or_else(cdata_parser)
@@ -757,9 +758,11 @@ pub fn pelement_with_ctx() -> Parser[Char, Context[XMLElement]] {
       (s, ctx) => (Reference(s), ctx)
     })
     let cdata_parser = pcdata_with_ctx().map(fn { (s, ctx) => (CDATA(s), ctx) })
-    let pi_parser = ppi_with_ctx().map(fn { (pi, ctx) => (PI(pi), ctx) })
+    let pi_parser = ppi_with_ctx().map(fn {
+      (pi, ctx) => (XMLChildren::PI(pi), ctx)
+    })
     let comment_parser = pcomment_with_ctx().map(fn {
-      (s, ctx) => (Comment(s), ctx)
+      (s, ctx) => (XMLChildren::Comment(s), ctx)
     })
     let tail_parser = element_parser
       .or_else(reference_parser)
@@ -789,7 +792,7 @@ pub fn pelement_with_ctx() -> Parser[Char, Context[XMLElement]] {
       .map(fn(tuple) {
         let ((arr_1, ctx_1), arr_2) = tuple
         arr_2.each(fn(tuple) {
-          let ((child, ctx_child), op) = tuple
+          let ((child, _ctx_child), op) = tuple
           arr_1.push(child)
           match op {
             Some((text, ctx)) => {
@@ -813,7 +816,7 @@ pub fn pelement_with_ctx() -> Parser[Char, Context[XMLElement]] {
     .and_then(@combinator.pstring("/>"))
     .omit_second()
     .map(fn {
-      (((name, ctx_name), (ws, ctx_ws)), (attributes, ctx_attrs)) => {
+      (((name, ctx_name), (_ws, ctx_ws)), (attributes, ctx_attrs)) => {
         let element = { name, empty_element: true, attributes, children: [] }
         let ctx = new_context("<")
           |> merge_context(ctx_name)
@@ -849,7 +852,7 @@ pub fn pelement_with_ctx() -> Parser[Char, Context[XMLElement]] {
     .map(fn(tuple) {
       let (
         (
-          (((name_start, ctx_start), (ws, ctx_ws)), (attrs, ctx_attrs)),
+          (((name_start, ctx_start), (_ws, ctx_ws)), (attrs, ctx_attrs)),
           (children, ctx_children),
         ),
         (name_end, ctx_end),
@@ -1379,7 +1382,7 @@ pub fn pprolog_with_ctx() -> Parser[Char, Context[Map[String, String]]] {
   .and_then(@combinator.pstring("?>"))
   .omit_second()
   .map(fn {
-    ((ws, ctx_ws), (attrs, ctx_attrs)) => {
+    ((_ws, ctx_ws), (attrs, ctx_attrs)) => {
       let ctx = new_context("<?xml")
         |> merge_context(ctx_ws)
         |> merge_context(ctx_attrs)
@@ -1423,19 +1426,33 @@ test "pprolog/minimal_valid_prolog" {
 ///
 /// ```moonbit
 /// test "pdtd/basic" {
-///   let result = pdtd().parse(@combinator.Seq::from_string("<!DOCTYPE html>"))
-///   inspect!(result, content="Some((\"DOCTYPE html\", ))")
+///   let result = pdtd().parse(@combinator.Seq::from_string("<!DOCTYPE html>")).unwrap().0
+///   inspect!(result, content="<!DOCTYPE html>")
 /// }
 /// ```
-pub fn pdtd() -> Parser[Char, String] {
-  @combinator.pstring("<!")
-  .and_then(@combinator.pchar_such_that(fn(c) { c != '>' }).repeat())
+pub fn pdtd() -> Parser[Char, DocTypeDecl] {
+  @combinator.pstring("<!DOCTYPE")
+  .and_then(pwhite_space())
+  .and_then(pname())
   .omit_first()
-  .map(fn(chars) {
-    chars.fold(init="", fn(str, char) { str + char.to_string() })
-  })
+  .and_then(pwhite_space().and_then(pexternalID()).omit_first().optional())
+  .and_then(
+    pwhite_space()
+    .and_then(@combinator.pstring("["))
+    .and_then(pinternalSubset())
+    .omit_first()
+    .and_then(@combinator.pstring("]"))
+    .omit_second()
+    .and_then(pwhite_space())
+    .omit_second()
+    .optional(),
+  )
   .and_then(@combinator.pchar('>'))
   .omit_second()
+  .map(fn(tuple) {
+    let ((name, externalID), intSubset) = tuple
+    { name, externalID, intSubset }
+  })
 }
 
 ///|
@@ -1517,7 +1534,7 @@ pub fn pxml_with_ctx() -> Parser[Char, Context[XMLDocument]] {
   .and_then(pelement_with_ctx())
   .map(fn(tuple) {
     let (
-      ((((ws_1, ctx_ws_1), op_prolog), op_dtd), (ws_2, ctx_ws_2)),
+      ((((_ws_1, ctx_ws_1), op_prolog), op_dtd), (_ws_2, ctx_ws_2)),
       (element, ctx_element),
     ) = tuple
     let ctx = ctx_ws_1
@@ -1530,8 +1547,8 @@ pub fn pxml_with_ctx() -> Parser[Char, Context[XMLDocument]] {
     }
     let dtd = match op_dtd {
       Some((dtd, ctx_dtd)) => {
-        let ctx = merge_context(ctx, ctx_dtd)
-        Some(dtd)
+        let _ctx = merge_context(ctx, ctx_dtd)
+        Some({ name: dtd, externalID: None, intSubset: None }) // TODO support dtd for ctx version
       }
       None => None
     }
