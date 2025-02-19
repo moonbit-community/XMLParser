@@ -1,20 +1,6 @@
 //This file is mainly to implement parsing DTD (Document Type Decl).
 
 ///|
-fn quote_parser[T](parser : Parser[Char, T]) -> Parser[Char, (Char, T)] {
-  let single_quote = @combinator.pchar('\'')
-    .and_then(parser)
-    .and_then(@combinator.pchar('\''))
-    .omit_second()
-  let double_quote = @combinator.pchar('"')
-    .and_then(parser)
-    .and_then(@combinator.pchar('"'))
-    .omit_second()
-  let parser = single_quote.or_else(double_quote)
-  parser
-}
-
-///|
 fn pnmtokens() -> Parser[Char, String] {
   @combinator.pchar_such_that(is_name_char)
   .and_then(
@@ -61,14 +47,25 @@ fn ppubidLiteral() -> Parser[Char, String] {
     }
   }
 
-  let parser = @combinator.pchar_such_that(is_pubid_char)
-    .repeat()
-    .map(fn { arr => arr.fold(init="", fn { str, c => str + c.to_string() }) })
-  let parser = quote_parser(parser).map(fn(tuple) {
-    let (quote, str) = tuple
-    quote.to_string() + str + quote.to_string() // can't write to "\{quote}\{str}\{quote}"
-  })
-  parser
+  let single_quote = @combinator.pchar('\'')
+    .and_then(
+      @combinator.pchar_such_that(fn { c => is_pubid_char(c) && c != '\'' })
+      .repeat()
+      .map(fn { arr => arr.fold(init="", fn { str, c => str + c.to_string() }) }),
+    )
+    .and_then(@combinator.pchar('\''))
+    .omit_second()
+    .map(fn { (quote, str) => quote.to_string() + str + quote.to_string() })
+  let double_quote = @combinator.pchar('"')
+    .and_then(
+      @combinator.pchar_such_that(fn { c => is_pubid_char(c) })
+      .repeat()
+      .map(fn { arr => arr.fold(init="", fn { str, c => str + c.to_string() }) }),
+    )
+    .and_then(@combinator.pchar('"'))
+    .omit_second()
+    .map(fn { (quote, str) => quote.to_string() + str + quote.to_string() })
+  single_quote.or_else(double_quote)
 }
 
 ///|
@@ -173,7 +170,7 @@ fn pentityDecl() -> Parser[Char, EntityDecl] {
         }),
       ),
     )
-    .and_then(pwhite_space())
+    .and_then(pwhite_space().optional())
     .omit_second()
     .and_then(@combinator.pstring(">"))
     .omit_second()
@@ -194,7 +191,7 @@ fn pentityDecl() -> Parser[Char, EntityDecl] {
       .map(fn(str) { EntityValue(str) })
       .or_else(pexternalID().map(fn(external_id) { PExternalID(external_id) })),
     )
-    .and_then(pwhite_space())
+    .and_then(pwhite_space().optional())
     .omit_second()
     .and_then(@combinator.pstring(">"))
     .omit_second()
@@ -253,18 +250,19 @@ fn pelementDecl() -> Parser[Char, ElementDecl] {
     @combinator.pfail(),
   )
   let choice = @combinator.pchar('(')
-    .and_then(pwhite_space())
+    .and_then(pwhite_space().optional())
     .and_then(Parser::from_ref(cp_ref))
     .omit_first()
     .and_then(
       pwhite_space()
+      .optional()
       .and_then(@combinator.pchar('|'))
-      .and_then(pwhite_space())
+      .and_then(pwhite_space().optional())
       .and_then(Parser::from_ref(cp_ref))
       .omit_first()
       .repeat(),
     )
-    .and_then(pwhite_space())
+    .and_then(pwhite_space().optional())
     .omit_second()
     .and_then(@combinator.pchar(')'))
     .omit_second()
@@ -274,18 +272,19 @@ fn pelementDecl() -> Parser[Char, ElementDecl] {
       arr
     })
   let seq = @combinator.pchar('(')
-    .and_then(pwhite_space())
+    .and_then(pwhite_space().optional())
     .and_then(Parser::from_ref(cp_ref))
     .omit_first()
     .and_then(
       pwhite_space()
+      .optional()
       .and_then(@combinator.pchar(','))
-      .and_then(pwhite_space())
+      .and_then(pwhite_space().optional())
       .and_then(Parser::from_ref(cp_ref))
       .omit_first()
       .repeat(),
     )
-    .and_then(pwhite_space())
+    .and_then(pwhite_space().optional())
     .omit_second()
     .and_then(@combinator.pchar(')'))
     .omit_second()
@@ -335,25 +334,26 @@ fn pelementDecl() -> Parser[Char, ElementDecl] {
       ContentParticle(pair)
     })
   let mixed = @combinator.pstring("(")
-    .and_then(pwhite_space())
+    .and_then(pwhite_space().optional())
     .and_then(@combinator.pstring("#PCDATA"))
-    .and_then(pwhite_space())
+    .and_then(pwhite_space().optional())
     .and_then(@combinator.pstring(")"))
     .map(fn(_tuple) { Mixed([]) })
     .or_else(
       @combinator.pstring("(")
-      .and_then(pwhite_space())
+      .and_then(pwhite_space().optional())
       .and_then(@combinator.pstring("#PCDATA"))
       .and_then(
         pwhite_space()
+        .optional()
         .and_then(@combinator.pchar('|'))
-        .and_then(pwhite_space())
+        .and_then(pwhite_space().optional())
         .and_then(pname())
         .omit_first()
         .repeat(),
       )
       .omit_first()
-      .and_then(pwhite_space())
+      .and_then(pwhite_space().optional())
       .omit_second()
       .and_then(@combinator.pstring(")*"))
       .omit_second()
@@ -371,7 +371,7 @@ fn pelementDecl() -> Parser[Char, ElementDecl] {
     .and_then(pwhite_space())
     .omit_second()
     .and_then(contentspec)
-    .and_then(pwhite_space())
+    .and_then(pwhite_space().optional())
     .omit_second()
     .and_then(@combinator.pstring(">"))
     .omit_second()
@@ -476,18 +476,19 @@ fn pattListDecl() -> Parser[Char, AttlistDecl] {
     let notationType = @combinator.pstring("NOTATION")
       .and_then(pwhite_space())
       .and_then(@combinator.pchar('('))
-      .and_then(pwhite_space())
+      .and_then(pwhite_space().optional())
       .and_then(pname())
       .omit_first()
       .and_then(
         pwhite_space()
+        .optional()
         .and_then(@combinator.pchar('|'))
-        .and_then(pwhite_space())
+        .and_then(pwhite_space().optional())
         .and_then(pname())
         .omit_first()
         .repeat(),
       )
-      .and_then(pwhite_space())
+      .and_then(pwhite_space().optional())
       .omit_second()
       .and_then(@combinator.pchar(')'))
       .omit_second()
@@ -497,18 +498,19 @@ fn pattListDecl() -> Parser[Char, AttlistDecl] {
         NotationType(arr)
       })
     let enumeration = @combinator.pchar('(')
-      .and_then(pwhite_space())
+      .and_then(pwhite_space().optional())
       .and_then(pnmtokens())
       .omit_first()
       .and_then(
         pwhite_space()
+        .optional()
         .and_then(@combinator.pchar('|'))
-        .and_then(pwhite_space())
+        .and_then(pwhite_space().optional())
         .and_then(pnmtokens())
         .omit_first()
         .repeat(),
       )
-      .and_then(pwhite_space())
+      .and_then(pwhite_space().optional())
       .omit_second()
       .and_then(@combinator.pchar(')'))
       .omit_second()
@@ -520,12 +522,13 @@ fn pattListDecl() -> Parser[Char, AttlistDecl] {
     let stringType = @combinator.pstring("CDATA").map(fn(str) {
       StringType(str)
     })
-    let tokenizedType = @combinator.pstring("ID")
+    let tokenizedType = @combinator.pstring("IDREFS")
       .or_else(@combinator.pstring("IDREF"))
+      .or_else(@combinator.pstring("ID"))
       .or_else(@combinator.pstring("ENTITY"))
       .or_else(@combinator.pstring("ENTITIES"))
-      .or_else(@combinator.pstring("NMTOKEN"))
       .or_else(@combinator.pstring("NMTOKENS"))
+      .or_else(@combinator.pstring("NMTOKEN"))
       .map(fn(str) { TokenizedType(str) })
     let attType = stringType
       .or_else(tokenizedType)
@@ -565,10 +568,8 @@ fn pattListDecl() -> Parser[Char, AttlistDecl] {
     .and_then(pwhite_space())
     .and_then(pname())
     .omit_first()
-    .and_then(pwhite_space())
-    .omit_second()
     .and_then(pattDef.repeat())
-    .and_then(pwhite_space())
+    .and_then(pwhite_space().optional())
     .omit_second()
     .and_then(@combinator.pstring(">"))
     .omit_second()
@@ -588,7 +589,12 @@ test "attListDecl" {
   //           type    (bullets|ordered|glossary)  "ordered">
   // <!ATTLIST form
   //           method  CDATA   #FIXED "POST">
+
   let parser = pattListDecl()
+  let str =
+    #|<!ATTLIST doc a1 NMTOKENS #IMPLIED>
+  let seq = Seq::from_string(str)
+  let result = parser.parse(seq).unwrap()
   let str =
     #|<!ATTLIST termdef
     #|      id      ID      #REQUIRED
@@ -633,7 +639,7 @@ fn pnotationDecl() -> Parser[Char, NotationDecl] {
     .map(fn(external_id) { ExternalID(external_id) })
     .or_else(ppublicID().map(fn(pubid) { PublicID(pubid) })),
   )
-  .and_then(pwhite_space())
+  .and_then(pwhite_space().optional())
   .omit_second()
   .and_then(@combinator.pstring(">"))
   .omit_second()
@@ -674,10 +680,18 @@ fn pmarkupDecl() -> Parser[Char, MarkUpDecl] {
 
 ///|
 fn pinternalSubset() -> Parser[Char, Array[DTDStatement]] {
-  let declSep = pwhite_space().or_else(pPEReference()).map(fn(s) { Sep(s) })
+  let declSep = pPEReference().or_else(pwhite_space()).map(fn(s) { Sep(s) })
   let parser = pmarkupDecl()
     .map(fn(decl) { Decl(decl) })
     .or_else(declSep)
     .repeat()
   parser
+}
+
+///|
+fn pmisc() -> Parser[Char, Misc] {
+  pcomment()
+  .map(fn(comment) { Misc::Comment(comment) })
+  .or_else(ppi().map(fn(pi) { Misc::PI(pi) }))
+  .or_else(pwhite_space().map(fn(s) { Misc::WhiteSpace(s) }))
 }

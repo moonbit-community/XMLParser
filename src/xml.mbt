@@ -287,6 +287,13 @@ pub(all) enum NotationDeclID {
 }
 
 ///|
+pub(all) enum Misc {
+  Comment(String)
+  PI(String)
+  WhiteSpace(String)
+}
+
+///|
 pub(all) enum XMLErrorKind {
   SyntaxError
   ValidationError

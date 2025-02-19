@@ -128,7 +128,7 @@ fn is_digit(c : Char) -> Bool {
 ///|
 fn is_hex_digit(c : Char) -> Bool {
   match c {
-    '0'..='9' | 'a'..='e' | 'A'..='E' => true
+    '0'..='9' | 'a'..='f' | 'A'..='F' => true
     _ => false
   }
 }
@@ -199,18 +199,18 @@ fn is_char(c : Char) -> Bool {
 ///   let result = pwhite_space().parse(@combinator.Seq::from_string("  \t\n\rtext"))
 ///   inspect!(result, content="Some((\"  \\t\\n\\r\", 't''e''x''t'))")
 /// }
-/// 
-/// test "pwhite_space/empty" {
-///   let result = pwhite_space().parse(@combinator.Seq::from_string("text"))
-///   inspect!(result, content="Some((\"\", 't''e''x''t'))")
-/// }
 /// ```
 pub fn pwhite_space() -> Parser[Char, String] {
-  @combinator.pchar_such_that(fn(c) {
-    c == ' ' || c == '\t' || c == '\r' || c == '\n'
+  fn is_ws(c : Char) {
+    c == '\u0020' || c == '\u0009' || c == '\u000D' || c == '\u000A'
+  }
+
+  @combinator.pchar_such_that(is_ws)
+  .and_then(@combinator.pchar_such_that(is_ws).repeat())
+  .map(fn(tuple) {
+    let (ws, arr) = tuple
+    arr.iter().fold(init=ws.to_string(), fn(s, c) { s + c.to_string() })
   })
-  .repeat()
-  .map(fn(ws) { ws.iter().fold(init="", fn(s, c) { s + c.to_string() }) })
 }
 
 ///|
@@ -444,7 +444,15 @@ fn pattValue() -> Parser[Char, String] {
 /// ```
 pub fn pattribute() -> Parser[Char, (String, String)] {
   pname()
-  .and_then(@combinator.pchar('=').and_then(pattValue()).omit_first())
+  .and_then(pwhite_space().optional())
+  .omit_second()
+  .and_then(
+    @combinator.pchar('=')
+    .and_then(pwhite_space().optional())
+    .omit_second()
+    .and_then(pattValue())
+    .omit_first(),
+  )
   .map(fn(tuple) { (tuple.0, tuple.1) })
 }
 
@@ -509,7 +517,7 @@ test "pattribute/invalid_format" {
 /// ```moonbit
 /// test "pattributes/basic" {
 ///   let result = pattributes().parse(
-///     @combinator.Seq::from_string("name=\"value\" type=\"text\""),
+///     @combinator.Seq::from_string(" name=\"value\" type=\"text\""),
 ///   )
 ///   let attrs = result.unwrap().0
 ///   inspect!(attrs.get("name"), content="Some(\"value\")")
@@ -517,9 +525,9 @@ test "pattribute/invalid_format" {
 /// }
 /// ```
 pub fn pattributes() -> Parser[Char, Map[String, String]] {
-  pattribute()
-  .and_then(pwhite_space())
-  .omit_second()
+  pwhite_space()
+  .and_then(pattribute())
+  .omit_first()
   .repeat()
   .map(fn(attrs) {
     attrs.fold(init=Map::new(), fn(map, tuple) {
@@ -574,7 +582,7 @@ test "pattributes/empty" {
 ///|
 test "pattributes/single" {
   // Test case for single attribute
-  let result = pattributes().parse(Seq::from_string("name=\"value\""))
+  let result = pattributes().parse(Seq::from_string(" name=\"value\""))
   let map = result.unwrap().0
   inspect!(map.size(), content="1")
   inspect!(map.get("name"), content="Some(\"value\")")
@@ -584,7 +592,7 @@ test "pattributes/single" {
 test "pattributes/single" {
   // Test case for single attribute
   let result = pattributes().parse(
-    Seq::from_string("name=\"value\" lang=\"en\""),
+    Seq::from_string(" name=\"value\" lang=\"en\""),
   )
   let map = result.unwrap().0
   inspect!(map.size(), content="2")
@@ -676,7 +684,7 @@ pub fn pelement() -> Parser[Char, XMLElement] {
         match op {
           Some(text) =>
             match trim_text(text) {
-              (head_WS, "", _) => [WhiteSpace(head_WS)]
+              (head_WS, "", _) => [XMLChildren::WhiteSpace(head_WS)]
               (head_WS, content, "") => [WhiteSpace(head_WS), Text(content)]
               (head_WS, content, tail_WS) =>
                 [WhiteSpace(head_WS), Text(content), WhiteSpace(tail_WS)]
@@ -703,9 +711,9 @@ pub fn pelement() -> Parser[Char, XMLElement] {
   let empty_parser = @combinator.pchar('<')
     .and_then(pname())
     .omit_first()
-    .and_then(pwhite_space())
-    .omit_second()
     .and_then(pattributes())
+    .and_then(pwhite_space().optional())
+    .omit_second()
     .and_then(@combinator.pstring("/>"))
     .omit_second()
     .map(fn {
@@ -715,9 +723,9 @@ pub fn pelement() -> Parser[Char, XMLElement] {
   let children_parser = @combinator.pchar('<')
     .and_then(pname())
     .omit_first()
-    .and_then(pwhite_space())
-    .omit_second()
     .and_then(pattributes())
+    .and_then(pwhite_space().optional())
+    .omit_second()
     .and_then(@combinator.pchar('>'))
     .omit_second()
     .map(fn(x) { x })
@@ -727,6 +735,8 @@ pub fn pelement() -> Parser[Char, XMLElement] {
       @combinator.pstring("</")
       .and_then(pname())
       .omit_first()
+      .and_then(pwhite_space().optional())
+      .omit_second()
       .and_then(@combinator.pchar('>'))
       .omit_second(),
     )
@@ -778,7 +788,7 @@ pub fn pelement_with_ctx() -> Parser[Char, Context[XMLElement]] {
           Some((text, ctx)) =>
             (
               match trim_text(text) {
-                (head_WS, "", _) => [WhiteSpace(head_WS)]
+                (head_WS, "", _) => [XMLChildren::WhiteSpace(head_WS)]
                 (head_WS, content, "") => [WhiteSpace(head_WS), Text(content)]
                 (head_WS, content, tail_WS) =>
                   [WhiteSpace(head_WS), Text(content), WhiteSpace(tail_WS)]
@@ -900,24 +910,27 @@ test "pelement/empty" {
   // Test empty element with multiple attributes and special characters
   let result2 = pelement().parse(
     Seq::from_string(
-      "<meta name=\"description\" content=\"Test & Demo\" charset=\"UTF-8\"/>",
+      "<meta name=\"description\" content=\"Test &and; Demo\" charset=\"UTF-8\"/>",
     ),
   )
   let element = result2.unwrap().0
   inspect!(element.name, content="meta")
   inspect!(element.attributes.get("name"), content="Some(\"description\")")
-  inspect!(element.attributes.get("content"), content="Some(\"Test & Demo\")")
+  inspect!(
+    element.attributes.get("content"),
+    content="Some(\"Test &and; Demo\")",
+  )
   inspect!(element.attributes.get("charset"), content="Some(\"UTF-8\")")
   inspect!(element.children.length(), content="0")
   let result2 = pelement_with_ctx().parse(
     Seq::from_string(
-      "<meta name=\"description\" content=\"Test & Demo\" charset=\"UTF-8\"/>",
+      "<meta name=\"description\" content=\"Test  Demo\" charset=\"UTF-8\"/>",
     ),
   )
   let element = result2.unwrap().0.0
   inspect!(element.name, content="meta")
   inspect!(element.attributes.get("name"), content="Some(\"description\")")
-  inspect!(element.attributes.get("content"), content="Some(\"Test & Demo\")")
+  inspect!(element.attributes.get("content"), content="Some(\"Test  Demo\")")
   inspect!(element.attributes.get("charset"), content="Some(\"UTF-8\")")
   inspect!(element.children.length(), content="0")
 }
@@ -1080,6 +1093,25 @@ pub fn pcomment_with_ctx() -> Parser[Char, Context[String]] {
 }
 
 ///|
+fn not_xml(c : Char) -> Bool {
+  c != 'x' && c != 'X' && c != 'm' && c != 'M' && c != 'l' && c != 'L'
+}
+
+///|
+pub fn ppiTarget() -> Parser[Char, String] {
+  @combinator.pchar_such_that(is_name_start_char)
+  .and_then(@combinator.pchar_such_that(is_name_char).repeat())
+  .map(fn(tuple) {
+    let (start, rest) = tuple
+    let mut name = start.to_string()
+    for c in rest {
+      name += c.to_string()
+    }
+    name
+  })
+}
+
+///|
 /// Parses an XML processing instruction (PI) from a sequence of characters. A
 /// processing instruction begins with "<?", followed by arbitrary content not
 /// containing "?>", and ends with "?>".
@@ -1108,6 +1140,9 @@ pub fn pcomment_with_ctx() -> Parser[Char, Context[String]] {
 ///   inspect!(result, content="None")
 /// }
 /// ```
+/// TODO 
+/// 	PI	   ::=   	'<?' PITarget (S (Char* - (Char* '?>' Char*)))? '?>'
+/// 	PITarget	   ::=   	Name - (('X' | 'x') ('M' | 'm') ('L' | 'l'))
 pub fn ppi() -> Parser[Char, String] {
   let ptail_pi : Parser[Char, Char] = @combinator.Parser::new(fn(seq) {
     let peek2 = peek_char_seq(seq, 2)
@@ -1366,8 +1401,9 @@ pub fn preference_with_ctx() -> Parser[Char, Context[String]] {
 /// ```
 pub fn pprolog() -> Parser[Char, Map[String, String]] {
   @combinator.pstring("<?xml")
-  .and_then(pwhite_space())
   .and_then(pattributes())
+  .and_then(pwhite_space().optional())
+  .omit_second()
   .omit_first()
   .and_then(@combinator.pstring("?>"))
   .omit_second()
@@ -1436,14 +1472,15 @@ pub fn pdtd() -> Parser[Char, DocTypeDecl] {
   .and_then(pname())
   .omit_first()
   .and_then(pwhite_space().and_then(pexternalID()).omit_first().optional())
+  .and_then(pwhite_space().optional())
+  .omit_second()
   .and_then(
-    pwhite_space()
-    .and_then(@combinator.pstring("["))
+    @combinator.pstring("[")
     .and_then(pinternalSubset())
     .omit_first()
     .and_then(@combinator.pstring("]"))
     .omit_second()
-    .and_then(pwhite_space())
+    .and_then(pwhite_space().optional())
     .omit_second()
     .optional(),
   )
@@ -1499,11 +1536,13 @@ pub fn pdtd_with_ctx() -> Parser[Char, Context[String]] {
 /// ```
 pub fn pxml() -> Parser[Char, XMLDocument] {
   pwhite_space()
+  .optional()
   .and_then(pprolog().optional())
   .omit_first()
-  .map(fn(x) { return x })
-  .and_then(pdtd().optional())
-  .and_then(pwhite_space())
+  .and_then(pmisc().repeat())
+  .omit_second()
+  .and_then(pdtd().and_then(pmisc().repeat()).omit_second().optional())
+  .and_then(pwhite_space().optional())
   .omit_second()
   .and_then(pelement())
   .map(fn(tuple) {
@@ -1691,7 +1730,7 @@ pub fn xml_from_string(s : String) -> XMLDocument? {
 }
 
 ///|
-pub fn xml_from_string_with_ctx(s : String) -> Context[XMLDocument?] {
+fn xml_from_string_with_ctx(s : String) -> Context[XMLDocument?] {
   let seq = pxml_with_ctx().parse(Seq::from_string(s))
   match seq {
     Some(((doc, ctx), _)) => (Some(doc), ctx |> update_location())

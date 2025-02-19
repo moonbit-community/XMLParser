@@ -41,6 +41,8 @@ fn pname_with_ctx() -> @parserc.Parser[Char, (String, XMLParserContext)]
 
 fn ppi() -> @parserc.Parser[Char, String]
 
+fn ppiTarget() -> @parserc.Parser[Char, String]
+
 fn ppi_with_ctx() -> @parserc.Parser[Char, (String, XMLParserContext)]
 
 fn pprolog() -> @parserc.Parser[Char, Map[String, String]]
@@ -66,8 +68,6 @@ fn pxml_with_ctx() -> @parserc.Parser[Char, (XMLDocument, XMLParserContext)]
 fn xml_from_iter(Iter[Char]) -> XMLDocument?
 
 fn xml_from_string(String) -> XMLDocument?
-
-fn xml_from_string_with_ctx(String) -> (XMLDocument?, XMLParserContext)
 
 // Types and methods
 pub(all) struct AttDef {
@@ -172,6 +172,12 @@ pub(all) enum MarkUpDecl {
   Comment(String)
 }
 impl Show for MarkUpDecl
+
+pub(all) enum Misc {
+  Comment(String)
+  PI(String)
+  WhiteSpace(String)
+}
 
 pub(all) struct NotationDecl {
   name : String
