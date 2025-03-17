@@ -14,7 +14,7 @@ impl @quickcheck.Arbitrary for XMLDocument with arbitrary(size, rs) {
 
 ///|
 impl @quickcheck.Arbitrary for XMLElement with arbitrary(size, rs) {
-  let charGen : @qc.Gen[Char] = Gen::spawn()
+  let charGen : Gen[Char] = Gen::spawn()
   let name = charGen.such_that(is_name_start_char).run(size, rs).to_string() +
     charGen
     .such_that(is_name_char)
@@ -106,10 +106,10 @@ impl @quickcheck.Arbitrary for XMLChildren with arbitrary(size, rs) {
   let childGen : Gen[XMLChildren] = @qc.one_of([
     refGen.fmap(fn(s) { Reference(s) }),
     strGen.such_that(is_cdata).fmap(fn(s) { CDATA(s) }),
-    strGen.such_that(is_PI).fmap(fn(s) { PI(s) }),
-    strGen.such_that(is_comment).fmap(fn(s) { Comment(s) }),
+    strGen.such_that(is_PI).fmap(fn(s) { XMLChildren::PI(s) }),
+    strGen.such_that(is_comment).fmap(fn(s) { XMLChildren::Comment(s) }),
     strGen.such_that(is_text).fmap(fn(s) { Text(s) }),
-    wsGen.fmap(fn(s) { WhiteSpace(s) }),
+    wsGen.fmap(fn(s) { XMLChildren::WhiteSpace(s) }),
     elementGen.fmap(fn(e) { Element(e) }).resize(size - 1), // limit nesting depth
   ])
   childGen.run(size, rs)

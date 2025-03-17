@@ -1,9 +1,9 @@
 {
   "name": "ruifeng/XMLParser",
-  "version": "0.1.5",
+  "version": "0.2.1",
   "deps": {
-    "moonbitlang/quickcheck": "0.8.4",
-    "illusory0x0/parserc": "0.1.1",
+    "moonbitlang/quickcheck": "0.8.5",
+    "illusory0x0/parserc": "0.1.2",
     "moonbitlang/x": "0.4.19"
   },
   "readme": "README.md",

@@ -1,110 +1,4 @@
 ///|
-typealias Context[T] = (T, XMLParserContext)
-
-///| 在解析时只维护index, line_number和column_number暂时只在最后更新
-struct XMLParserContext {
-  ///|
-  input_array : Array[Char]
-  ///| the current position in the input sequence(start from 0)
-  index : Int
-
-  ///|
-  mut line_number : Int
-  mut column_number : Int
-  errors : Array[XMLParseError]
-  warnings : Array[String]
-} derive(Show)
-
-///|
-fn new_context(s : String) -> XMLParserContext {
-  {
-    input_array: s.to_array(),
-    index: 0,
-    line_number: 0,
-    column_number: 0,
-    errors: [],
-    warnings: [],
-  }
-}
-
-// 更新位置信息
-///|
-fn update_location(
-  ctx : XMLParserContext,
-  start~ : Int = 0,
-  end~ : Int = ctx.index
-) -> XMLParserContext {
-  let text = ctx.input_array[start:end]
-  ctx.line_number = 1
-  ctx.column_number = 0
-  text.each(fn(c) {
-    if c == '\n' {
-      ctx.line_number += 1
-      ctx.column_number = 1
-    } else {
-      ctx.column_number += 1
-    }
-  })
-  ctx.errors.each(fn(error) {
-    let text = ctx.input_array[:error.location.index]
-    text.each(fn(c) {
-      if c == '\n' {
-        error.location.line += 1
-        error.location.column = 1
-      } else {
-        error.location.column += 1
-      }
-    })
-  })
-  ctx
-}
-
-///|
-fn merge_context(
-  parent_ctx : XMLParserContext,
-  child_context : XMLParserContext
-) -> XMLParserContext {
-  let input_array = parent_ctx.input_array
-  input_array.append(child_context.input_array)
-  let index = parent_ctx.index + child_context.index
-  let errors = parent_ctx.errors
-  errors.append(
-    child_context.errors.map(fn(error) {
-      error.location.index += parent_ctx.index
-      error
-    }),
-  )
-  let warnings = parent_ctx.warnings
-  warnings.append(child_context.warnings)
-  let ctx = {
-    input_array,
-    index,
-    line_number: 0,
-    column_number: 0,
-    errors,
-    warnings,
-  }
-  ctx
-}
-
-// 添加错误处理函数
-///|
-fn raise_error(
-  ctx : XMLParserContext,
-  kind : XMLErrorKind,
-  index : Int,
-  msg : String
-) -> XMLParserContext {
-  let error = {
-    kind,
-    message: msg,
-    location: { index, line: 0, column: 0, length: 1 },
-  }
-  ctx.errors.push(error)
-  ctx
-}
-
-///|
 let pdigit : Parser[Char, Char] = @combinator.pchar_such_that(is_digit)
 
 ///|
@@ -214,28 +108,6 @@ pub fn pwhite_space() -> Parser[Char, String] {
 }
 
 ///|
-pub fn pwhite_space_with_ctx() -> Parser[Char, Context[String]] {
-  // white_space 不需要报错
-  @combinator.pchar_such_that(fn(c) {
-    c == ' ' || c == '\t' || c == '\r' || c == '\n'
-  })
-  .repeat()
-  .map(fn(ws) {
-    let value = ws.iter().fold(init="", fn(s, c) { s + c.to_string() })
-    let input_array = ws
-    let context = {
-      input_array,
-      index: ws.length(),
-      line_number: 0,
-      column_number: 0,
-      errors: [],
-      warnings: [],
-    }
-    (value, context)
-  })
-}
-
-///|
 /// Parses XML text content excluding special characters ('<' and '&').
 ///
 /// Parameters:
@@ -277,28 +149,6 @@ pub fn ptext() -> Parser[Char, String] {
   })
 }
 
-///|
-pub fn ptext_with_ctx() -> Parser[Char, Context[String]] {
-  //ptext不需要报错
-  @combinator.pchar_such_that(fn(c) { c != '<' && c != '&' })
-  .repeat()
-  .map(fn(chars) {
-    let mut content = ""
-    chars.each(fn(c) { content = content + c.to_string() })
-    let input_array = chars
-    let index = chars.length()
-    let context = {
-      input_array,
-      index,
-      line_number: 0,
-      column_number: 0,
-      errors: [],
-      warnings: [],
-    }
-    (content, context)
-  })
-}
-
 // 解析 XML 标签名
 ///|
 /// Parses an XML name according to the XML 1.0 specification. An XML name must
@@ -333,31 +183,6 @@ pub fn pname() -> Parser[Char, String] {
     }
     name
   })
-}
-
-///|
-pub fn pname_with_ctx() -> Parser[Char, Context[String]] {
-  let parser = @combinator.pchar_such_that(is_name_start_char)
-    .and_then(@combinator.pchar_such_that(is_name_char).repeat())
-    .map(fn(tuple) {
-      let (start, rest) = tuple
-      let mut name = start.to_string()
-      for c in rest {
-        name += c.to_string()
-      }
-      let input_array = name.to_array()
-      let index = name.length()
-      let context = {
-        input_array,
-        index,
-        line_number: 0,
-        column_number: 0,
-        errors: [],
-        warnings: [],
-      }
-      (name, context)
-    })
-  parser
 }
 
 ///|
@@ -457,26 +282,6 @@ pub fn pattribute() -> Parser[Char, (String, String)] {
 }
 
 ///|
-pub fn pattribute_with_ctx() -> Parser[Char, Context[(String, String)]] {
-  let parser = pname_with_ctx()
-    .and_then(@combinator.pchar('=').and_then(pattValue()).omit_first())
-    .map(fn(tuple) {
-      let ((key, ctx_1), value) = tuple
-      let input_array = (key + "=\"" + value + "\"").to_array()
-      let context = {
-        input_array,
-        index: input_array.length(),
-        line_number: 0,
-        column_number: 0,
-        errors: ctx_1.errors,
-        warnings: ctx_1.warnings,
-      }
-      ((key, value), context)
-    })
-  parser
-}
-
-///|
 test "pattribute/valid" {
   // Basic valid attribute
   let result = pattribute().parse(Seq::from_string("name=\"1234567890\""))
@@ -535,41 +340,6 @@ pub fn pattributes() -> Parser[Char, Map[String, String]] {
       map
     })
   })
-}
-
-///|
-pub fn pattributes_with_ctx() -> Parser[Char, Context[Map[String, String]]] {
-  let parser = pattribute_with_ctx()
-    .and_then(pwhite_space_with_ctx())
-    .repeat()
-    .map(fn(pairs) {
-      let mut ctx = {
-        input_array: [],
-        index: 0,
-        line_number: 0,
-        column_number: 0,
-        errors: [],
-        warnings: [],
-      }
-      let map = pairs.fold(init=Map::new(), fn(map, pair) {
-        let (((key, value), ctx_1), (_ws, ctx_2)) = pair
-        if map.contains(key) {
-          let _ctx = raise_error(
-            ctx_1,
-            ValidationError,
-            ctx.index + 1,
-            "Duplicate attribute: \{key}",
-          )
-          return map
-        }
-        map.set(key, value)
-        ctx = merge_context(ctx, ctx_1)
-        ctx = merge_context(ctx, ctx_2)
-        map
-      })
-      (map, ctx)
-    })
-  parser
 }
 
 ///|
@@ -756,157 +526,10 @@ pub fn pelement() -> Parser[Char, XMLElement] {
 }
 
 ///|
-pub fn pelement_with_ctx() -> Parser[Char, Context[XMLElement]] {
-  let element_ref : Ref[Parser[Char, Context[XMLElement]]] = {
-    val: fn { _ => None },
-  }
-  fn pcontent_with_ctx() -> Parser[Char, Context[Array[XMLChildren]]] {
-    let element_parser = @combinator.Parser::from_ref(element_ref).map(fn {
-      (e, ctx) => (Element(e), ctx)
-    })
-    let reference_parser = preference_with_ctx().map(fn {
-      (s, ctx) => (Reference(s), ctx)
-    })
-    let cdata_parser = pcdata_with_ctx().map(fn { (s, ctx) => (CDATA(s), ctx) })
-    let pi_parser = ppi_with_ctx().map(fn {
-      (pi, ctx) => (XMLChildren::PI(pi), ctx)
-    })
-    let comment_parser = pcomment_with_ctx().map(fn {
-      (s, ctx) => (XMLChildren::Comment(s), ctx)
-    })
-    let tail_parser = element_parser
-      .or_else(reference_parser)
-      .or_else(cdata_parser)
-      .or_else(pi_parser)
-      .or_else(comment_parser)
-      .and_then(ptext_with_ctx().optional())
-      .repeat()
-    let parser = ptext_with_ctx()
-      .optional()
-      .map(fn(op) {
-        match op {
-          Some((text, ctx)) =>
-            (
-              match trim_text(text) {
-                (head_WS, "", _) => [XMLChildren::WhiteSpace(head_WS)]
-                (head_WS, content, "") => [WhiteSpace(head_WS), Text(content)]
-                (head_WS, content, tail_WS) =>
-                  [WhiteSpace(head_WS), Text(content), WhiteSpace(tail_WS)]
-              },
-              ctx,
-            )
-          None => ([], new_context(""))
-        }
-      })
-      .and_then(tail_parser)
-      .map(fn(tuple) {
-        let ((arr_1, ctx_1), arr_2) = tuple
-        arr_2.each(fn(tuple) {
-          let ((child, _ctx_child), op) = tuple
-          arr_1.push(child)
-          match op {
-            Some((text, ctx)) => {
-              arr_1.push(Text(text))
-              let _ = merge_context(ctx_1, ctx)
-
-            }
-            None => ()
-          }
-        })
-        (arr_1, ctx_1)
-      })
-    parser
-  }
-
-  let empty_parser_with_ctx = @combinator.pchar('<')
-    .and_then(pname_with_ctx())
-    .omit_first()
-    .and_then(pwhite_space_with_ctx())
-    .and_then(pattributes_with_ctx())
-    .and_then(@combinator.pstring("/>"))
-    .omit_second()
-    .map(fn {
-      (((name, ctx_name), (_ws, ctx_ws)), (attributes, ctx_attrs)) => {
-        let element = { name, empty_element: true, attributes, children: [] }
-        let ctx = new_context("<")
-          |> merge_context(ctx_name)
-          |> merge_context(ctx_ws)
-          |> merge_context(ctx_attrs)
-          |> merge_context(new_context("/>"))
-        (element, ctx)
-      }
-    })
-  let children_parser_with_ctx = @combinator.pchar('<')
-    .and_then(pname_with_ctx())
-    .omit_first()
-    .and_then(pwhite_space_with_ctx())
-    .and_then(pattributes_with_ctx())
-    .and_then(@combinator.pchar('>'))
-    .omit_second()
-    .and_then(pcontent_with_ctx())
-    .and_then(
-      @combinator.pstring("</")
-      .and_then(pname_with_ctx())
-      .omit_first()
-      .and_then(@combinator.pchar('>'))
-      .omit_second()
-      .map(fn {
-        (name, ctx) => {
-          let ctx = new_context("</")
-            |> merge_context(ctx)
-            |> merge_context(new_context(">"))
-          (name, ctx)
-        }
-      }),
-    )
-    .map(fn(tuple) {
-      let (
-        (
-          (((name_start, ctx_start), (_ws, ctx_ws)), (attrs, ctx_attrs)),
-          (children, ctx_children),
-        ),
-        (name_end, ctx_end),
-      ) = tuple
-      let ctx = new_context("<")
-        |> merge_context(ctx_start)
-        |> merge_context(ctx_ws)
-        |> merge_context(ctx_attrs)
-        |> merge_context(new_context(">"))
-        |> merge_context(ctx_children)
-        |> merge_context(ctx_end)
-      if name_start != name_end {
-        let _ = raise_error(
-          ctx,
-          MismatchedTags(name_start, name_end),
-          1,
-          "Mismatched start and end tags: \{name_start} and \{name_end}",
-        )
-
-      }
-      let element = {
-        name: name_start,
-        empty_element: false,
-        attributes: attrs,
-        children,
-      }
-      (element, ctx)
-    })
-  // 这么组合的性能不够好。 
-  let parser = empty_parser_with_ctx.or_else(children_parser_with_ctx)
-  element_ref.val = parser
-  element_ref.val
-}
-
-///|
 test "pelement/empty" {
   // Test empty element with no attributes
   let result = pelement().parse(Seq::from_string("<br/>"))
   inspect!(result, content="Some((XMLElement: <br/>, ))")
-  let result = pelement_with_ctx().parse(Seq::from_string("<br/>"))
-  inspect!(
-    result,
-    content="Some(((XMLElement: <br/>, {input_array: ['<', 'b', 'r', '/', '>'], index: 2, line_number: 0, column_number: 0, errors: [], warnings: []}), ))",
-  )
   // Test empty element with multiple attributes and special characters
   let result2 = pelement().parse(
     Seq::from_string(
@@ -920,17 +543,6 @@ test "pelement/empty" {
     element.attributes.get("content"),
     content="Some(\"Test &and; Demo\")",
   )
-  inspect!(element.attributes.get("charset"), content="Some(\"UTF-8\")")
-  inspect!(element.children.length(), content="0")
-  let result2 = pelement_with_ctx().parse(
-    Seq::from_string(
-      "<meta name=\"description\" content=\"Test  Demo\" charset=\"UTF-8\"/>",
-    ),
-  )
-  let element = result2.unwrap().0.0
-  inspect!(element.name, content="meta")
-  inspect!(element.attributes.get("name"), content="Some(\"description\")")
-  inspect!(element.attributes.get("content"), content="Some(\"Test  Demo\")")
   inspect!(element.attributes.get("charset"), content="Some(\"UTF-8\")")
   inspect!(element.children.length(), content="0")
 }
@@ -956,10 +568,6 @@ test "pelement/complex" {
   let result = pelement().parse(@combinator.Seq::from_string(xml))
   let element = result.unwrap().0
   // Check root element
-  inspect!(element.name, content="root")
-  inspect!(element.attributes.get("id"), content="Some(\"main\")")
-  let result = pelement_with_ctx().parse(@combinator.Seq::from_string(xml))
-  let element = result.unwrap().0.0
   inspect!(element.name, content="root")
   inspect!(element.attributes.get("id"), content="Some(\"main\")")
 }
@@ -1025,29 +633,6 @@ pub fn pcdata() -> Parser[Char, String] {
 }
 
 ///|
-pub fn pcdata_with_ctx() -> Parser[Char, Context[String]] {
-  // TODO : raise error
-  let ptail_cdata : Parser[Char, String] = @combinator.Parser::new(fn(seq) {
-    let peek3 = peek_char_seq(seq, 3)
-    match peek3 {
-      Some("]]>") => None
-      _ =>
-        match seq.uncons() {
-          Some((c, rest)) => Some((c.to_string(), rest))
-          None => None
-        }
-    }
-  })
-  @combinator.pstring("<![CDATA[")
-  .and_then(ptail_cdata.repeat())
-  .omit_first()
-  .and_then(@combinator.pstring("]]>"))
-  .omit_second()
-  .map(fn { arr => @string.concat(arr, separator="") })
-  .map(fn { s => (s, new_context("<![CDATA[\{s}]]>")) })
-}
-
-///|
 /// Parses an XML comment. A comment in XML starts with "<!--" and ends with
 /// "-->". The parser captures all characters between these delimiters, excluding
 /// the delimiters themselves.
@@ -1085,11 +670,6 @@ pub fn pcomment() -> Parser[Char, String] {
   .omit_first()
   .and_then(@combinator.pstring("-->"))
   .omit_second()
-}
-
-///|
-pub fn pcomment_with_ctx() -> Parser[Char, Context[String]] {
-  pcomment().map(fn(s) { (s, new_context("<!--\{s}-->")) })
 }
 
 ///|
@@ -1166,30 +746,6 @@ pub fn ppi() -> Parser[Char, String] {
 }
 
 ///|
-pub fn ppi_with_ctx() -> Parser[Char, Context[String]] {
-  let ptail_pi : Parser[Char, Char] = @combinator.Parser::new(fn(seq) {
-    let peek2 = peek_char_seq(seq, 2)
-    match peek2 {
-      Some("?>") => None
-      _ =>
-        match seq.uncons() {
-          Some((c, rest)) => Some((c, rest))
-          None => None
-        }
-    }
-  })
-  @combinator.pstring("<?")
-  .and_then(ptail_pi.repeat())
-  .omit_first()
-  .and_then(@combinator.pstring("?>"))
-  .omit_second()
-  .map(fn {
-    chars => chars.fold(init="", fn(str, char) { str + char.to_string() })
-  })
-  .map(fn(s) { (s, new_context("<?\{s}?>")) })
-}
-
-///|
 test "pcomment/empty" {
   // Empty comment
   let result = pcomment().parse(Seq::from_string("<!---->"))
@@ -1243,28 +799,6 @@ pub fn pEntityRef() -> Parser[Char, String] {
 }
 
 ///|
-pub fn pEntityRef_with_ctx() -> Parser[Char, Context[String]] {
-  // TODO : Raise ERROR
-  // Missing starting '&'
-  // Missing ending ';'
-  // Empty reference name
-  // Invalid reference name characters
-  // Unknown entity reference
-  @combinator.pchar('&')
-  .and_then(pname_with_ctx())
-  .and_then(@combinator.pchar(';'))
-  .map(fn {
-    ((_and, (name, ctx_name)), _semicolon) => {
-      let value = "&" + name + ";"
-      let ctx = new_context("&")
-      let ctx = merge_context(ctx, ctx_name)
-      let ctx = merge_context(ctx, new_context(";"))
-      (value, ctx)
-    }
-  })
-}
-
-///|
 /// Parses a character reference in XML, which can be either a decimal reference
 /// (\&#d;) or a hexadecimal reference (\&#xh;) where 'd' is a sequence of
 /// decimal digits and 'h' is a sequence of hexadecimal digits.
@@ -1312,39 +846,6 @@ pub fn pcharRef() -> Parser[Char, String] {
 }
 
 ///|
-pub fn pcharRef_with_ctx() -> Parser[Char, Context[String]] {
-  // TODO : raise error
-  // Missing '#' after '&'
-  // Missing semicolon ';' at end
-  // Empty digit sequence
-  // Invalid digits (non-decimal/non-hex)
-  // Value out of valid XML character range
-  let pdecimal = @combinator.pstring("&#")
-    .and_then(pdigit)
-    .and_then(pdigit.repeat())
-    .and_then(@combinator.pchar(';'))
-    .map(fn {
-      (((_hash, digit), digits), _semicolon) =>
-        "#" +
-        digit.to_string() +
-        digits.fold(init="", fn(str, char) { str + char.to_string() }) +
-        ";"
-    })
-  let phex = @combinator.pstring("&#x")
-    .and_then(phexdigit)
-    .and_then(phexdigit.repeat())
-    .and_then(@combinator.pchar(';'))
-    .map(fn {
-      (((_hash, digit), digits), _semicolon) =>
-        "&#x" +
-        digit.to_string() +
-        digits.fold(init="", fn(str, char) { str + char.to_string() }) +
-        ";"
-    })
-  pdecimal.or_else(phex).map(fn { s => (s, new_context(s)) })
-}
-
-///|
 /// Parses an XML reference, which can be either an entity reference (like
 /// `&amp;`) or a character reference (like `&#x20;` or `&#32;`).
 ///
@@ -1371,11 +872,6 @@ pub fn pcharRef_with_ctx() -> Parser[Char, Context[String]] {
 /// ```
 pub fn preference() -> Parser[Char, String] {
   pEntityRef().or_else(pcharRef())
-}
-
-///|
-pub fn preference_with_ctx() -> Parser[Char, Context[String]] {
-  pEntityRef_with_ctx().or_else(pcharRef_with_ctx())
 }
 
 ///|
@@ -1407,25 +903,6 @@ pub fn pprolog() -> Parser[Char, Map[String, String]] {
   .omit_first()
   .and_then(@combinator.pstring("?>"))
   .omit_second()
-}
-
-///|
-pub fn pprolog_with_ctx() -> Parser[Char, Context[Map[String, String]]] {
-  @combinator.pstring("<?xml")
-  .and_then(pwhite_space_with_ctx())
-  .omit_first()
-  .and_then(pattributes_with_ctx())
-  .and_then(@combinator.pstring("?>"))
-  .omit_second()
-  .map(fn {
-    ((_ws, ctx_ws), (attrs, ctx_attrs)) => {
-      let ctx = new_context("<?xml")
-        |> merge_context(ctx_ws)
-        |> merge_context(ctx_attrs)
-        |> merge_context(new_context("?>"))
-      (attrs, ctx)
-    }
-  })
 }
 
 ///|
@@ -1493,19 +970,6 @@ pub fn pdtd() -> Parser[Char, DocTypeDecl] {
 }
 
 ///|
-pub fn pdtd_with_ctx() -> Parser[Char, Context[String]] {
-  @combinator.pstring("<!")
-  .and_then(@combinator.pchar_such_that(fn(c) { c != '>' }).repeat())
-  .omit_first()
-  .map(fn(chars) {
-    chars.fold(init="", fn(str, char) { str + char.to_string() })
-  })
-  .and_then(@combinator.pchar('>'))
-  .omit_second()
-  .map(fn { s => (s, new_context("<!\{s}>")) })
-}
-
-///|
 /// Parses a complete XML document string into an `XMLDocument` structure.
 /// Handles XML prolog, DOCTYPE declaration (DTD), and the root element with its
 /// contents. Supports whitespace between major components.
@@ -1561,48 +1025,6 @@ pub fn pxml() -> Parser[Char, XMLDocument] {
       dtd,
       root: element,
     }
-  })
-}
-
-///|
-pub fn pxml_with_ctx() -> Parser[Char, Context[XMLDocument]] {
-  pwhite_space_with_ctx()
-  .and_then(pprolog_with_ctx().optional())
-  .and_then(pdtd_with_ctx().optional())
-  .and_then(pwhite_space_with_ctx())
-  .and_then(pelement_with_ctx())
-  .map(fn(tuple) {
-    let (
-      ((((_ws_1, ctx_ws_1), op_prolog), op_dtd), (_ws_2, ctx_ws_2)),
-      (element, ctx_element),
-    ) = tuple
-    let ctx = ctx_ws_1
-    let map = match op_prolog {
-      Some((m, ctx_prolog)) => {
-        let _ = ctx |> merge_context(ctx_prolog)
-        m
-      }
-      None => Map::new()
-    }
-    let dtd = match op_dtd {
-      Some((dtd, ctx_dtd)) => {
-        let _ctx = merge_context(ctx, ctx_dtd)
-        Some({ name: dtd, externalID: None, intSubset: None }) // TODO support dtd for ctx version
-      }
-      None => None
-    }
-    let ctx = ctx |> merge_context(ctx_ws_2) |> merge_context(ctx_element)
-    let xml = {
-      version: map["version"].or("1.0"),
-      encoding: map["encoding"].or("UTF-8"),
-      standalone: match map["standalone"] {
-        Some("yes") => true
-        _ => false
-      },
-      dtd,
-      root: element,
-    }
-    (xml, ctx)
   })
 }
 
@@ -1726,24 +1148,6 @@ pub fn xml_from_string(s : String) -> XMLDocument? {
   match result {
     Some((doc, _)) => Some(doc)
     None => None
-  }
-}
-
-///|
-fn xml_from_string_with_ctx(s : String) -> Context[XMLDocument?] {
-  let seq = pxml_with_ctx().parse(Seq::from_string(s))
-  match seq {
-    Some(((doc, ctx), _)) => (Some(doc), ctx |> update_location())
-    None =>
-      (
-        None,
-        raise_error(
-          new_context(""),
-          InternalParserError,
-          1,
-          "Internal parser error: please report this bug.",
-        ),
-      )
   }
 }
 

@@ -41,8 +41,7 @@ fn ppubidLiteral() -> Parser[Char, String] {
       | '@'
       | '$'
       | '_'
-      | '%'
-      | ' ' => true
+      | '%' => true
       _ => false
     }
   }
