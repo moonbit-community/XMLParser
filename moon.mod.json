@@ -4,7 +4,7 @@
   "deps": {
     "moonbitlang/quickcheck": "0.8.5",
     "illusory0x0/parserc": "0.1.2",
-    "moonbitlang/x": "0.4.19"
+    "moonbitlang/x": "0.4.23"
   },
   "readme": "README.md",
   "repository": "https://github.com/moonbit-community/XMLParser",
