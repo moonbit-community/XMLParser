@@ -15,6 +15,42 @@ pub struct XMLParserContext {
   warnings : Array[String]
 } derive(Show)
 
+// pub fn XMLParserContext::raise_error(self : XMLParserContext, kind : XMLErrorKind, index : Int, msg : String) -> Unit {
+//   let error = {
+//     kind,
+//     message: msg,
+//     location: { index, line: 0, column: 0, length: 1 },
+//   }
+//   self.errors.push(error)
+// }
+
+pub fn XMLParserContext::raise_error(self: XMLParserContext, error: XMLParseError) -> Unit {
+  self.errors.push(error)
+}
+
+pub fn XMLParserContext::merge(self : XMLParserContext, child : XMLParserContext) -> Unit {
+    let input_array = self.input_array
+  input_array.append(child.input_array)
+  let index = self.index + child.index
+  let errors = self.errors
+  errors.append(
+    child.errors.map(fn(error) {
+      error.location.index += self.index
+      error
+    }),
+  )
+  let warnings = self.warnings
+  warnings.append(child.warnings)
+  let ctx = {
+    input_array,
+    index,
+    line_number: 0,
+    column_number: 0,
+    errors,
+    warnings,
+  }
+}
+
 ///|
 fn new_context(s : String) -> XMLParserContext {
   {

@@ -1,8 +1,8 @@
 ///|
-typealias Parser[Token, Value] = @combinator.Parser[Token, Value]
+typealias @combinator.Parser[Token, Value]
 
 ///|
-typealias Seq[T] = @combinator.Seq[T]
+typealias @combinator.Seq[T]
 
 ///|
 pub(all) struct XMLDocument {
@@ -411,4 +411,15 @@ pub impl Show for NotationDeclID with output(self, logger) {
 ///|
 pub impl Show for NotationDecl with output(self, logger) {
   logger.write_string("<!NOTATION \{self.name} \{self.id}>")
+}
+
+pub fn XMLParseError::is_fatal(self: XMLParseError) -> Bool {
+  match self.kind {
+    SyntaxError => true
+    ValidationError => true
+    EncodingError => true
+    MalformedReference => true
+    MismatchedTags(_, _) => true
+    InternalParserError => true
+  }
 }
