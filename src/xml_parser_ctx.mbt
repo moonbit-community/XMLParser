@@ -111,7 +111,7 @@ fn bind_error[T](
   error : XMLParseError
 ) -> Parser[Char, Context[T]] {
   Parser::new(fn(seq) {
-    match parser.parse(seq) {
+    match parser.run(seq) {
       None => abort("Internal Parser Error")
       Some(((None, ctx), remaining_input)) => {
         ctx.errors.push(error)
@@ -669,7 +669,7 @@ pub fn pxml_with_ctx() -> Parser[Char, Context[XMLDocument]] {
 
 ///|
 fn xml_from_string_with_ctx(s : String) -> Context[XMLDocument] {
-  let seq = pxml_with_ctx().parse(Seq::from_string(s))
+  let seq = pxml_with_ctx().run(Seq::from_string(s))
   match seq {
     Some(((doc_opt, ctx), _)) =>
       match doc_opt {
