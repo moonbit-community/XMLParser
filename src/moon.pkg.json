@@ -1,7 +1,7 @@
 {   
     "import": [
       {
-        "path": "illusory0x0/parserc",
+        "path": "ruifeng/XMLParser/parserc",
         "alias": "combinator"
       },
       {

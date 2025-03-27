@@ -575,12 +575,7 @@ test "pelement/complex" {
 ///|
 fn peek_char_seq(seq : Seq[Char], n : Int) -> String? {
   // help me return Some(first n char to string) in seq, or return None
-  loop n, seq.uncons(), "" {
-    _..<0, _, _ => None
-    0, _, s => Some(s)
-    _, None, _ => None
-    n, Some((c, rest)), s => continue n - 1, rest.uncons(), s + c.to_string()
-  }
+  Seq::peek_char(seq, n)
 }
 
 ///|
@@ -1153,16 +1148,7 @@ pub fn xml_from_string(s : String) -> XMLDocument? {
 
 ///|
 fn iter_to_seq(iter : Iter[Char]) -> Seq[Char] {
-  fn index_iter_to_seq(iter : Iter[Char], index : Int) -> Seq[Char] {
-    @combinator.Seq::new(fn() {
-      iter
-      .drop(index)
-      .head()
-      .map(fn { c => (c, index_iter_to_seq(iter, index + 1)) })
-    })
-  }
-
-  index_iter_to_seq(iter, 0)
+  Seq::from_array(iter.to_array()[:])
 }
 
 ///| This function is slower than xml_from_string. Have O(n^2) complexity.

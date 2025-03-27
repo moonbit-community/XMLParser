@@ -1,0 +1,74 @@
+package illusory0x0/parserc
+
+alias @moonbitlang/core/immut/list as @list
+
+// Values
+fn length[T](Seq[T]) -> Int
+
+fn lift2[Token, A, B, C]((A, B) -> C) -> (Parser[Token, A], Parser[Token, B]) -> Parser[Token, C]
+
+fn one_of[A : Show](Array[A]) -> Parser[Char, A]
+
+fn pchar(Char) -> Parser[Char, Char]
+
+fn pchar_such_that((Char) -> Bool) -> Parser[Char, Char]
+
+fn pconst[Token, A](A) -> Parser[Token, A]
+
+let pdigit : Parser[Char, Int]
+
+fn pfail[Token, A]() -> Parser[Token, A]
+
+let pint : Parser[Char, Int]
+
+let pint64 : Parser[Char, Int64]
+
+fn pstring(String) -> Parser[Char, String]
+
+fn pvalue[Token, Value]((Token) -> Value?) -> Parser[Token, Value]
+
+fn sequence[Token, A](Array[Parser[Token, A]]) -> Parser[Token, Array[A]]
+
+// Types and methods
+pub type Parser[Token, Value] (Seq[Token]) -> (Value, Seq[Token])?
+impl Parser {
+  and_then[Token, A, B](Self[Token, A], Self[Token, B]) -> Self[Token, (A, B)]
+  apply[Token, A, B](Self[Token, A], Self[Token, (A) -> B]) -> Self[Token, B]
+  between[Token, A, B](Self[Token, A], Self[Token, B]) -> Self[Token, A]
+  from_ref[Token, A](Ref[Self[Token, A]]) -> Self[Token, A]
+  map[Token, A, B](Self[Token, A], (A) -> B) -> Self[Token, B]
+  new[Token, Value]((Seq[Token]) -> (Value, Seq[Token])?) -> Self[Token, Value]
+  omit_first[Token, A, B](Self[Token, (A, B)]) -> Self[Token, B]
+  omit_second[Token, A, B](Self[Token, (A, B)]) -> Self[Token, A]
+  optional[Token, A](Self[Token, A]) -> Self[Token, A?]
+  or_else[Token, A](Self[Token, A], Self[Token, A]) -> Self[Token, A]
+  or_others[Token, A](Self[Token, A], ArrayView[Self[Token, A]]) -> Self[Token, A]
+  #deprecated
+  parse[Token, Value](Self[Token, Value], Seq[Token]) -> (Value, Seq[Token])?
+  repeat[Token, A](Self[Token, A]) -> Self[Token, Array[A]]
+  repeat_0_to_n[Token, A](Self[Token, A], Int) -> Self[Token, Array[A]]
+  repeat_0_to_n_with_sep[Token, A, B](Self[Token, A], Int, Self[Token, B]) -> Self[Token, Array[A]]
+  repeat_n[Token, A](Self[Token, A], Int) -> Self[Token, Array[A]]
+  repeat_n_with_sep[Token, A, B](Self[Token, A], Int, Self[Token, B]) -> Self[Token, Array[A]]
+  repeat_with_sep[Token, A, B](Self[Token, A], Self[Token, B]) -> Self[Token, Array[A]]
+  run[Token, Value](Self[Token, Value], Seq[Token]) -> (Value, Seq[Token])?
+}
+
+pub type Seq[T] () -> (T, Seq[T])?
+impl Seq {
+  default[T]() -> Self[T]
+  from_array[T](ArrayView[T]) -> Self[T]
+  from_list[T](@list.T[T]) -> Self[T]
+  from_string(String) -> Self[Char]
+  is_empty[T](Self[T]) -> Bool
+  length[T](Self[T]) -> Int
+  map[T1, T2](Self[T1], (T1) -> T2) -> Self[T2]
+  new[T](() -> (T, Self[T])?) -> Self[T]
+  uncons[T](Self[T]) -> (T, Self[T])?
+}
+impl[T : Show] Show for Seq[T]
+
+// Type aliases
+
+// Traits
+

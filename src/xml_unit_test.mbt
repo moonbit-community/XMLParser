@@ -25,20 +25,21 @@ test "dtd testcase 1" {
 }
 
 ///|
-test "xmlconf valid sa" {
-  fn is_valid(s : String) {
-    let s = s.replace(old=".xml", new="")
-    let id = @strconv.parse_int?(s)
-    match id {
-      Err(_) => false
-      Ok(id) =>
-        match id {
-          49..=51 => false
-          _ => true
-        }
-    }
+fn is_valid(s : String) -> Bool {
+  let s = s.replace(old=".xml", new="")
+  let id = @strconv.parse_int?(s)
+  match id {
+    Err(_) => false
+    Ok(id) =>
+      match id {
+        49..=51 => false
+        _ => true
+      }
   }
+}
 
+///|
+test "xmlconf valid sa" {
   let files = @fs.read_dir!("resource/xmlconf/xmltest/valid/sa").filter(
     is_valid,
   )
@@ -69,3 +70,36 @@ test "xmlconf valid sa" {
   println("passed: \{cnt}/\{files.length()}")
   inspect!(cnt, content=files.length().to_string())
 }
+
+// ///|
+// test "xmlconf not-wf sa" {
+//   let files = @fs.read_dir!("resource/xmlconf/xmltest/not-wf/sa").filter(
+//     is_valid,
+//   )
+//   let mut cnt = 0
+//   for file in files {
+//     if file.ends_with(".xml") {
+//       let str = @fs.read_file_to_string!(
+//         "resource/xmlconf/xmltest/not-wf/sa/" + file,
+//       )
+//       let bytes = @fs.read_file_to_bytes!(
+//         "resource/xmlconf/xmltest/not-wf/sa/" + file,
+//       )
+//       let result = xml_from_string(str)
+//       match result {
+//         None =>
+//           // println("ok " + file)
+//           cnt += 1
+//         Some(_) => {
+//           println("fail " + file)
+//           println(str)
+//           // println(bytes)
+//           println(result)
+//           // return
+//         }
+//       }
+//     }
+//   }
+//   println("passed: \{cnt}/\{files.length()}")
+//   inspect!(cnt, content=files.length().to_string())
+// }
