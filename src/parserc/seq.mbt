@@ -73,7 +73,7 @@ pub fn length[T](self : Seq[T]) -> Int {
 
 ///| Look forward `n` characters
 pub fn Seq::peek_char(self : Seq[Char], n : Int) -> String? {
-  if self.length() > n {
+  if self.length() >= n {
     Some(self._[:n].fold(init="", fn(s, c) { s + c.to_string() }))
   } else {
     None
