@@ -4,7 +4,7 @@ typealias Context[T] = (T?, XMLParserContext)
 ///| 在解析时只维护index, line_number和column_number暂时只在最后更新
 pub struct XMLParserContext {
   ///|
-  input_array : Array[Char]
+  input : Array[Char]
   ///| the current position in the input sequence(start from 0)
   index : Int
 
@@ -14,11 +14,10 @@ pub struct XMLParserContext {
   errors : Array[XMLParseError]
   warnings : Array[String]
 } derive(Show)
-
 ///|
 fn new_context(s : String) -> XMLParserContext {
   {
-    input_array: s.to_array(),
+    input: s.to_array(),
     index: 0,
     line_number: 0,
     column_number: 0,
@@ -34,7 +33,7 @@ fn update_location(
   start~ : Int = 0,
   end~ : Int = ctx.index
 ) -> XMLParserContext {
-  let text = ctx.input_array[start:end]
+  let text = ctx.input[start:end]
   ctx.line_number = 1
   ctx.column_number = 0
   text.each(fn(c) {
@@ -46,7 +45,7 @@ fn update_location(
     }
   })
   ctx.errors.each(fn(error) {
-    let text = ctx.input_array[:error.location.index]
+    let text = ctx.input[:error.location.index]
     text.each(fn(c) {
       if c == '\n' {
         error.location.line += 1
@@ -64,8 +63,8 @@ fn merge_context(
   parent_ctx : XMLParserContext,
   child_context : XMLParserContext
 ) -> XMLParserContext {
-  let input_array = parent_ctx.input_array
-  input_array.append(child_context.input_array)
+  let input_array = parent_ctx.input
+  input_array.append(child_context.input)
   let index = parent_ctx.index + child_context.index
   let errors = parent_ctx.errors
   errors.append(
@@ -77,7 +76,7 @@ fn merge_context(
   let warnings = parent_ctx.warnings
   warnings.append(child_context.warnings)
   let ctx = {
-    input_array,
+    input: input_array,
     index,
     line_number: 0,
     column_number: 0,
@@ -134,7 +133,7 @@ pub fn pwhite_space_with_ctx() -> Parser[Char, Context[String]] {
     let value = ws.iter().fold(init="", fn(s, c) { s + c.to_string() })
     let input_array = ws
     let context = {
-      input_array,
+      input: input_array,
       index: ws.length(),
       line_number: 0,
       column_number: 0,
@@ -156,7 +155,7 @@ pub fn ptext_with_ctx() -> Parser[Char, Context[String]] {
     let input_array = chars
     let index = chars.length()
     let context = {
-      input_array,
+      input: input_array,
       index,
       line_number: 0,
       column_number: 0,
@@ -180,7 +179,7 @@ pub fn pname_with_ctx() -> Parser[Char, Context[String]] {
       let input_array = name.to_array()
       let index = name.length()
       let context = {
-        input_array,
+        input: input_array,
         index,
         line_number: 0,
         column_number: 0,
@@ -202,7 +201,7 @@ pub fn pattribute_with_ctx() -> Parser[Char, Context[(String, String)]] {
         Some(key) => {
           let input_array = (key + "=\"" + value + "\"").to_array()
           let context = {
-            input_array,
+            input: input_array,
             index: input_array.length(),
             line_number: 0,
             column_number: 0,
@@ -224,7 +223,7 @@ pub fn pattributes_with_ctx() -> Parser[Char, Context[Map[String, String]]] {
     .repeat()
     .map(fn(pairs) {
       let mut ctx = {
-        input_array: [],
+        input: [],
         index: 0,
         line_number: 0,
         column_number: 0,
