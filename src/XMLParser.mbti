@@ -3,67 +3,75 @@ package ruifeng/XMLParser
 alias @illusory0x0/parserc as @parserc
 
 // Values
+fn get_attrbute(XMLElement, String) -> String?
+
+fn get_children(XMLElement) -> Array[XMLChildren]
+
+fn get_element_by_name(XMLDocument, String) -> Array[XMLElement]
+
+fn get_text(XMLElement) -> String
+
 fn pEntityRef() -> @parserc.Parser[Char, String]
 
-fn pEntityRef_with_ctx() -> @parserc.Parser[Char, (String, XMLParserContext)]
+fn pEntityRef_with_ctx() -> @parserc.Parser[Char, (String?, XMLParserContext)]
 
 fn pattribute() -> @parserc.Parser[Char, (String, String)]
 
-fn pattribute_with_ctx() -> @parserc.Parser[Char, ((String, String), XMLParserContext)]
+fn pattribute_with_ctx() -> @parserc.Parser[Char, ((String, String)?, XMLParserContext)]
 
 fn pattributes() -> @parserc.Parser[Char, Map[String, String]]
 
-fn pattributes_with_ctx() -> @parserc.Parser[Char, (Map[String, String], XMLParserContext)]
+fn pattributes_with_ctx() -> @parserc.Parser[Char, (Map[String, String]?, XMLParserContext)]
 
 fn pcdata() -> @parserc.Parser[Char, String]
 
-fn pcdata_with_ctx() -> @parserc.Parser[Char, (String, XMLParserContext)]
+fn pcdata_with_ctx() -> @parserc.Parser[Char, (String?, XMLParserContext)]
 
 fn pcharRef() -> @parserc.Parser[Char, String]
 
-fn pcharRef_with_ctx() -> @parserc.Parser[Char, (String, XMLParserContext)]
+fn pcharRef_with_ctx() -> @parserc.Parser[Char, (String?, XMLParserContext)]
 
 fn pcomment() -> @parserc.Parser[Char, String]
 
-fn pcomment_with_ctx() -> @parserc.Parser[Char, (String, XMLParserContext)]
+fn pcomment_with_ctx() -> @parserc.Parser[Char, (String?, XMLParserContext)]
 
 fn pdtd() -> @parserc.Parser[Char, DocTypeDecl]
 
-fn pdtd_with_ctx() -> @parserc.Parser[Char, (String, XMLParserContext)]
+fn pdtd_with_ctx() -> @parserc.Parser[Char, (String?, XMLParserContext)]
 
 fn pelement() -> @parserc.Parser[Char, XMLElement]
 
-fn pelement_with_ctx() -> @parserc.Parser[Char, (XMLElement, XMLParserContext)]
+fn pelement_with_ctx() -> @parserc.Parser[Char, (XMLElement?, XMLParserContext)]
 
 fn pname() -> @parserc.Parser[Char, String]
 
-fn pname_with_ctx() -> @parserc.Parser[Char, (String, XMLParserContext)]
+fn pname_with_ctx() -> @parserc.Parser[Char, (String?, XMLParserContext)]
 
 fn ppi() -> @parserc.Parser[Char, String]
 
 fn ppiTarget() -> @parserc.Parser[Char, String]
 
-fn ppi_with_ctx() -> @parserc.Parser[Char, (String, XMLParserContext)]
+fn ppi_with_ctx() -> @parserc.Parser[Char, (String?, XMLParserContext)]
 
 fn pprolog() -> @parserc.Parser[Char, Map[String, String]]
 
-fn pprolog_with_ctx() -> @parserc.Parser[Char, (Map[String, String], XMLParserContext)]
+fn pprolog_with_ctx() -> @parserc.Parser[Char, (Map[String, String]?, XMLParserContext)]
 
 fn preference() -> @parserc.Parser[Char, String]
 
-fn preference_with_ctx() -> @parserc.Parser[Char, (String, XMLParserContext)]
+fn preference_with_ctx() -> @parserc.Parser[Char, (String?, XMLParserContext)]
 
 fn ptext() -> @parserc.Parser[Char, String]
 
-fn ptext_with_ctx() -> @parserc.Parser[Char, (String, XMLParserContext)]
+fn ptext_with_ctx() -> @parserc.Parser[Char, (String?, XMLParserContext)]
 
 fn pwhite_space() -> @parserc.Parser[Char, String]
 
-fn pwhite_space_with_ctx() -> @parserc.Parser[Char, (String, XMLParserContext)]
+fn pwhite_space_with_ctx() -> @parserc.Parser[Char, (String?, XMLParserContext)]
 
 fn pxml() -> @parserc.Parser[Char, XMLDocument]
 
-fn pxml_with_ctx() -> @parserc.Parser[Char, (XMLDocument, XMLParserContext)]
+fn pxml_with_ctx() -> @parserc.Parser[Char, (XMLDocument?, XMLParserContext)]
 
 fn xml_from_iter(Iter[Char]) -> XMLDocument?
 
@@ -155,6 +163,11 @@ pub(all) enum ExternalID {
 }
 impl Show for ExternalID
 
+pub(all) struct GetElementVisitor {
+  name : String
+  elements : Array[XMLElement]
+}
+
 pub(all) struct Location {
   index : Int
   line : Int
@@ -216,6 +229,9 @@ pub(all) struct XMLDocument {
   dtd : DocTypeDecl?
   root : XMLElement
 }
+impl XMLDocument {
+  get_element_by_name(Self, String) -> Array[XMLElement]
+}
 impl Show for XMLDocument
 
 pub(all) struct XMLElement {
@@ -223,6 +239,11 @@ pub(all) struct XMLElement {
   empty_element : Bool
   attributes : Map[String, String]
   children : Array[XMLChildren]
+}
+impl XMLElement {
+  get_attrbute(Self, String) -> String?
+  get_children(Self) -> Array[XMLChildren]
+  get_text(Self) -> String
 }
 impl Show for XMLElement
 
@@ -243,11 +264,25 @@ pub(all) struct XMLParseError {
 }
 impl Show for XMLParseError
 
-type XMLParserContext
+pub struct XMLParserContext {
+  input_array : Array[Char]
+  index : Int
+  line_number : Int
+  column_number : Int
+  errors : Array[XMLParseError]
+  warnings : Array[String]
+}
 impl Show for XMLParserContext
 
 // Type aliases
 pub typealias ChildrenContentSpec = ContentParticle
 
 // Traits
+pub(open) trait XMLNode {
+  accept(Self, &XMLVisitor) -> Unit
+}
+
+pub(open) trait XMLVisitor {
+  visit(Self, XMLElement) -> Unit
+}
 
