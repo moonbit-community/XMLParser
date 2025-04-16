@@ -24,12 +24,20 @@ pub struct XMLParserContext {
 //   self.errors.push(error)
 // }
 
-pub fn XMLParserContext::raise_error(self: XMLParserContext, error: XMLParseError) -> Unit {
+///|
+pub fn XMLParserContext::raise_error(
+  self : XMLParserContext,
+  error : XMLParseError
+) -> Unit {
   self.errors.push(error)
 }
 
-pub fn XMLParserContext::merge(self : XMLParserContext, child : XMLParserContext) -> Unit {
-    let input_array = self.input_array
+///|
+pub fn XMLParserContext::merge(
+  self : XMLParserContext,
+  child : XMLParserContext
+) -> Unit {
+  let input_array = self.input_array
   input_array.append(child.input_array)
   let index = self.index + child.index
   let errors = self.errors
@@ -49,6 +57,7 @@ pub fn XMLParserContext::merge(self : XMLParserContext, child : XMLParserContext
     errors,
     warnings,
   }
+
 }
 
 ///|

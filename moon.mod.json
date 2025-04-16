@@ -1,6 +1,6 @@
 {
   "name": "ruifeng/XMLParser",
-  "version": "0.2.2",
+  "version": "0.2.4",
   "deps": {
     "moonbitlang/quickcheck": "0.8.7",
     "moonbitlang/x": "0.4.23"

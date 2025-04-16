@@ -80,10 +80,12 @@ pub fn Seq::peek_char(self : Seq[Char], n : Int) -> String? {
   }
 }
 
+///|
 pub fn Seq::to_array[T](self : Seq[T]) -> Array[T] {
   self._.iter().to_array()
 }
 
+///|
 pub fn Seq::to_iter[T](self : Seq[T]) -> Iter[T] {
   self._.iter()
 }

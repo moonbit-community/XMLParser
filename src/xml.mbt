@@ -413,7 +413,8 @@ pub impl Show for NotationDecl with output(self, logger) {
   logger.write_string("<!NOTATION \{self.name} \{self.id}>")
 }
 
-pub fn XMLParseError::is_fatal(self: XMLParseError) -> Bool {
+///|
+pub fn XMLParseError::is_fatal(self : XMLParseError) -> Bool {
   match self.kind {
     SyntaxError => true
     ValidationError => true

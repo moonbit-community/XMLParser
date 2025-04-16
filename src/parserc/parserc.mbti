@@ -1,6 +1,8 @@
-package illusory0x0/parserc
+package "ruifeng/XMLParser/parserc"
 
-alias @moonbitlang/core/immut/list as @list
+import(
+  "moonbitlang/core/immut/list"
+)
 
 // Values
 fn length[T](Seq[T]) -> Int
@@ -54,7 +56,7 @@ impl Parser {
   run[Token, Value](Self[Token, Value], Seq[Token]) -> (Value, Seq[Token])?
 }
 
-pub type Seq[T] () -> (T, Seq[T])?
+pub type Seq[T] ArrayView[T]
 impl Seq {
   default[T]() -> Self[T]
   from_array[T](ArrayView[T]) -> Self[T]
@@ -63,7 +65,10 @@ impl Seq {
   is_empty[T](Self[T]) -> Bool
   length[T](Self[T]) -> Int
   map[T1, T2](Self[T1], (T1) -> T2) -> Self[T2]
-  new[T](() -> (T, Self[T])?) -> Self[T]
+  new[T](ArrayView[T]) -> Self[T]
+  peek_char(Self[Char], Int) -> String?
+  to_array[T](Self[T]) -> Array[T]
+  to_iter[T](Self[T]) -> Iter[T]
   uncons[T](Self[T]) -> (T, Self[T])?
 }
 impl[T : Show] Show for Seq[T]

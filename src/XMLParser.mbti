@@ -1,6 +1,8 @@
-package ruifeng/XMLParser
+package "ruifeng/XMLParser"
 
-alias @illusory0x0/parserc as @parserc
+import(
+  "ruifeng/XMLParser/parserc"
+)
 
 // Values
 fn get_attrbute(XMLElement, String) -> String?
@@ -34,6 +36,8 @@ fn pcharRef_with_ctx() -> @parserc.Parser[Char, (String?, XMLParserContext)]
 fn pcomment() -> @parserc.Parser[Char, String]
 
 fn pcomment_with_ctx() -> @parserc.Parser[Char, (String?, XMLParserContext)]
+
+fn pconst[Token, A](A) -> XMLParser[Token, A]
 
 fn pdtd() -> @parserc.Parser[Char, DocTypeDecl]
 
@@ -169,9 +173,9 @@ pub(all) struct GetElementVisitor {
 }
 
 pub(all) struct Location {
-  index : Int
-  line : Int
-  column : Int
+  mut index : Int
+  mut line : Int
+  mut column : Int
   length : Int
 }
 impl Show for Location
@@ -262,15 +266,36 @@ pub(all) struct XMLParseError {
   message : String
   location : Location
 }
+impl XMLParseError {
+  is_fatal(Self) -> Bool
+}
 impl Show for XMLParseError
+
+pub(all) type XMLParser[Token, Value] (@parserc.Seq[Token], XMLParserContext) -> ((Value, @parserc.Seq[Token])?, XMLParseError?, XMLParserContext)
+impl XMLParser {
+  and_then[Token, A, B](Self[Token, A], Self[Token, B]) -> Self[Token, (A, B)]
+  from_ref[Token, A](Ref[Self[Token, A]]) -> Self[Token, A]
+  map[Token, A, B](Self[Token, A], (A) -> B) -> Self[Token, B]
+  new[Token, Value]((@parserc.Seq[Token], XMLParserContext) -> ((Value, @parserc.Seq[Token])?, XMLParseError?, XMLParserContext)) -> Self[Token, Value]
+  omit_first[Token, A, B](Self[Token, (A, B)]) -> Self[Token, B]
+  omit_second[Token, A, B](Self[Token, (A, B)]) -> Self[Token, A]
+  optional[Token, A](Self[Token, A]) -> Self[Token, A?]
+  or_else[Token, A](Self[Token, A], Self[Token, A]) -> Self[Token, A]
+  repeat_with_sep[Token, A, B](Self[Token, A], Self[Token, B]) -> Self[Token, Array[A]]
+  run[Token, Value](Self[Token, Value], @parserc.Seq[Token], XMLParserContext) -> ((Value, @parserc.Seq[Token])?, XMLParseError?, XMLParserContext)
+}
 
 pub struct XMLParserContext {
   input_array : Array[Char]
   index : Int
-  line_number : Int
-  column_number : Int
+  mut line_number : Int
+  mut column_number : Int
   errors : Array[XMLParseError]
   warnings : Array[String]
+}
+impl XMLParserContext {
+  merge(Self, Self) -> Unit
+  raise_error(Self, XMLParseError) -> Unit
 }
 impl Show for XMLParserContext
 
