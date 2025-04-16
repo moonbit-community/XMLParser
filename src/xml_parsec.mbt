@@ -1,5 +1,5 @@
 ///| 接收Seq[Token]和XMLParserContext，返回((Value, Seq[Token])?, XMLParseError, XMLParserContext)
-/// 这里我们考虑单个Parser最多产生一个Error，同时Paser可能在遇到错误后继续解析（例如dtd检查不通过时）。
+/// 这里我们考虑单个Parser最多产生一个Error，同时Parser可能在遇到错误后继续解析（例如dtd检查不通过时）。
 /// XMLParser需要在遇到格式错误时立刻停止解析。
 pub(all) type XMLParser[Token, Value] (Seq[Token], XMLParserContext) -> (
   (Value, Seq[Token])?,

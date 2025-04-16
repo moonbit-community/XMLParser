@@ -5,7 +5,7 @@ import(
 )
 
 // Values
-fn get_attrbute(XMLElement, String) -> String?
+fn get_attribute(XMLElement, String) -> String?
 
 fn get_children(XMLElement) -> Array[XMLChildren]
 
@@ -245,7 +245,7 @@ pub(all) struct XMLElement {
   children : Array[XMLChildren]
 }
 impl XMLElement {
-  get_attrbute(Self, String) -> String?
+  get_attribute(Self, String) -> String?
   get_children(Self) -> Array[XMLChildren]
   get_text(Self) -> String
 }
