@@ -1,8 +1,8 @@
 ///|
-typealias @combinator.Parser[Token, Value]
+typealias @combinator.Parser
 
 ///|
-typealias @combinator.Seq[T]
+typealias @combinator.Seq
 
 ///|
 pub(all) struct XMLDocument {

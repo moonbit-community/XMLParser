@@ -3,12 +3,11 @@ typealias Context[T] = (T?, XMLParserContext)
 
 ///| 在解析时只维护index, line_number和column_number暂时只在最后更新
 pub struct XMLParserContext {
-  ///|
+  ///
   input_array : Array[Char]
-  ///| the current position in the input sequence(start from 0)
+  /// the current position in the input sequence(start from 0)
   index : Int
-
-  ///|
+  ///
   mut line_number : Int
   mut column_number : Int
   errors : Array[XMLParseError]
