@@ -48,7 +48,7 @@ pub fn get_element_by_name(
 // 获取属性
 ///|
 pub fn get_attribute(self : XMLElement, attr : String) -> String? {
-  self.attributes[attr]
+  self.attributes.get(attr)
 }
 
 // 获取文本
