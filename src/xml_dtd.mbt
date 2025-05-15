@@ -218,28 +218,28 @@ test "EnitytDecl" {
     #|specification.">
   let seq = Seq::from_string(str)
   let parser = pentityDecl()
-  let result = parser.parse(seq).unwrap().0
+  let result = parser.run(seq).unwrap().0
   inspect!(result, content=str)
   let str =
     #|<!ENTITY open-hatch
     #|         SYSTEM "http://www.textuality.com/boilerplate/OpenHatch.xml">
   let seq = Seq::from_string(str)
   let parser = pentityDecl()
-  let _result = parser.parse(seq).unwrap().0
+  let _result = parser.run(seq).unwrap().0
   let str =
     #|<!ENTITY open-hatch
     #|         PUBLIC "-//Textuality//TEXT Standard open-hatch boilerplate//EN"
     #|         "http://www.textuality.com/boilerplate/OpenHatch.xml">
   let seq = Seq::from_string(str)
   let parser = pentityDecl()
-  let _result = parser.parse(seq).unwrap().0
+  let _result = parser.run(seq).unwrap().0
   let str =
     #|<!ENTITY hatch-pic
     #|         SYSTEM "../grafix/OpenHatch.gif"
     #|         NDATA gif >
   let seq = Seq::from_string(str)
   let parser = pentityDecl()
-  let _result = parser.parse(seq).unwrap().0
+  let _result = parser.run(seq).unwrap().0
 
 }
 
@@ -398,74 +398,74 @@ test "ElementDecl" {
     #|<!ELEMENT br EMPTY>
   let seq = Seq::from_string(str)
   let parser = pelementDecl()
-  let result = parser.parse(seq).unwrap().0
+  let result = parser.run(seq).unwrap().0
   inspect!(result, content=str)
   inspect!(result.name, content="br")
   let str =
     #|<!ELEMENT p (#PCDATA|emph)*>
   let seq = Seq::from_string(str)
   let parser = pelementDecl()
-  let result = parser.parse(seq).unwrap().0
+  let result = parser.run(seq).unwrap().0
   inspect!(result, content=str)
 
   // let str = #|<!ELEMENT %name.para; %content.para; >
   // let seq = Seq::from_string(str)
-  // let result = parser.parse(seq).unwrap().0
+  // let result = parser.run(seq).unwrap().0
   // println(result)
 
   let str =
     #|<!ELEMENT container ANY>
   let seq = Seq::from_string(str)
   let parser = pelementDecl()
-  let result = parser.parse(seq).unwrap().0
+  let result = parser.run(seq).unwrap().0
   inspect!(result, content=str)
   let str =
     #|<!ELEMENT spec (front, body, back?)>
   let seq = Seq::from_string(str)
   let parser = pelementDecl()
-  let result = parser.parse(seq).unwrap().0
+  let result = parser.run(seq).unwrap().0
   inspect!(result.name, content="spec")
   inspect!(result, content=str)
   let str =
     #|<!ELEMENT div1 (head, (p | list | note)*, div2*)>
   let seq = Seq::from_string(str)
   let parser = pelementDecl()
-  let result = parser.parse(seq).unwrap().0
+  let result = parser.run(seq).unwrap().0
   inspect!(result.name, content="div1")
   inspect!(result, content=str)
 
   // let str = #|<!ELEMENT dictionary-body (%div.mix; | %dict.mix;)*>
   // let seq = Seq::from_string(str)
   // let parser = pelementDecl()
-  // let result = parser.parse(seq).unwrap().0
+  // let result = parser.run(seq).unwrap().0
   // println(result)
 
   let str =
     #|<!ELEMENT p (#PCDATA|a|ul|b|i|em)*>
   let seq = Seq::from_string(str)
   let parser = pelementDecl()
-  let result = parser.parse(seq).unwrap().0
+  let result = parser.run(seq).unwrap().0
   inspect!(result.name, content="p")
   inspect!(result, content=str)
 
   // let str = #|<!ELEMENT p (#PCDATA | %font; | %phrase; | %special; | %form;)* >
   // let seq = Seq::from_string(str)
   // let parser = pelementDecl()
-  // let result = parser.parse(seq).unwrap().0
+  // let result = parser.run(seq).unwrap().0
   // println(result)
 
   let str =
     #|<!ELEMENT b (#PCDATA)>
   let seq = Seq::from_string(str)
   let parser = pelementDecl()
-  let result = parser.parse(seq).unwrap().0
+  let result = parser.run(seq).unwrap().0
   inspect!(result.name, content="b")
   inspect!(result, content=str)
 
   // let str = #|<!ELEMENT p (#PCDATA | %font; | %phrase; | %special; | %form;)* >
   // let seq = Seq::from_string(str)
   // let parser = pelementDecl()
-  // let result = parser.parse(seq).unwrap().0
+  // let result = parser.run(seq).unwrap().0
   // println(result)
 }
 
@@ -593,35 +593,35 @@ test "attListDecl" {
   let str =
     #|<!ATTLIST doc a1 NMTOKENS #IMPLIED>
   let seq = Seq::from_string(str)
-  let result = parser.parse(seq).unwrap()
+  let result = parser.run(seq).unwrap()
   let str =
     #|<!ATTLIST termdef
     #|      id      ID      #REQUIRED
     #|      name    CDATA   #IMPLIED>
   let seq = Seq::from_string(str)
-  let result = parser.parse(seq).unwrap().0
+  let result = parser.run(seq).unwrap().0
   inspect!(result.name, content="termdef")
   let str =
     #|<!ATTLIST list
     #|      type    (bullets|ordered|glossary)  "ordered">
   let seq = Seq::from_string(str)
-  let result = parser.parse(seq).unwrap().0
+  let result = parser.run(seq).unwrap().0
   inspect!(result.name, content="list")
   let str =
     #|<!ATTLIST form
     #|      method  CDATA   #FIXED "POST">
   let seq = Seq::from_string(str)
-  let result = parser.parse(seq).unwrap().0
+  let result = parser.run(seq).unwrap().0
   inspect!(result.name, content="form")
   let str =
     #|<!ATTLIST poem  xml:space (default|preserve) 'preserve'>
   let seq = Seq::from_string(str)
-  let result = parser.parse(seq).unwrap().0
+  let result = parser.run(seq).unwrap().0
   inspect!(result.name, content="poem")
   let str =
     #|<!ATTLIST pre xml:space (preserve) #FIXED 'preserve'>
   let seq = Seq::from_string(str)
-  let result = parser.parse(seq).unwrap().0
+  let result = parser.run(seq).unwrap().0
   inspect!(result.name, content="pre")
 }
 
@@ -656,13 +656,13 @@ test "NotationDecl" {
     #|<!NOTATION GIF PUBLIC "-//Compuserve//DTD GIF 89a//EN">
   let seq = Seq::from_string(str)
   let parser = pnotationDecl()
-  let result = parser.parse(seq).unwrap().0
+  let result = parser.run(seq).unwrap().0
   inspect!(result, content=str)
   let str =
     #|<!NOTATION JPEG SYSTEM "image_viewer.exe">
   let seq = Seq::from_string(str)
   let parser = pnotationDecl()
-  let result = parser.parse(seq).unwrap().0
+  let result = parser.run(seq).unwrap().0
   inspect!(result, content=str)
 }
 
