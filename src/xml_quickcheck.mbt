@@ -100,7 +100,7 @@ impl @quickcheck.Arbitrary for XMLChildren with arbitrary(size, rs) {
   }
 
   fn is_comment(s : String) -> Bool {
-    not(s.ends_with("-")) && not(s.contains("-->"))
+    not(s.has_suffix("-")) && not(s.contains("-->"))
   }
 
   let childGen : Gen[XMLChildren] = @qc.one_of([

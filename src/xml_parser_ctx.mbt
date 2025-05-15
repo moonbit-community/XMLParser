@@ -695,9 +695,9 @@ pub fn pxml_with_ctx() -> Parser[Char, Context[XMLDocument]] {
         }
         let ctx = ctx |> merge_context(ctx_ws_2) |> merge_context(ctx_element)
         let xml = {
-          version: map["version"].or("1.0"),
-          encoding: map["encoding"].or("UTF-8"),
-          standalone: match map["standalone"] {
+          version: map.get("version").or("1.0"),
+          encoding: map.get("encoding").or("UTF-8"),
+          standalone: match map.get("standalone") {
             Some("yes") => true
             _ => false
           },
