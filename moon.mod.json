@@ -8,7 +8,7 @@
   "readme": "README.md",
   "repository": "https://github.com/moonbit-community/XMLParser",
   "license": "Apache-2.0",
-  "keywords": [],
-  "description": "",
+  "keywords": ["XML","parser"],
+  "description": "An XML parsing library written in MoonBit that converts XML strings into structured data, supporting elements, attributes, comments, CDATA, and processing instructions.",
   "source": "src"
 }
