@@ -5,21 +5,19 @@ import(
 )
 
 // Values
-fn length[T](Seq[T]) -> Int
+fn[Token, A, B, C] lift2((A, B) -> C) -> (Parser[Token, A], Parser[Token, B]) -> Parser[Token, C]
 
-fn lift2[Token, A, B, C]((A, B) -> C) -> (Parser[Token, A], Parser[Token, B]) -> Parser[Token, C]
-
-fn one_of[A : Show](Array[A]) -> Parser[Char, A]
+fn[A : Show] one_of(Array[A]) -> Parser[Char, A]
 
 fn pchar(Char) -> Parser[Char, Char]
 
 fn pchar_such_that((Char) -> Bool) -> Parser[Char, Char]
 
-fn pconst[Token, A](A) -> Parser[Token, A]
+fn[Token, A] pconst(A) -> Parser[Token, A]
 
 let pdigit : Parser[Char, Int]
 
-fn pfail[Token, A]() -> Parser[Token, A]
+fn[Token, A] pfail() -> Parser[Token, A]
 
 let pint : Parser[Char, Int]
 
@@ -27,50 +25,48 @@ let pint64 : Parser[Char, Int64]
 
 fn pstring(String) -> Parser[Char, String]
 
-fn pvalue[Token, Value]((Token) -> Value?) -> Parser[Token, Value]
+fn[Token, Value] pvalue((Token) -> Value?) -> Parser[Token, Value]
 
-fn sequence[Token, A](Array[Parser[Token, A]]) -> Parser[Token, Array[A]]
+fn[Token, A] sequence(Array[Parser[Token, A]]) -> Parser[Token, Array[A]]
 
 // Types and methods
 pub type Parser[Token, Value] (Seq[Token]) -> (Value, Seq[Token])?
-impl Parser {
-  and_then[Token, A, B](Self[Token, A], Self[Token, B]) -> Self[Token, (A, B)]
-  apply[Token, A, B](Self[Token, A], Self[Token, (A) -> B]) -> Self[Token, B]
-  between[Token, A, B](Self[Token, A], Self[Token, B]) -> Self[Token, A]
-  from_ref[Token, A](Ref[Self[Token, A]]) -> Self[Token, A]
-  map[Token, A, B](Self[Token, A], (A) -> B) -> Self[Token, B]
-  new[Token, Value]((Seq[Token]) -> (Value, Seq[Token])?) -> Self[Token, Value]
-  omit_first[Token, A, B](Self[Token, (A, B)]) -> Self[Token, B]
-  omit_second[Token, A, B](Self[Token, (A, B)]) -> Self[Token, A]
-  optional[Token, A](Self[Token, A]) -> Self[Token, A?]
-  or_else[Token, A](Self[Token, A], Self[Token, A]) -> Self[Token, A]
-  or_others[Token, A](Self[Token, A], ArrayView[Self[Token, A]]) -> Self[Token, A]
-  #deprecated
-  parse[Token, Value](Self[Token, Value], Seq[Token]) -> (Value, Seq[Token])?
-  repeat[Token, A](Self[Token, A]) -> Self[Token, Array[A]]
-  repeat_0_to_n[Token, A](Self[Token, A], Int) -> Self[Token, Array[A]]
-  repeat_0_to_n_with_sep[Token, A, B](Self[Token, A], Int, Self[Token, B]) -> Self[Token, Array[A]]
-  repeat_n[Token, A](Self[Token, A], Int) -> Self[Token, Array[A]]
-  repeat_n_with_sep[Token, A, B](Self[Token, A], Int, Self[Token, B]) -> Self[Token, Array[A]]
-  repeat_with_sep[Token, A, B](Self[Token, A], Self[Token, B]) -> Self[Token, Array[A]]
-  run[Token, Value](Self[Token, Value], Seq[Token]) -> (Value, Seq[Token])?
-}
+fn[Token, A, B] Parser::and_then(Self[Token, A], Self[Token, B]) -> Self[Token, (A, B)]
+fn[Token, A, B] Parser::apply(Self[Token, A], Self[Token, (A) -> B]) -> Self[Token, B]
+fn[Token, A, B] Parser::between(Self[Token, A], Self[Token, B]) -> Self[Token, A]
+fn[Token, A] Parser::from_ref(Ref[Self[Token, A]]) -> Self[Token, A]
+fn[Token, Value] Parser::inner(Self[Token, Value]) -> (Seq[Token]) -> (Value, Seq[Token])?
+fn[Token, A, B] Parser::map(Self[Token, A], (A) -> B) -> Self[Token, B]
+fn[Token, Value] Parser::new((Seq[Token]) -> (Value, Seq[Token])?) -> Self[Token, Value]
+fn[Token, A, B] Parser::omit_first(Self[Token, (A, B)]) -> Self[Token, B]
+fn[Token, A, B] Parser::omit_second(Self[Token, (A, B)]) -> Self[Token, A]
+fn[Token, A] Parser::optional(Self[Token, A]) -> Self[Token, A?]
+fn[Token, A] Parser::or_else(Self[Token, A], Self[Token, A]) -> Self[Token, A]
+fn[Token, A] Parser::or_others(Self[Token, A], ArrayView[Self[Token, A]]) -> Self[Token, A]
+#deprecated
+fn[Token, Value] Parser::parse(Self[Token, Value], Seq[Token]) -> (Value, Seq[Token])?
+fn[Token, A] Parser::repeat(Self[Token, A]) -> Self[Token, Array[A]]
+fn[Token, A] Parser::repeat_0_to_n(Self[Token, A], Int) -> Self[Token, Array[A]]
+fn[Token, A, B] Parser::repeat_0_to_n_with_sep(Self[Token, A], Int, Self[Token, B]) -> Self[Token, Array[A]]
+fn[Token, A] Parser::repeat_n(Self[Token, A], Int) -> Self[Token, Array[A]]
+fn[Token, A, B] Parser::repeat_n_with_sep(Self[Token, A], Int, Self[Token, B]) -> Self[Token, Array[A]]
+fn[Token, A, B] Parser::repeat_with_sep(Self[Token, A], Self[Token, B]) -> Self[Token, Array[A]]
+fn[Token, Value] Parser::run(Self[Token, Value], Seq[Token]) -> (Value, Seq[Token])?
 
 pub type Seq[T] ArrayView[T]
-impl Seq {
-  default[T]() -> Self[T]
-  from_array[T](ArrayView[T]) -> Self[T]
-  from_list[T](@list.T[T]) -> Self[T]
-  from_string(String) -> Self[Char]
-  is_empty[T](Self[T]) -> Bool
-  length[T](Self[T]) -> Int
-  map[T1, T2](Self[T1], (T1) -> T2) -> Self[T2]
-  new[T](ArrayView[T]) -> Self[T]
-  peek_char(Self[Char], Int) -> String?
-  to_array[T](Self[T]) -> Array[T]
-  to_iter[T](Self[T]) -> Iter[T]
-  uncons[T](Self[T]) -> (T, Self[T])?
-}
+fn[T] Seq::default() -> Self[T]
+fn[T] Seq::from_array(ArrayView[T]) -> Self[T]
+fn[T] Seq::from_list(@list.T[T]) -> Self[T]
+fn Seq::from_string(String) -> Self[Char]
+fn[T] Seq::inner(Self[T]) -> ArrayView[T]
+fn[T] Seq::is_empty(Self[T]) -> Bool
+fn[T] Seq::length(Self[T]) -> Int
+fn[T1, T2] Seq::map(Self[T1], (T1) -> T2) -> Self[T2]
+fn[T] Seq::new(ArrayView[T]) -> Self[T]
+fn Seq::peek_char(Self[Char], Int) -> String?
+fn[T] Seq::to_array(Self[T]) -> Array[T]
+fn[T] Seq::to_iter(Self[T]) -> Iter[T]
+fn[T] Seq::uncons(Self[T]) -> (T, Self[T])?
 impl[T : Show] Show for Seq[T]
 
 // Type aliases
