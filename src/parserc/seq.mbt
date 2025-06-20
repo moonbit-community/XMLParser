@@ -1,15 +1,15 @@
 ///|
-pub fn Seq::new[T](view : ArrayView[T]) -> Seq[T] {
+pub fn[T] Seq::new(view : ArrayView[T]) -> Seq[T] {
   view
 }
 
 ///| Checks if the sequence is empty
-pub fn Seq::is_empty[T](self : Seq[T]) -> Bool {
-  self._.length() == 0
+pub fn[T] Seq::is_empty(self : Seq[T]) -> Bool {
+  self.inner().length() == 0
 }
 
 ///|
-pub fn Seq::default[T]() -> Seq[T] {
+pub fn[T] Seq::default() -> Seq[T] {
   [][:]
 }
 
@@ -18,11 +18,11 @@ pub fn Seq::default[T]() -> Seq[T] {
 /// If `self` is empty, then `seq.uncons()` is `None`  
 /// Else is `Some(hd, tl)` where `hd` is the head of the sequence
 /// and `tl` is the tail
-pub fn Seq::uncons[T](self : Seq[T]) -> (T, Seq[T])? {
+pub fn[T] Seq::uncons(self : Seq[T]) -> (T, Seq[T])? {
   if self.is_empty() {
     None
   } else {
-    let view = self._
+    let view = self.inner()
     Some((view[0], view[1:]))
   }
 }
@@ -30,12 +30,12 @@ pub fn Seq::uncons[T](self : Seq[T]) -> (T, Seq[T])? {
 ///| Map the sequence
 ///
 /// If the sequence is x0, x1, ... then `seq.map(f)` is f(x0), f(x1), ...
-pub fn Seq::map[T1, T2](seq : Seq[T1], f : (T1) -> T2) -> Seq[T2] {
-  seq._.map(f)[:]
+pub fn[T1, T2] Seq::map(seq : Seq[T1], f : (T1) -> T2) -> Seq[T2] {
+  seq.inner().map(f)[:]
 }
 
 ///| Construct a sequence from list
-pub fn Seq::from_list[T](list : @immut/list.T[T]) -> Seq[T] {
+pub fn[T] Seq::from_list(list : @immut/list.T[T]) -> Seq[T] {
   list.to_array()[:]
 }
 
@@ -62,41 +62,41 @@ pub fn Seq::from_string(str : String) -> Seq[Char] {
 }
 
 ///| Construct a sequence from array
-pub fn Seq::from_array[T](array : ArrayView[T]) -> Seq[T] {
+pub fn[T] Seq::from_array(array : ArrayView[T]) -> Seq[T] {
   array
 }
 
 ///|
-pub fn length[T](self : Seq[T]) -> Int {
-  self._.length()
+pub fn[T] length(self : Seq[T]) -> Int {
+  self.inner().length()
 }
 
 ///| Look forward `n` characters
 pub fn Seq::peek_char(self : Seq[Char], n : Int) -> String? {
   if self.length() >= n {
-    Some(self._[:n].fold(init="", fn(s, c) { s + c.to_string() }))
+    Some(self.inner()[:n].fold(init="", fn(s, c) { s + c.to_string() }))
   } else {
     None
   }
 }
 
 ///|
-pub fn Seq::to_array[T](self : Seq[T]) -> Array[T] {
-  self._.iter().to_array()
+pub fn[T] Seq::to_array(self : Seq[T]) -> Array[T] {
+  self.inner().iter().to_array()
 }
 
 ///|
-pub fn Seq::to_iter[T](self : Seq[T]) -> Iter[T] {
-  self._.iter()
+pub fn[T] Seq::to_iter(self : Seq[T]) -> Iter[T] {
+  self.inner().iter()
 }
 
 ///|
 pub impl[T : Show] Show for Seq[T] with to_string(self) {
-  self._.map(Show::to_string).join("")
+  self.inner().map(Show::to_string).join("")
 }
 
 ///|
 pub impl[T : Show] Show for Seq[T] with output(self, log) {
-  self._.each(fn(t) { t.output(log) })
+  self.inner().each(fn(t) { t.output(log) })
   return
 }
