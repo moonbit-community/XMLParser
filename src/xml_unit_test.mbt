@@ -40,16 +40,14 @@ fn is_valid(s : String) -> Bool {
 
 ///|
 test "xmlconf valid sa" {
-  let files = @fs.read_dir!("resource/xmlconf/xmltest/valid/sa").filter(
-    is_valid,
-  )
+  let files = @fs.read_dir("resource/xmlconf/xmltest/valid/sa").filter(is_valid)
   let mut cnt = 0
   for file in files {
     if file.has_suffix(".xml") {
-      let str = @fs.read_file_to_string!(
+      let str = @fs.read_file_to_string(
         "resource/xmlconf/xmltest/valid/sa/" + file,
       )
-      let bytes = @fs.read_file_to_bytes!(
+      let bytes = @fs.read_file_to_bytes(
         "resource/xmlconf/xmltest/valid/sa/" + file,
       )
       let result = xml_from_string(str)
@@ -68,7 +66,7 @@ test "xmlconf valid sa" {
     }
   }
   println("passed: \{cnt}/\{files.length()}")
-  inspect!(cnt, content=files.length().to_string())
+  inspect(cnt, content=files.length().to_string())
 }
 
 // ///|

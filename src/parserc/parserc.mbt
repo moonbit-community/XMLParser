@@ -1,5 +1,5 @@
 ///|
-pub fn Parser::new[Token, Value](
+pub fn[Token, Value] Parser::new(
   f : (Seq[Token]) -> (Value, Seq[Token])?
 ) -> Parser[Token, Value] {
   Parser(f)
@@ -7,33 +7,33 @@ pub fn Parser::new[Token, Value](
 
 ///|
 #deprecated("use `Parser::run` instead")
-pub fn Parser::parse[Token, Value](
+pub fn[Token, Value] Parser::parse(
   self : Parser[Token, Value],
   sequence : Seq[Token]
 ) -> (Value, Seq[Token])? {
-  (self._)(sequence)
+  self.inner()(sequence)
 }
 
 ///| Parses a sequence of tokens
 ///
 /// If the parsing succeeds, `Some(result, rest)` is returned  
 /// Otherwise, `None` is returned.
-pub fn Parser::run[Token, Value](
+pub fn[Token, Value] Parser::run(
   self : Parser[Token, Value],
   sequence : Seq[Token]
 ) -> (Value, Seq[Token])? {
-  (self._)(sequence)
+  self.inner()(sequence)
 }
 
 ///|
-pub fn lift2[Token, A, B, C](
+pub fn[Token, A, B, C] lift2(
   f : (A, B) -> C
 ) -> (Parser[Token, A], Parser[Token, B]) -> Parser[Token, C] {
   fn(pa, pb) { pa.apply(pb.apply(pconst(fn(b) { fn(a) { f(a, b) } }))) }
 }
 
 ///|
-pub fn sequence[Token, A](
+pub fn[Token, A] sequence(
   parsers : Array[Parser[Token, A]]
 ) -> Parser[Token, Array[A]] {
   Parser(fn(tokens) {
@@ -58,7 +58,7 @@ pub fn sequence[Token, A](
 }
 
 ///|
-pub fn Parser::and_then[Token, A, B](
+pub fn[Token, A, B] Parser::and_then(
   self : Parser[Token, A],
   other : Parser[Token, B]
 ) -> Parser[Token, (A, B)] {
@@ -76,7 +76,7 @@ pub fn Parser::and_then[Token, A, B](
 }
 
 ///|
-pub fn Parser::or_else[Token, A](
+pub fn[Token, A] Parser::or_else(
   self : Parser[Token, A],
   other : Parser[Token, A]
 ) -> Parser[Token, A] {
@@ -89,7 +89,7 @@ pub fn Parser::or_else[Token, A](
 }
 
 ///|
-pub fn Parser::or_others[Token, A](
+pub fn[Token, A] Parser::or_others(
   self : Parser[Token, A],
   others : ArrayView[Parser[Token, A]]
 ) -> Parser[Token, A] {
@@ -100,7 +100,7 @@ pub fn Parser::or_others[Token, A](
 }
 
 ///|
-pub fn Parser::map[Token, A, B](
+pub fn[Token, A, B] Parser::map(
   self : Parser[Token, A],
   f : (A) -> B
 ) -> Parser[Token, B] {
@@ -114,7 +114,7 @@ pub fn Parser::map[Token, A, B](
 }
 
 ///|
-pub fn Parser::apply[Token, A, B](
+pub fn[Token, A, B] Parser::apply(
   self : Parser[Token, A],
   f : Parser[Token, (A) -> B]
 ) -> Parser[Token, B] {
@@ -122,7 +122,7 @@ pub fn Parser::apply[Token, A, B](
 }
 
 ///|
-pub fn Parser::repeat_n[Token, A](
+pub fn[Token, A] Parser::repeat_n(
   self : Parser[Token, A],
   n : Int
 ) -> Parser[Token, Array[A]] {
@@ -130,7 +130,7 @@ pub fn Parser::repeat_n[Token, A](
 }
 
 ///|
-pub fn Parser::repeat_n_with_sep[Token, A, B](
+pub fn[Token, A, B] Parser::repeat_n_with_sep(
   self : Parser[Token, A],
   n : Int,
   sep : Parser[Token, B]
@@ -164,7 +164,7 @@ pub fn Parser::repeat_n_with_sep[Token, A, B](
 }
 
 ///|
-pub fn Parser::repeat_0_to_n[Token, A](
+pub fn[Token, A] Parser::repeat_0_to_n(
   self : Parser[Token, A],
   n : Int
 ) -> Parser[Token, Array[A]] {
@@ -172,7 +172,7 @@ pub fn Parser::repeat_0_to_n[Token, A](
 }
 
 ///|
-pub fn Parser::repeat_0_to_n_with_sep[Token, A, B](
+pub fn[Token, A, B] Parser::repeat_0_to_n_with_sep(
   self : Parser[Token, A],
   n : Int,
   separator : Parser[Token, B]
@@ -206,14 +206,14 @@ pub fn Parser::repeat_0_to_n_with_sep[Token, A, B](
 }
 
 ///|
-pub fn Parser::repeat[Token, A](
+pub fn[Token, A] Parser::repeat(
   self : Parser[Token, A]
 ) -> Parser[Token, Array[A]] {
   self.repeat_with_sep(pconst(()))
 }
 
 ///|
-pub fn Parser::repeat_with_sep[Token, A, B](
+pub fn[Token, A, B] Parser::repeat_with_sep(
   self : Parser[Token, A],
   separator : Parser[Token, B]
 ) -> Parser[Token, Array[A]] {
@@ -240,26 +240,26 @@ pub fn Parser::repeat_with_sep[Token, A, B](
 }
 
 ///|
-pub fn Parser::optional[Token, A](self : Parser[Token, A]) -> Parser[Token, A?] {
+pub fn[Token, A] Parser::optional(self : Parser[Token, A]) -> Parser[Token, A?] {
   self.map(@option.some).or_else(pconst(Option::None))
 }
 
 ///|
-pub fn Parser::omit_first[Token, A, B](
+pub fn[Token, A, B] Parser::omit_first(
   parser : Parser[Token, (A, B)]
 ) -> Parser[Token, B] {
   parser.map(fn(pair) { pair.1 })
 }
 
 ///|
-pub fn Parser::omit_second[Token, A, B](
+pub fn[Token, A, B] Parser::omit_second(
   parser : Parser[Token, (A, B)]
 ) -> Parser[Token, A] {
   parser.map(fn(pair) { pair.0 })
 }
 
 ///|
-pub fn Parser::between[Token, A, B](
+pub fn[Token, A, B] Parser::between(
   self : Parser[Token, A],
   around : Parser[Token, B]
 ) -> Parser[Token, A] {
@@ -267,14 +267,14 @@ pub fn Parser::between[Token, A, B](
 }
 
 ///|
-pub fn Parser::from_ref[Token, A](
+pub fn[Token, A] Parser::from_ref(
   self : Ref[Parser[Token, A]]
 ) -> Parser[Token, A] {
   Parser(fn(str) { self.val.run(str) })
 }
 
 ///|
-pub fn one_of[A : Show](array : Array[A]) -> Parser[Char, A] {
+pub fn[A : Show] one_of(array : Array[A]) -> Parser[Char, A] {
   array.rev_fold(
     fn(p, i) { pstring(i.to_string()).map(fn(_str) { i }).or_else(p) },
     init=pfail(),

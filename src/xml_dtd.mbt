@@ -219,7 +219,7 @@ test "EnitytDecl" {
   let seq = Seq::from_string(str)
   let parser = pentityDecl()
   let result = parser.run(seq).unwrap().0
-  inspect!(result, content=str)
+  inspect(result, content=str)
   let str =
     #|<!ENTITY open-hatch
     #|         SYSTEM "http://www.textuality.com/boilerplate/OpenHatch.xml">
@@ -399,14 +399,14 @@ test "ElementDecl" {
   let seq = Seq::from_string(str)
   let parser = pelementDecl()
   let result = parser.run(seq).unwrap().0
-  inspect!(result, content=str)
-  inspect!(result.name, content="br")
+  inspect(result, content=str)
+  inspect(result.name, content="br")
   let str =
     #|<!ELEMENT p (#PCDATA|emph)*>
   let seq = Seq::from_string(str)
   let parser = pelementDecl()
   let result = parser.run(seq).unwrap().0
-  inspect!(result, content=str)
+  inspect(result, content=str)
 
   // let str = #|<!ELEMENT %name.para; %content.para; >
   // let seq = Seq::from_string(str)
@@ -418,21 +418,21 @@ test "ElementDecl" {
   let seq = Seq::from_string(str)
   let parser = pelementDecl()
   let result = parser.run(seq).unwrap().0
-  inspect!(result, content=str)
+  inspect(result, content=str)
   let str =
     #|<!ELEMENT spec (front, body, back?)>
   let seq = Seq::from_string(str)
   let parser = pelementDecl()
   let result = parser.run(seq).unwrap().0
-  inspect!(result.name, content="spec")
-  inspect!(result, content=str)
+  inspect(result.name, content="spec")
+  inspect(result, content=str)
   let str =
     #|<!ELEMENT div1 (head, (p | list | note)*, div2*)>
   let seq = Seq::from_string(str)
   let parser = pelementDecl()
   let result = parser.run(seq).unwrap().0
-  inspect!(result.name, content="div1")
-  inspect!(result, content=str)
+  inspect(result.name, content="div1")
+  inspect(result, content=str)
 
   // let str = #|<!ELEMENT dictionary-body (%div.mix; | %dict.mix;)*>
   // let seq = Seq::from_string(str)
@@ -445,8 +445,8 @@ test "ElementDecl" {
   let seq = Seq::from_string(str)
   let parser = pelementDecl()
   let result = parser.run(seq).unwrap().0
-  inspect!(result.name, content="p")
-  inspect!(result, content=str)
+  inspect(result.name, content="p")
+  inspect(result, content=str)
 
   // let str = #|<!ELEMENT p (#PCDATA | %font; | %phrase; | %special; | %form;)* >
   // let seq = Seq::from_string(str)
@@ -459,8 +459,8 @@ test "ElementDecl" {
   let seq = Seq::from_string(str)
   let parser = pelementDecl()
   let result = parser.run(seq).unwrap().0
-  inspect!(result.name, content="b")
-  inspect!(result, content=str)
+  inspect(result.name, content="b")
+  inspect(result, content=str)
 
   // let str = #|<!ELEMENT p (#PCDATA | %font; | %phrase; | %special; | %form;)* >
   // let seq = Seq::from_string(str)
@@ -600,29 +600,29 @@ test "attListDecl" {
     #|      name    CDATA   #IMPLIED>
   let seq = Seq::from_string(str)
   let result = parser.run(seq).unwrap().0
-  inspect!(result.name, content="termdef")
+  inspect(result.name, content="termdef")
   let str =
     #|<!ATTLIST list
     #|      type    (bullets|ordered|glossary)  "ordered">
   let seq = Seq::from_string(str)
   let result = parser.run(seq).unwrap().0
-  inspect!(result.name, content="list")
+  inspect(result.name, content="list")
   let str =
     #|<!ATTLIST form
     #|      method  CDATA   #FIXED "POST">
   let seq = Seq::from_string(str)
   let result = parser.run(seq).unwrap().0
-  inspect!(result.name, content="form")
+  inspect(result.name, content="form")
   let str =
     #|<!ATTLIST poem  xml:space (default|preserve) 'preserve'>
   let seq = Seq::from_string(str)
   let result = parser.run(seq).unwrap().0
-  inspect!(result.name, content="poem")
+  inspect(result.name, content="poem")
   let str =
     #|<!ATTLIST pre xml:space (preserve) #FIXED 'preserve'>
   let seq = Seq::from_string(str)
   let result = parser.run(seq).unwrap().0
-  inspect!(result.name, content="pre")
+  inspect(result.name, content="pre")
 }
 
 ///|
@@ -657,13 +657,13 @@ test "NotationDecl" {
   let seq = Seq::from_string(str)
   let parser = pnotationDecl()
   let result = parser.run(seq).unwrap().0
-  inspect!(result, content=str)
+  inspect(result, content=str)
   let str =
     #|<!NOTATION JPEG SYSTEM "image_viewer.exe">
   let seq = Seq::from_string(str)
   let parser = pnotationDecl()
   let result = parser.run(seq).unwrap().0
-  inspect!(result, content=str)
+  inspect(result, content=str)
 }
 
 ///|

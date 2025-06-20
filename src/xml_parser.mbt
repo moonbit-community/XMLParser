@@ -150,6 +150,7 @@ pub fn ptext() -> Parser[Char, String] {
 }
 
 // 解析 XML 标签名
+
 ///|
 /// Parses an XML name according to the XML 1.0 specification. An XML name must
 /// start with a name start character (letter, underscore, or colon) followed by
@@ -190,32 +191,32 @@ test "pname/valid_name" {
   // Boundary case: Valid XML name with minimum length
   let result = pname().run(Seq::from_string("a"))
   println("result is " + result.to_string())
-  inspect!(result, content="Some((\"a\", ))")
+  inspect(result, content="Some((\"a\", ))")
 
   // Boundary case: Valid XML name with typical characters
   let result = pname().run(Seq::from_string("root"))
-  inspect!(result, content="Some((\"root\", ))")
+  inspect(result, content="Some((\"root\", ))")
 
   // Boundary case: Valid XML name with mixed characters
   let result = pname().run(Seq::from_string("xml:Root123"))
-  inspect!(result, content="Some((\"xml:Root123\", ))")
+  inspect(result, content="Some((\"xml:Root123\", ))")
 
   // Boundary case: Valid XML name with extended characters
   let result = pname().run(Seq::from_string("🐇"))
-  inspect!(result, content="Some((\"🐇\", ))")
+  inspect(result, content="Some((\"🐇\", ))")
 }
 
 ///|
 test "panic pname/invalid_name" {
   // Boundary case: Invalid XML name with invalid start character
   let result = pname().run(Seq::from_string("1invalid"))
-  inspect!(result, content="None")
+  inspect(result, content="None")
 
   // Boundary case: Invalid XML name with invalid character in the name
   let result = pname().run(Seq::from_string("root%"))
-  inspect!(result, content="None")
+  inspect(result, content="None")
   let result = pname().run(Seq::from_string("\u{FFFFF}"))
-  inspect!(result, content="None")
+  inspect(result, content="None")
 }
 
 ///|
@@ -242,6 +243,7 @@ fn pattValue() -> Parser[Char, String] {
 }
 
 // 解析 XML 属性
+
 ///|
 /// Parses an XML attribute, which consists of a name followed by an equals sign
 /// and a quoted string value.
@@ -285,27 +287,27 @@ pub fn pattribute() -> Parser[Char, (String, String)] {
 test "pattribute/valid" {
   // Basic valid attribute
   let result = pattribute().run(Seq::from_string("name=\"1234567890\""))
-  inspect!(result, content="Some(((\"name\", \"1234567890\"), ))")
+  inspect(result, content="Some(((\"name\", \"1234567890\"), ))")
   // Single quotes
   let result2 = pattribute().run(Seq::from_string("name='value'"))
-  inspect!(result2, content="Some(((\"name\", \"value\"), ))")
+  inspect(result2, content="Some(((\"name\", \"value\"), ))")
 }
 
 ///|
 test "pattribute/invalid_format" {
   // Missing quotes around value
   let result = pattribute().run(Seq::from_string("name=value"))
-  inspect!(result, content="None")
+  inspect(result, content="None")
 
   // Missing equals sign
   let result2 = pattribute().run(Seq::from_string("name\"value\""))
-  inspect!(result2, content="None")
+  inspect(result2, content="None")
 
   // quotes not matching
   let result3 = pattribute().run(Seq::from_string("name=\"value'"))
-  inspect!(result3, content="None")
+  inspect(result3, content="None")
   let result4 = pattribute().run(Seq::from_string("name='value\""))
-  inspect!(result4, content="None")
+  inspect(result4, content="None")
 }
 
 ///|
@@ -346,7 +348,7 @@ pub fn pattributes() -> Parser[Char, Map[String, String]] {
 test "pattributes/empty" {
   // Test case for empty attributes
   let result = pattributes().run(Seq::from_string(""))
-  inspect!(result, content="Some(({}, ))")
+  inspect(result, content="Some(({}, ))")
 }
 
 ///|
@@ -354,8 +356,8 @@ test "pattributes/single" {
   // Test case for single attribute
   let result = pattributes().run(Seq::from_string(" name=\"value\""))
   let map = result.unwrap().0
-  inspect!(map.size(), content="1")
-  inspect!(map.get("name"), content="Some(\"value\")")
+  inspect(map.size(), content="1")
+  inspect(map.get("name"), content="Some(\"value\")")
 }
 
 ///|
@@ -365,15 +367,15 @@ test "pattributes/single" {
     Seq::from_string(" name=\"value\" lang=\"en\""),
   )
   let map = result.unwrap().0
-  inspect!(map.size(), content="2")
-  inspect!(map.get("name"), content="Some(\"value\")")
+  inspect(map.size(), content="2")
+  inspect(map.get("name"), content="Some(\"value\")")
 }
 
 ///|
 test "panic pattributes/invalid_format" {
   // Test case for invalid attribute format
   let result = pattributes().run(Seq::from_string("name=value"))
-  inspect!(result, content="None")
+  inspect(result, content="None")
 }
 
 ///|
@@ -400,6 +402,7 @@ fn trim_text(text : String) -> (String, String, String) {
 }
 
 // 解析 XML 元素
+
 ///|
 /// Parses an XML element, which can be either an empty element (e.g., `<br/>`)
 /// or an element with content (e.g., `<div>...</div>`). The parser handles
@@ -529,7 +532,7 @@ pub fn pelement() -> Parser[Char, XMLElement] {
 test "pelement/empty" {
   // Test empty element with no attributes
   let result = pelement().run(Seq::from_string("<br/>"))
-  inspect!(result, content="Some((XMLElement: <br/>, ))")
+  inspect(result, content="Some((XMLElement: <br/>, ))")
   // Test empty element with multiple attributes and special characters
   let result2 = pelement().run(
     Seq::from_string(
@@ -537,14 +540,14 @@ test "pelement/empty" {
     ),
   )
   let element = result2.unwrap().0
-  inspect!(element.name, content="meta")
-  inspect!(element.attributes.get("name"), content="Some(\"description\")")
-  inspect!(
+  inspect(element.name, content="meta")
+  inspect(element.attributes.get("name"), content="Some(\"description\")")
+  inspect(
     element.attributes.get("content"),
     content="Some(\"Test &and; Demo\")",
   )
-  inspect!(element.attributes.get("charset"), content="Some(\"UTF-8\")")
-  inspect!(element.children.length(), content="0")
+  inspect(element.attributes.get("charset"), content="Some(\"UTF-8\")")
+  inspect(element.children.length(), content="0")
 }
 
 ///|
@@ -568,8 +571,8 @@ test "pelement/complex" {
   let result = pelement().run(@combinator.Seq::from_string(xml))
   let element = result.unwrap().0
   // Check root element
-  inspect!(element.name, content="root")
-  inspect!(element.attributes.get("id"), content="Some(\"main\")")
+  inspect(element.name, content="root")
+  inspect(element.attributes.get("id"), content="Some(\"main\")")
 }
 
 ///|
@@ -744,7 +747,7 @@ pub fn ppi() -> Parser[Char, String] {
 test "pcomment/empty" {
   // Empty comment
   let result = pcomment().run(Seq::from_string("<!---->"))
-  inspect!(result, content="Some((\"\", ))")
+  inspect(result, content="Some((\"\", ))")
 }
 
 ///|
@@ -753,7 +756,7 @@ test "pcomment/with_content" {
   let result = pcomment().run(
     Seq::from_string("<!-- This is a comment with <tags> and &symbols& -->"),
   )
-  inspect!(
+  inspect(
     result,
     content="Some((\" This is a comment with <tags> and &symbols& \", ))",
   )
@@ -763,11 +766,11 @@ test "pcomment/with_content" {
 test "pcomment/invalid" {
   // Incomplete comment
   let result = pcomment().run(Seq::from_string("<!--"))
-  inspect!(result, content="None")
+  inspect(result, content="None")
 
   // Missing opening sequence
   let result2 = pcomment().run(Seq::from_string("Comment -->"))
-  inspect!(result2, content="None")
+  inspect(result2, content="None")
 }
 
 ///|
@@ -907,7 +910,7 @@ test "pprolog/valid_prolog_with_spaces" {
       "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\" ?>",
     ),
   )
-  inspect!(
+  inspect(
     result,
     content="Some(({\"version\": \"1.0\", \"encoding\": \"UTF-8\", \"standalone\": \"yes\"}, ))",
   )
@@ -916,7 +919,7 @@ test "pprolog/valid_prolog_with_spaces" {
 ///|
 test "pprolog/minimal_valid_prolog" {
   let result = pprolog().run(Seq::from_string("<?xml ?>"))
-  inspect!(result, content="Some(({}, ))")
+  inspect(result, content="Some(({}, ))")
 }
 
 ///|
@@ -1049,13 +1052,13 @@ test "pxml/complex_nested" {
   let doc = result.unwrap().0
 
   // Check basic document properties
-  inspect!(doc.version, content="1.0")
-  inspect!(doc.encoding, content="UTF-8")
-  inspect!(doc.standalone, content="false")
+  inspect(doc.version, content="1.0")
+  inspect(doc.encoding, content="UTF-8")
+  inspect(doc.standalone, content="false")
 
   // Check root element
-  inspect!(doc.root.name, content="root")
-  inspect!(doc.root.attributes.get("id"), content="Some(\"main\")")
+  inspect(doc.root.name, content="root")
+  inspect(doc.root.attributes.get("id"), content="Some(\"main\")")
 }
 
 ///|
@@ -1079,11 +1082,11 @@ test "pxml/mixed_content" {
     #|
   let result = pxml().run(Seq::from_string(xml))
   let doc = result.unwrap().0
-  inspect!(doc.version, content="1.0")
-  inspect!(doc.root.name, content="root")
+  inspect(doc.version, content="1.0")
+  inspect(doc.root.name, content="root")
 
   // Check that root has children
-  inspect!(doc.root.children.is_empty(), content="false")
+  inspect(doc.root.children.is_empty(), content="false")
 }
 
 ///|
@@ -1091,11 +1094,11 @@ test "pxml/basic_xml_no_attributes" {
   let xml = "<root></root>"
   let result = pxml().run(Seq::from_string(xml))
   let document = result.unwrap().0
-  inspect!(document.version, content="1.0")
-  inspect!(document.encoding, content="UTF-8")
-  inspect!(document.standalone, content="false")
-  inspect!(document.root.name, content="root")
-  inspect!(document.root.attributes.size(), content="0")
+  inspect(document.version, content="1.0")
+  inspect(document.encoding, content="UTF-8")
+  inspect(document.standalone, content="false")
+  inspect(document.root.name, content="root")
+  inspect(document.root.attributes.size(), content="0")
 }
 
 ///|
@@ -1103,13 +1106,13 @@ test "pxml/basic_xml_with_attributes" {
   let xml = "<?xml version=\"1.1\" encoding=\"ISO-8859-1\" standalone=\"yes\"?><root attr1=\"value1\" attr2=\"value2\"></root>"
   let result = pxml().run(Seq::from_string(xml))
   let document = result.unwrap().0
-  inspect!(document.version, content="1.1")
-  inspect!(document.encoding, content="ISO-8859-1")
-  inspect!(document.standalone, content="true")
-  inspect!(document.root.name, content="root")
-  inspect!(document.root.attributes.size(), content="2")
-  inspect!(document.root.attributes.get("attr1"), content="Some(\"value1\")")
-  inspect!(document.root.attributes.get("attr2"), content="Some(\"value2\")")
+  inspect(document.version, content="1.1")
+  inspect(document.encoding, content="ISO-8859-1")
+  inspect(document.standalone, content="true")
+  inspect(document.root.name, content="root")
+  inspect(document.root.attributes.size(), content="2")
+  inspect(document.root.attributes.get("attr1"), content="Some(\"value1\")")
+  inspect(document.root.attributes.get("attr2"), content="Some(\"value2\")")
 }
 
 ///|
