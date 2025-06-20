@@ -59,7 +59,6 @@ jobs:
       - name: Set ulimit and run moon test
         if: ${{ matrix.os != 'windows-latest' }}
         run: |
-          ulimit -s 8176
           moon test --target all
           moon test --release --target all
           moon test --target native
