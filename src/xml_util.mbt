@@ -46,12 +46,14 @@ pub fn get_element_by_name(
 }
 
 // 获取属性
+
 ///|
 pub fn get_attribute(self : XMLElement, attr : String) -> String? {
   self.attributes.get(attr)
 }
 
 // 获取文本
+
 ///|
 pub fn get_text(self : XMLElement) -> String {
   self.children.fold(init="", fn(str, child) {
@@ -63,6 +65,7 @@ pub fn get_text(self : XMLElement) -> String {
 }
 
 // 遍历子元素
+
 ///|
 pub fn get_children(self : XMLElement) -> Array[XMLChildren] {
   self.children

@@ -1,5 +1,5 @@
 ///|
-typealias Context[T] = (T?, XMLParserContext)
+typealias (T?, XMLParserContext) as Context[T]
 
 ///| 在解析时只维护index, line_number和column_number暂时只在最后更新
 pub struct XMLParserContext {
@@ -72,6 +72,7 @@ fn new_context(s : String) -> XMLParserContext {
 }
 
 // 更新位置信息
+
 ///|
 fn update_location(
   ctx : XMLParserContext,
@@ -132,6 +133,7 @@ fn merge_context(
 }
 
 // 添加错误处理函数
+
 ///|
 fn raise_error(
   ctx : XMLParserContext,
@@ -149,8 +151,9 @@ fn raise_error(
 }
 
 // 解析结果类型
+
 ///|
-fn bind_error[T](
+fn[T] bind_error(
   parser : Parser[Char, Context[T]],
   error : XMLParseError
 ) -> Parser[Char, Context[T]] {

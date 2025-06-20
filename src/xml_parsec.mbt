@@ -8,37 +8,33 @@ pub(all) type XMLParser[Token, Value] (Seq[Token], XMLParserContext) -> (
 )
 
 ///|
-typealias XMLParserResult[Token, Value] = (
-  (Value, Seq[Token])?,
-  XMLParseError?,
-  XMLParserContext,
-)
+typealias ((Value, Seq[Token])?, XMLParseError?, XMLParserContext) as XMLParserResult[Token, Value]
 
 ///|
-pub fn XMLParser::new[Token, Value](
+pub fn[Token, Value] XMLParser::new(
   f : (Seq[Token], XMLParserContext) -> XMLParserResult[Token, Value]
 ) -> XMLParser[Token, Value] {
   f
 }
 
 ///|
-pub fn XMLParser::run[Token, Value](
+pub fn[Token, Value] XMLParser::run(
   self : XMLParser[Token, Value],
   seq : Seq[Token],
   ctx : XMLParserContext
 ) -> XMLParserResult[Token, Value] {
-  match (self._)(seq, ctx) {
+  match self.inner()(seq, ctx) {
     (pair, Some(err), ctx) => {
       ctx.raise_error(err)
       (pair, Some(err), ctx)
     }
     tuple => tuple
   }
-  // (self._)(seq, ctx)
+  // self.inner()(seq, ctx)
 }
 
 ///|
-pub fn XMLParser::and_then[Token, A, B](
+pub fn[Token, A, B] XMLParser::and_then(
   self : XMLParser[Token, A],
   other : XMLParser[Token, B]
 ) -> XMLParser[Token, (A, B)] {
@@ -67,7 +63,7 @@ pub fn XMLParser::and_then[Token, A, B](
 }
 
 ///|
-pub fn XMLParser::or_else[Token, A](
+pub fn[Token, A] XMLParser::or_else(
   self : XMLParser[Token, A],
   other : XMLParser[Token, A]
 ) -> XMLParser[Token, A] {
@@ -88,7 +84,7 @@ pub fn XMLParser::or_else[Token, A](
 }
 
 ///|
-pub fn XMLParser::map[Token, A, B](
+pub fn[Token, A, B] XMLParser::map(
   self : XMLParser[Token, A],
   f : (A) -> B
 ) -> XMLParser[Token, B] {
@@ -101,7 +97,7 @@ pub fn XMLParser::map[Token, A, B](
 }
 
 ///|
-pub fn XMLParser::repeat_with_sep[Token, A, B](
+pub fn[Token, A, B] XMLParser::repeat_with_sep(
   self : XMLParser[Token, A],
   sep : XMLParser[Token, B]
 ) -> XMLParser[Token, Array[A]] {
@@ -137,35 +133,35 @@ pub fn XMLParser::repeat_with_sep[Token, A, B](
 }
 
 ///|
-pub fn XMLParser::optional[Token, A](
+pub fn[Token, A] XMLParser::optional(
   self : XMLParser[Token, A]
 ) -> XMLParser[Token, A?] {
   self.map(@option.some).or_else(pconst(Option::None))
 }
 
 ///|
-pub fn XMLParser::omit_first[Token, A, B](
+pub fn[Token, A, B] XMLParser::omit_first(
   self : XMLParser[Token, (A, B)]
 ) -> XMLParser[Token, B] {
   self.map(fn(pair) { pair.1 })
 }
 
 ///|
-pub fn XMLParser::omit_second[Token, A, B](
+pub fn[Token, A, B] XMLParser::omit_second(
   self : XMLParser[Token, (A, B)]
 ) -> XMLParser[Token, A] {
   self.map(fn(pair) { pair.0 })
 }
 
 ///|
-pub fn XMLParser::from_ref[Token, A](
+pub fn[Token, A] XMLParser::from_ref(
   self : Ref[XMLParser[Token, A]]
 ) -> XMLParser[Token, A] {
   fn(tokens : Seq[Token], ctx : XMLParserContext) { self.val.run(tokens, ctx) }
 }
 
 ///|
-pub fn pconst[Token, A](a : A) -> XMLParser[Token, A] {
+pub fn[Token, A] pconst(a : A) -> XMLParser[Token, A] {
   fn(tokens : Seq[Token], ctx : XMLParserContext) {
     (Some((a, tokens)), None, ctx)
   }

@@ -2,7 +2,7 @@
 ///
 /// The predicate should return `Some(value)` if the tokens fulfills
 /// or `None` otherwise
-pub fn pvalue[Token, Value](
+pub fn[Token, Value] pvalue(
   predicate : (Token) -> Value?
 ) -> Parser[Token, Value] {
   Parser(fn(seq) {
@@ -19,16 +19,17 @@ pub fn pvalue[Token, Value](
 }
 
 ///| Parser that always fail
-pub fn pfail[Token, A]() -> Parser[Token, A] {
+pub fn[Token, A] pfail() -> Parser[Token, A] {
   Parser(fn(_tokens) { None })
 }
 
 ///| Parser that always succeed with given value
-pub fn pconst[Token, A](a : A) -> Parser[Token, A] {
+pub fn[Token, A] pconst(a : A) -> Parser[Token, A] {
   Parser(fn(tokens) { Some((a, tokens)) })
 }
 
 // String specific parsers
+
 ///|
 pub fn pchar_such_that(predicate : (Char) -> Bool) -> Parser[Char, Char] {
   pvalue(fn { char => @option.when(predicate(char), fn() { char }) })
