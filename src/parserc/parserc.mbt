@@ -44,11 +44,10 @@ pub fn[Token, A] sequence(
         Some(ts) =>
           tokens = parser
             .run(ts)
-            .map(fn {
-              (hd, tl) => {
-                result.push(hd)
-                tl
-              }
+            .map(fn(tuple) {
+              let (hd, tl) = tuple
+              result.push(hd)
+              tl
             })
         None => ()
       }

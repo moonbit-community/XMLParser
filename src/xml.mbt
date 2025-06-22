@@ -48,12 +48,7 @@ pub impl Show for DocTypeDecl with output(self, logger) {
   let subset_str = match self.intSubset {
     None => ""
     Some(arr) =>
-      " [" +
-      @string.concat(
-        arr.map(fn(statement) { statement.to_string() }),
-        separator="",
-      ) +
-      "]"
+      " [" + arr.map(fn(statement) { statement.to_string() }).join("") + "]"
   }
   logger.write_string("<!DOCTYPE \{self.name}\{external_id_str}\{subset_str}>")
 }
@@ -119,7 +114,7 @@ pub impl Show for ContentSpec with output(self, logger) {
     EMPTY => logger.write_string("EMPTY")
     ANY => logger.write_string("ANY")
     Mixed(arr) => {
-      let str = @string.concat(arr, separator="|")
+      let str = arr.join("|")
       if arr.length() > 0 {
         logger.write_string("(#PCDATA|\{str})*")
       } else {
@@ -172,17 +167,11 @@ pub impl Show for SingleContentParticle with output(self, logger) {
   match self {
     Name(s) => logger.write_string(s)
     Seq(arr) => {
-      let str = @string.concat(
-        arr.iter().map(fn(p) { p.to_string() }).collect(),
-        separator=", ",
-      )
+      let str = arr.map(fn(p) { p.to_string() }).join(", ")
       logger.write_string("(\{str})")
     }
     Choice(arr) => {
-      let str = @string.concat(
-        arr.iter().map(fn(p) { p.to_string() }).collect(),
-        separator=" | ",
-      )
+      let str = arr.map(fn(p) { p.to_string() }).join(" | ")
       logger.write_string("(\{str})")
     }
   }
@@ -196,8 +185,7 @@ pub(all) struct AttlistDecl {
 
 ///|
 pub impl Show for AttlistDecl with output(self, logger) {
-  let att_arr = self.att_defs.iter().map(fn(att) { att.to_string() }).collect()
-  let att_str = @string.concat(att_arr, separator="")
+  let att_str = self.att_defs.map(fn(att) { att.to_string() }).join("")
   logger.write_string("<!ATTLIST \{self.name}\{att_str}>")
 }
 
@@ -245,11 +233,11 @@ pub impl Show for AttType with output(self, logger) {
     StringType(_) => logger.write_string("CDATA")
     TokenizedType(s) => logger.write_string(s)
     NotationType(s) => {
-      let str = @string.concat(s, separator=" | ")
+      let str = s.join(" | ")
       logger.write_string("NOTATION (\{str})")
     }
     Enumeration(s) => {
-      let str = @string.concat(s, separator=" | ")
+      let str = s.join(" | ")
       logger.write_string("(\{str})")
     }
   }
@@ -339,19 +327,16 @@ pub impl Show for XMLElement with output(self, logger) {
 
 ///|
 pub impl Show for XMLElement with to_string(self) {
-  let attributes = @string.concat(
-    self.attributes.iter().map(fn(kv) { "\{kv.0}=\"\{kv.1}\"" }).collect(),
-    separator=" ",
-  )
+  let attributes = self.attributes
+    .iter()
+    .map(kv => "\{kv.0}=\"\{kv.1}\"")
+    .join(" ")
   if self.empty_element {
     return "<\{self.name}" +
       (if attributes.length() == 0 { "" } else { " " }) +
       "\{attributes}/>"
   }
-  let children = @string.concat(
-    self.children.iter().map(fn(c) { c.to_string() }).collect(),
-    separator="",
-  )
+  let children = self.children.map(c => c.to_string()).join("")
   "<\{self.name} \{attributes}>\{children}</\{self.name}>"
 }
 

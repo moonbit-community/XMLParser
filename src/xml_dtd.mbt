@@ -6,7 +6,7 @@ fn pnmtokens() -> Parser[Char, String] {
   .and_then(
     @combinator.pchar_such_that(is_name_char)
     .repeat()
-    .map(fn { arr => arr.fold(init="", fn { str, c => str + c.to_string() }) }),
+    .map(arr => arr.fold(init="", (str, c) => str + c.to_string())),
   )
   .map(fn(tuple) {
     let (c, str) = tuple
@@ -48,22 +48,28 @@ fn ppubidLiteral() -> Parser[Char, String] {
 
   let single_quote = @combinator.pchar('\'')
     .and_then(
-      @combinator.pchar_such_that(fn { c => is_pubid_char(c) && c != '\'' })
+      @combinator.pchar_such_that(c => is_pubid_char(c) && c != '\'')
       .repeat()
-      .map(fn { arr => arr.fold(init="", fn { str, c => str + c.to_string() }) }),
+      .map(arr => arr.fold(init="", (str, c) => str + c.to_string())),
     )
     .and_then(@combinator.pchar('\''))
     .omit_second()
-    .map(fn { (quote, str) => quote.to_string() + str + quote.to_string() })
+    .map(fn(tuple) {
+      let (quote, str) = tuple
+      quote.to_string() + str + quote.to_string()
+    })
   let double_quote = @combinator.pchar('"')
     .and_then(
-      @combinator.pchar_such_that(fn { c => is_pubid_char(c) })
+      @combinator.pchar_such_that(c => is_pubid_char(c))
       .repeat()
-      .map(fn { arr => arr.fold(init="", fn { str, c => str + c.to_string() }) }),
+      .map(arr => arr.fold(init="", (str, c) => str + c.to_string())),
     )
     .and_then(@combinator.pchar('"'))
     .omit_second()
-    .map(fn { (quote, str) => quote.to_string() + str + quote.to_string() })
+    .map(fn(tuple) {
+      let (quote, str) = tuple
+      quote.to_string() + str + quote.to_string()
+    })
   single_quote.or_else(double_quote)
 }
 
@@ -76,7 +82,7 @@ fn psystemLiteral() -> Parser[Char, String] {
     .omit_second()
     .map(fn(tuple) {
       let (quote, arr) = tuple
-      arr.fold(init=quote.to_string(), fn { str, c => str + c.to_string() }) +
+      arr.fold(init=quote.to_string(), (str, c) => str + c.to_string()) +
       quote.to_string()
     })
   }
@@ -89,7 +95,10 @@ fn pPEReference() -> Parser[Char, String] {
   @combinator.pchar('%')
   .and_then(pname())
   .and_then(@combinator.pchar(';'))
-  .map(fn { ((_and, name), _semicolon) => "&" + name + ";" })
+  .map(fn(tuple) {
+    let ((_and, name), _semicolon) = tuple
+    "&" + name + ";"
+  })
 }
 
 ///|
@@ -106,8 +115,7 @@ fn pentityValue() -> Parser[Char, String] {
     .and_then(@combinator.pchar(quote))
     .map(fn(tuple) {
       let ((_, arr), _) = tuple
-      arr.fold(init=quote.to_string(), fn { str, c => str + c }) +
-      quote.to_string()
+      arr.fold(init=quote.to_string(), (str, c) => str + c) + quote.to_string()
     })
   }
 
@@ -297,9 +305,7 @@ fn pelementDecl() -> Parser[Char, ElementDecl] {
     .or_else(choice.map(fn(arr) { Choice(arr) }))
     .or_else(seq.map(fn(arr) { Seq(arr) }))
     .and_then(
-      @combinator.pchar_such_that(fn {
-        ch => ch == '*' || ch == '+' || ch == '?'
-      }).optional(),
+      @combinator.pchar_such_that(ch => ch == '*' || ch == '+' || ch == '?').optional(),
     )
     .map(fn(tuple) {
       let (cp, ch) = tuple
@@ -317,9 +323,7 @@ fn pelementDecl() -> Parser[Char, ElementDecl] {
     .map(fn(arr) { Choice(arr) })
     .or_else(seq.map(fn(arr) { Seq(arr) }))
     .and_then(
-      @combinator.pchar_such_that(fn {
-        ch => ch == '*' || ch == '+' || ch == '?'
-      }).optional(),
+      @combinator.pchar_such_that(ch => ch == '*' || ch == '+' || ch == '?').optional(),
     )
     .map(fn(tuple) {
       let (cp, ch) = tuple

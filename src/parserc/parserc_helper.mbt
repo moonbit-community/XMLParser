@@ -32,7 +32,7 @@ pub fn[Token, A] pconst(a : A) -> Parser[Token, A] {
 
 ///|
 pub fn pchar_such_that(predicate : (Char) -> Bool) -> Parser[Char, Char] {
-  pvalue(fn { char => @option.when(predicate(char), fn() { char }) })
+  pvalue(char => @option.when(predicate(char), () => char))
 }
 
 ///|
@@ -72,8 +72,8 @@ pub let pint64 : Parser[Char, Int64] = pdigits.map(fn(tuple) {
 ///| parser that tries to match the given string
 pub fn pstring(string : String) -> Parser[Char, String] {
   Parser(fn(seq) {
-    let iter = loop seq, Seq::from_string(string) {
-      iter, input => {
+    let iter = loop (seq, Seq::from_string(string)) {
+      (iter, input) => {
         if not(input.is_empty()) {
           let (target, rest_target) = match input.uncons() {
             None => return None
@@ -86,7 +86,7 @@ pub fn pstring(string : String) -> Parser[Char, String] {
           if target != char {
             return None
           }
-          continue rest, rest_target
+          continue (rest, rest_target)
         }
         break iter
       }
@@ -107,7 +107,7 @@ let pdigits : Parser[Char, (Char?, (Int, Array[Int]))] = pchar('-')
     pchar('0')
     .map(fn(_ch) { (0, []) })
     .or_else(
-      pvalue(fn {
+      pvalue(x => match x {
         '1' | '2' | '3' | '4' | '5' | '6' | '7' | '8' | '9' as char =>
           Some(char.to_int() - 0x30)
         _ => None

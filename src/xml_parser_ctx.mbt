@@ -74,11 +74,9 @@ fn new_context(s : String) -> XMLParserContext {
 // 更新位置信息
 
 ///|
-fn update_location(
-  ctx : XMLParserContext,
-  start~ : Int = 0,
-  end~ : Int = ctx.index
-) -> XMLParserContext {
+fn update_location(ctx : XMLParserContext) -> XMLParserContext {
+  let start = 0
+  let end = ctx.index
   let text = ctx.input_array[start:end]
   ctx.line_number = 1
   ctx.column_number = 0
@@ -306,9 +304,7 @@ pub fn pattributes_with_ctx() -> Parser[Char, Context[Map[String, String]]] {
 
 ///|
 pub fn pelement_with_ctx() -> Parser[Char, Context[XMLElement]] {
-  let element_ref : Ref[Parser[Char, Context[XMLElement]]] = {
-    val: fn { _ => None },
-  }
+  let element_ref : Ref[Parser[Char, Context[XMLElement]]] = { val: _ => None }
   fn pcontent_with_ctx() -> Parser[Char, Context[Array[XMLChildren]]] {
     let element_parser = @combinator.Parser::from_ref(element_ref).map(fn(
       tuple
@@ -532,8 +528,8 @@ pub fn pcdata_with_ctx() -> Parser[Char, Context[String]] {
   .omit_first()
   .and_then(@combinator.pstring("]]>"))
   .omit_second()
-  .map(fn { arr => @string.concat(arr, separator="") })
-  .map(fn { s => (Some(s), new_context("<![CDATA[\{s}]]>")) })
+  .map(arr => arr.join(""))
+  .map(s => (Some(s), new_context("<![CDATA[\{s}]]>")))
 }
 
 ///|
@@ -559,9 +555,7 @@ pub fn ppi_with_ctx() -> Parser[Char, Context[String]] {
   .omit_first()
   .and_then(@combinator.pstring("?>"))
   .omit_second()
-  .map(fn {
-    chars => chars.fold(init="", fn(str, char) { str + char.to_string() })
-  })
+  .map(chars => chars.fold(init="", (str, char) => str + char.to_string()))
   .map(fn(s) { (Some(s), new_context("<?\{s}?>")) })
 }
 
@@ -603,25 +597,25 @@ pub fn pcharRef_with_ctx() -> Parser[Char, Context[String]] {
     .and_then(pdigit)
     .and_then(pdigit.repeat())
     .and_then(@combinator.pchar(';'))
-    .map(fn {
-      (((_hash, digit), digits), _semicolon) =>
-        "#" +
-        digit.to_string() +
-        digits.fold(init="", fn(str, char) { str + char.to_string() }) +
-        ";"
+    .map(fn(tuple) {
+      let (((_hash, digit), digits), _semicolon) = tuple
+      "#" +
+      digit.to_string() +
+      digits.fold(init="", fn(str, char) { str + char.to_string() }) +
+      ";"
     })
   let phex = @combinator.pstring("&#x")
     .and_then(phexdigit)
     .and_then(phexdigit.repeat())
     .and_then(@combinator.pchar(';'))
-    .map(fn {
-      (((_hash, digit), digits), _semicolon) =>
-        "&#x" +
-        digit.to_string() +
-        digits.fold(init="", fn(str, char) { str + char.to_string() }) +
-        ";"
+    .map(fn(tuple) {
+      let (((_hash, digit), digits), _semicolon) = tuple
+      "&#x" +
+      digit.to_string() +
+      digits.fold(init="", fn(str, char) { str + char.to_string() }) +
+      ";"
     })
-  pdecimal.or_else(phex).map(fn { s => (Some(s), new_context(s)) })
+  pdecimal.or_else(phex).map(s => (Some(s), new_context(s)))
 }
 
 ///|
@@ -657,7 +651,7 @@ pub fn pdtd_with_ctx() -> Parser[Char, Context[String]] {
   })
   .and_then(@combinator.pchar('>'))
   .omit_second()
-  .map(fn { s => (Some(s), new_context("<!\{s}>")) })
+  .map(s => (Some(s), new_context("<!\{s}>")))
 }
 
 ///|

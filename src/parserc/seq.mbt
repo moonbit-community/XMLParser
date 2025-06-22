@@ -41,6 +41,7 @@ pub fn[T] Seq::from_list(list : @immut/list.T[T]) -> Seq[T] {
 
 ///| Construct a sequence from string
 pub fn Seq::from_string(str : String) -> Seq[Char] {
+  let str = str.to_array()
   let seq = []
   let mut offset = 0
   while offset < str.length() {

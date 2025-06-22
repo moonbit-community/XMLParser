@@ -1,5 +1,5 @@
 ///|
-typealias Gen[T] = @qc.Gen[T]
+typealias @qc.Gen
 
 ///|
 impl @quickcheck.Arbitrary for XMLDocument with arbitrary(size, rs) {
@@ -76,7 +76,7 @@ impl @quickcheck.Arbitrary for XMLChildren with arbitrary(size, rs) {
       @qc.pure("\n"),
     ])
     .array_with_size(size)
-    .fmap(fn(arr) { @string.concat(arr, separator="") })
+    .fmap(arr => arr.join(""))
   let elementGen : Gen[XMLElement] = Gen::spawn()
   //Element(XMLElement)
   //Reference(String)
@@ -137,12 +137,9 @@ fn trivial_ctx(xml : XMLDocument) -> Bool {
     println(ctx.errors)
   }
   let flag = ctx.errors
-    .filter(fn {
-      e =>
-        match e.kind {
-          InternalParserError => true
-          _ => false
-        }
+    .filter(e => match e.kind {
+      InternalParserError => true
+      _ => false
     })
     .is_empty()
   if xml2.is_empty() {

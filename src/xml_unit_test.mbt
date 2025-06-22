@@ -27,11 +27,11 @@ test "dtd testcase 1" {
 ///|
 fn is_valid(s : String) -> Bool {
   let s = s.replace(old=".xml", new="")
-  let id = @strconv.parse_int?(s)
+  let id = try? @strconv.parse_int(s)
   match id {
     Err(_) => false
     Ok(id) =>
-      match id {
+      match id { 
         49..=51 => false
         _ => true
       }
@@ -99,5 +99,5 @@ test "xmlconf valid sa" {
 //     }
 //   }
 //   println("passed: \{cnt}/\{files.length()}")
-//   inspect!(cnt, content=files.length().to_string())
+//   inspect(cnt, content=files.length().to_string())
 // }

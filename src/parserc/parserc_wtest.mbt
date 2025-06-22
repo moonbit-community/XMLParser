@@ -10,7 +10,7 @@ test "sequence" {
 
 ///|
 test "repeat" {
-  let parser = pvalue(fn {
+  let parser = pvalue(x => match x {
     '0' => Some(0)
     '1' => Some(1)
     _ => None
