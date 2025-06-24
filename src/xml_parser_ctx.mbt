@@ -304,7 +304,7 @@ pub fn pattributes_with_ctx() -> Parser[Char, Context[Map[String, String]]] {
 
 ///|
 pub fn pelement_with_ctx() -> Parser[Char, Context[XMLElement]] {
-  let element_ref : Ref[Parser[Char, Context[XMLElement]]] = { val: _ => None }
+  let element_ref : Ref[Parser[Char, Context[XMLElement]]] = { val: Parser::new(_ => None) }
   fn pcontent_with_ctx() -> Parser[Char, Context[Array[XMLChildren]]] {
     let element_parser = @combinator.Parser::from_ref(element_ref).map(fn(
       tuple
