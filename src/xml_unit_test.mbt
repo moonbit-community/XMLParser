@@ -31,7 +31,7 @@ fn is_valid(s : String) -> Bool {
   match id {
     Err(_) => false
     Ok(id) =>
-      match id { 
+      match id {
         49..=51 => false
         _ => true
       }

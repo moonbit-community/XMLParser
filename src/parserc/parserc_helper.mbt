@@ -3,7 +3,7 @@
 /// The predicate should return `Some(value)` if the tokens fulfills
 /// or `None` otherwise
 pub fn[Token, Value] pvalue(
-  predicate : (Token) -> Value?
+  predicate : (Token) -> Value?,
 ) -> Parser[Token, Value] {
   Parser(fn(seq) {
     let (hd, rest) = match seq.uncons() {

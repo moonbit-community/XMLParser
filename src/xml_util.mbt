@@ -38,7 +38,7 @@ impl XMLVisitor for GetElementVisitor with visit(self, element) {
 ///|
 pub fn get_element_by_name(
   self : XMLDocument,
-  name : String
+  name : String,
 ) -> Array[XMLElement] {
   let visitor = GetElementVisitor::{ name, elements: [] }
   self.root.accept(visitor)
