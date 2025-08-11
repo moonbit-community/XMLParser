@@ -32,7 +32,7 @@ pub fn[Token, A] pconst(a : A) -> Parser[Token, A] {
 
 ///|
 pub fn pchar_such_that(predicate : (Char) -> Bool) -> Parser[Char, Char] {
-  pvalue(char => @option.when(predicate(char), () => char))
+  pvalue(char => if predicate(char) { Some(char) } else { None })
 }
 
 ///|

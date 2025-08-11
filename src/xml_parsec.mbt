@@ -1,11 +1,13 @@
 ///| 接收Seq[Token]和XMLParserContext，返回((Value, Seq[Token])?, XMLParseError, XMLParserContext)
 /// 这里我们考虑单个Parser最多产生一个Error，同时Parser可能在遇到错误后继续解析（例如dtd检查不通过时）。
 /// XMLParser需要在遇到格式错误时立刻停止解析。
-pub(all) struct XMLParser[Token, Value]((Seq[Token], XMLParserContext) -> (
-  (Value, Seq[Token])?,
-  XMLParseError?,
-  XMLParserContext,
-))
+pub(all) struct XMLParser[Token, Value](
+  (Seq[Token], XMLParserContext) -> (
+    (Value, Seq[Token])?,
+    XMLParseError?,
+    XMLParserContext,
+  )
+)
 
 ///|
 typealias ((Value, Seq[Token])?, XMLParseError?, XMLParserContext) as XMLParserResult[Token, Value]
@@ -136,7 +138,7 @@ pub fn[Token, A, B] XMLParser::repeat_with_sep(
 pub fn[Token, A] XMLParser::optional(
   self : XMLParser[Token, A],
 ) -> XMLParser[Token, A?] {
-  self.map(@option.some).or_else(pconst(Option::None))
+  self.map(fn(x) { Some(x) }).or_else(pconst(Option::None))
 }
 
 ///|
