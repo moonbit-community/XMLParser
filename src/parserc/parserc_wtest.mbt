@@ -42,9 +42,9 @@ test "pstring" {
   let parser = pstring("asdf")
   inspect(
     parser.parse(Seq::from_string("asdfjkl;")),
-    content=
+    content=(
       #|Some(("asdf", 'j''k''l'';'))
-    ,
+    ),
   )
   inspect(parser.parse(Seq::from_string("jkl;")), content="None")
 }

@@ -419,7 +419,9 @@ fn trim_text(text : String) -> (String, String, String) {
 ///   inspect(element.attributes.get("name"), content="Some(\"John\")")
 /// ```
 pub fn pelement() -> Parser[Char, XMLElement] {
-  let element_ref : Ref[Parser[Char, XMLElement]] = { val: Parser::new(_ => None) }
+  let element_ref : Ref[Parser[Char, XMLElement]] = {
+    val: Parser::new(_ => None),
+  }
   fn pcontent() -> Parser[Char, Array[XMLChildren]] {
     let element_parser = @combinator.Parser::from_ref(element_ref).map(fn(e) {
       Element(e)
