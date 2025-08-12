@@ -979,8 +979,8 @@ pub fn pxml() -> Parser[Char, XMLDocument] {
       None => Map::new()
     }
     {
-      version: map.get("version").or("1.0"),
-      encoding: map.get("encoding").or("UTF-8"),
+      version: map.get("version").unwrap_or("1.0"),
+      encoding: map.get("encoding").unwrap_or("UTF-8"),
       standalone: match map.get("standalone") {
         Some("yes") => true
         _ => false

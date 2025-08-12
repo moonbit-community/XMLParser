@@ -129,11 +129,11 @@ pub impl Show for ContentSpec with output(self, logger) {
 pub typealias ContentParticle as ChildrenContentSpec
 
 ///|
-pub(all) type ContentParticle (SingleContentParticle, ChildrenContentSpecOp?)
+pub(all) struct ContentParticle(SingleContentParticle,ChildrenContentSpecOp?)
 
 ///|
 pub impl Show for ContentParticle with output(self, logger) {
-  match self.inner() {
+  match (self.0, self.1) {
     (p, None) => logger.write_string(p.to_string())
     (p, Some(op)) => logger.write_string("\{p}\{op}")
   }

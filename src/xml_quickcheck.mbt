@@ -2,6 +2,11 @@
 typealias @qc.Gen
 
 ///|
+impl @qc.Shrink for XMLDocument with shrink(self) {
+  [].iter()
+}
+
+///|
 impl @quickcheck.Arbitrary for XMLDocument with arbitrary(size, rs) {
   {
     version: "1.0",

@@ -38,7 +38,7 @@ pub fn[Token, A] sequence(
 ) -> Parser[Token, Array[A]] {
   Parser(fn(tokens) {
     let result : Array[A] = []
-    let mut tokens = @option.some(tokens)
+    let mut tokens = Some(tokens)
     parsers.each(fn(parser) {
       match tokens {
         Some(ts) =>
@@ -240,7 +240,7 @@ pub fn[Token, A, B] Parser::repeat_with_sep(
 
 ///|
 pub fn[Token, A] Parser::optional(self : Parser[Token, A]) -> Parser[Token, A?] {
-  self.map(@option.some).or_else(pconst(Option::None))
+  self.map(fn(x) { Some(x) }).or_else(pconst(Option::None))
 }
 
 ///|

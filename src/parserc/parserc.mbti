@@ -1,7 +1,8 @@
+// Generated using `moon info`, DON'T EDIT IT
 package "ruifeng/XMLParser/parserc"
 
 import(
-  "moonbitlang/core/immut/list"
+  "moonbitlang/core/list"
 )
 
 // Values
@@ -29,8 +30,10 @@ fn[Token, Value] pvalue((Token) -> Value?) -> Parser[Token, Value]
 
 fn[Token, A] sequence(Array[Parser[Token, A]]) -> Parser[Token, Array[A]]
 
+// Errors
+
 // Types and methods
-pub type Parser[Token, Value] (Seq[Token]) -> (Value, Seq[Token])?
+pub struct Parser[Token, Value]((Seq[Token]) -> (Value, Seq[Token])?)
 fn[Token, A, B] Parser::and_then(Self[Token, A], Self[Token, B]) -> Self[Token, (A, B)]
 fn[Token, A, B] Parser::apply(Self[Token, A], Self[Token, (A) -> B]) -> Self[Token, B]
 fn[Token, A, B] Parser::between(Self[Token, A], Self[Token, B]) -> Self[Token, A]
@@ -53,10 +56,10 @@ fn[Token, A, B] Parser::repeat_n_with_sep(Self[Token, A], Int, Self[Token, B]) -
 fn[Token, A, B] Parser::repeat_with_sep(Self[Token, A], Self[Token, B]) -> Self[Token, Array[A]]
 fn[Token, Value] Parser::run(Self[Token, Value], Seq[Token]) -> (Value, Seq[Token])?
 
-pub type Seq[T] ArrayView[T]
+pub struct Seq[T](ArrayView[T])
 fn[T] Seq::default() -> Self[T]
 fn[T] Seq::from_array(ArrayView[T]) -> Self[T]
-fn[T] Seq::from_list(@list.T[T]) -> Self[T]
+fn[T] Seq::from_list(@list.List[T]) -> Self[T]
 fn Seq::from_string(String) -> Self[Char]
 fn[T] Seq::inner(Self[T]) -> ArrayView[T]
 fn[T] Seq::is_empty(Self[T]) -> Bool
