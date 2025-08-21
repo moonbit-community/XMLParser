@@ -3,7 +3,7 @@
 /// The predicate should return `Some(value)` if the tokens fulfills
 /// or `None` otherwise
 pub fn[Token, Value] pvalue(
-  predicate : (Token) -> Value?
+  predicate : (Token) -> Value?,
 ) -> Parser[Token, Value] {
   Parser(fn(seq) {
     let (hd, rest) = match seq.uncons() {
@@ -32,7 +32,7 @@ pub fn[Token, A] pconst(a : A) -> Parser[Token, A] {
 
 ///|
 pub fn pchar_such_that(predicate : (Char) -> Bool) -> Parser[Char, Char] {
-  pvalue(char => @option.when(predicate(char), () => char))
+  pvalue(char => if predicate(char) { Some(char) } else { None })
 }
 
 ///|

@@ -1,3 +1,4 @@
+// Generated using `moon info`, DON'T EDIT IT
 package "ruifeng/XMLParser"
 
 import(
@@ -73,6 +74,8 @@ fn xml_from_iter(Iter[Char]) -> XMLDocument?
 
 fn xml_from_string(String) -> XMLDocument?
 
+// Errors
+
 // Types and methods
 pub(all) struct AttDef {
   name : String
@@ -102,8 +105,8 @@ pub(all) enum ChildrenContentSpecOp {
 }
 impl Show for ChildrenContentSpecOp
 
-pub(all) type ContentParticle (SingleContentParticle, ChildrenContentSpecOp?)
-fn ContentParticle::inner(Self) -> (SingleContentParticle, ChildrenContentSpecOp?)
+pub(all) struct ContentParticle(SingleContentParticle, ChildrenContentSpecOp?)
+
 impl Show for ContentParticle
 
 pub(all) enum ContentSpec {
@@ -258,7 +261,7 @@ pub(all) struct XMLParseError {
 fn XMLParseError::is_fatal(Self) -> Bool
 impl Show for XMLParseError
 
-pub(all) type XMLParser[Token, Value] (@parserc.Seq[Token], XMLParserContext) -> ((Value, @parserc.Seq[Token])?, XMLParseError?, XMLParserContext)
+pub(all) struct XMLParser[Token, Value]((@parserc.Seq[Token], XMLParserContext) -> ((Value, @parserc.Seq[Token])?, XMLParseError?, XMLParserContext))
 fn[Token, A, B] XMLParser::and_then(Self[Token, A], Self[Token, B]) -> Self[Token, (A, B)]
 fn[Token, A] XMLParser::from_ref(Ref[Self[Token, A]]) -> Self[Token, A]
 fn[Token, Value] XMLParser::inner(Self[Token, Value]) -> (@parserc.Seq[Token], XMLParserContext) -> ((Value, @parserc.Seq[Token])?, XMLParseError?, XMLParserContext)

@@ -26,7 +26,7 @@ pub struct XMLParserContext {
 ///|
 pub fn XMLParserContext::raise_error(
   self : XMLParserContext,
-  error : XMLParseError
+  error : XMLParseError,
 ) -> Unit {
   self.errors.push(error)
 }
@@ -34,7 +34,7 @@ pub fn XMLParserContext::raise_error(
 ///|
 pub fn XMLParserContext::merge(
   self : XMLParserContext,
-  child : XMLParserContext
+  child : XMLParserContext,
 ) -> Unit {
   let input_array = self.input_array
   input_array.append(child.input_array)
@@ -105,7 +105,7 @@ fn update_location(ctx : XMLParserContext) -> XMLParserContext {
 ///|
 fn merge_context(
   parent_ctx : XMLParserContext,
-  child_context : XMLParserContext
+  child_context : XMLParserContext,
 ) -> XMLParserContext {
   let input_array = parent_ctx.input_array
   input_array.append(child_context.input_array)
@@ -137,7 +137,7 @@ fn raise_error(
   ctx : XMLParserContext,
   kind : XMLErrorKind,
   index : Int,
-  msg : String
+  msg : String,
 ) -> XMLParserContext {
   let error = {
     kind,
@@ -153,7 +153,7 @@ fn raise_error(
 ///|
 fn[T] bind_error(
   parser : Parser[Char, Context[T]],
-  error : XMLParseError
+  error : XMLParseError,
 ) -> Parser[Char, Context[T]] {
   Parser::new(fn(seq) {
     match parser.run(seq) {
@@ -304,10 +304,12 @@ pub fn pattributes_with_ctx() -> Parser[Char, Context[Map[String, String]]] {
 
 ///|
 pub fn pelement_with_ctx() -> Parser[Char, Context[XMLElement]] {
-  let element_ref : Ref[Parser[Char, Context[XMLElement]]] = { val: Parser::new(_ => None) }
+  let element_ref : Ref[Parser[Char, Context[XMLElement]]] = {
+    val: Parser::new(_ => None),
+  }
   fn pcontent_with_ctx() -> Parser[Char, Context[Array[XMLChildren]]] {
     let element_parser = @combinator.Parser::from_ref(element_ref).map(fn(
-      tuple
+      tuple,
     ) {
       let (e_opt, ctx) = tuple
       match e_opt {
@@ -692,8 +694,8 @@ pub fn pxml_with_ctx() -> Parser[Char, Context[XMLDocument]] {
         }
         let ctx = ctx |> merge_context(ctx_ws_2) |> merge_context(ctx_element)
         let xml = {
-          version: map.get("version").or("1.0"),
-          encoding: map.get("encoding").or("UTF-8"),
+          version: map.get("version").unwrap_or("1.0"),
+          encoding: map.get("encoding").unwrap_or("UTF-8"),
           standalone: match map.get("standalone") {
             Some("yes") => true
             _ => false

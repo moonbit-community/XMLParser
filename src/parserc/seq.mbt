@@ -35,7 +35,7 @@ pub fn[T1, T2] Seq::map(seq : Seq[T1], f : (T1) -> T2) -> Seq[T2] {
 }
 
 ///| Construct a sequence from list
-pub fn[T] Seq::from_list(list : @immut/list.T[T]) -> Seq[T] {
+pub fn[T] Seq::from_list(list : @list.List[T]) -> Seq[T] {
   list.to_array()[:]
 }
 

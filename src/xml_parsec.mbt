@@ -1,10 +1,12 @@
 ///| 接收Seq[Token]和XMLParserContext，返回((Value, Seq[Token])?, XMLParseError, XMLParserContext)
 /// 这里我们考虑单个Parser最多产生一个Error，同时Parser可能在遇到错误后继续解析（例如dtd检查不通过时）。
 /// XMLParser需要在遇到格式错误时立刻停止解析。
-pub(all) type XMLParser[Token, Value] (Seq[Token], XMLParserContext) -> (
-  (Value, Seq[Token])?,
-  XMLParseError?,
-  XMLParserContext,
+pub(all) struct XMLParser[Token, Value](
+  (Seq[Token], XMLParserContext) -> (
+    (Value, Seq[Token])?,
+    XMLParseError?,
+    XMLParserContext,
+  )
 )
 
 ///|
@@ -12,7 +14,7 @@ typealias ((Value, Seq[Token])?, XMLParseError?, XMLParserContext) as XMLParserR
 
 ///|
 pub fn[Token, Value] XMLParser::new(
-  f : (Seq[Token], XMLParserContext) -> XMLParserResult[Token, Value]
+  f : (Seq[Token], XMLParserContext) -> XMLParserResult[Token, Value],
 ) -> XMLParser[Token, Value] {
   f
 }
@@ -21,7 +23,7 @@ pub fn[Token, Value] XMLParser::new(
 pub fn[Token, Value] XMLParser::run(
   self : XMLParser[Token, Value],
   seq : Seq[Token],
-  ctx : XMLParserContext
+  ctx : XMLParserContext,
 ) -> XMLParserResult[Token, Value] {
   match self.inner()(seq, ctx) {
     (pair, Some(err), ctx) => {
@@ -36,7 +38,7 @@ pub fn[Token, Value] XMLParser::run(
 ///|
 pub fn[Token, A, B] XMLParser::and_then(
   self : XMLParser[Token, A],
-  other : XMLParser[Token, B]
+  other : XMLParser[Token, B],
 ) -> XMLParser[Token, (A, B)] {
   fn(tokens : Seq[Token], ctx : XMLParserContext) {
     let (pair, ctx1) = match self.run(tokens, ctx) {
@@ -65,7 +67,7 @@ pub fn[Token, A, B] XMLParser::and_then(
 ///|
 pub fn[Token, A] XMLParser::or_else(
   self : XMLParser[Token, A],
-  other : XMLParser[Token, A]
+  other : XMLParser[Token, A],
 ) -> XMLParser[Token, A] {
   fn(tokens : Seq[Token], ctx : XMLParserContext) {
     match self.run(tokens, ctx) {
@@ -86,7 +88,7 @@ pub fn[Token, A] XMLParser::or_else(
 ///|
 pub fn[Token, A, B] XMLParser::map(
   self : XMLParser[Token, A],
-  f : (A) -> B
+  f : (A) -> B,
 ) -> XMLParser[Token, B] {
   fn(tokens : Seq[Token], ctx : XMLParserContext) {
     match self.run(tokens, ctx) {
@@ -99,7 +101,7 @@ pub fn[Token, A, B] XMLParser::map(
 ///|
 pub fn[Token, A, B] XMLParser::repeat_with_sep(
   self : XMLParser[Token, A],
-  sep : XMLParser[Token, B]
+  sep : XMLParser[Token, B],
 ) -> XMLParser[Token, Array[A]] {
   fn(tokens : Seq[Token], ctx : XMLParserContext) {
     let sep_self = sep.and_then(self).omit_first()
@@ -134,28 +136,28 @@ pub fn[Token, A, B] XMLParser::repeat_with_sep(
 
 ///|
 pub fn[Token, A] XMLParser::optional(
-  self : XMLParser[Token, A]
+  self : XMLParser[Token, A],
 ) -> XMLParser[Token, A?] {
-  self.map(@option.some).or_else(pconst(Option::None))
+  self.map(fn(x) { Some(x) }).or_else(pconst(Option::None))
 }
 
 ///|
 pub fn[Token, A, B] XMLParser::omit_first(
-  self : XMLParser[Token, (A, B)]
+  self : XMLParser[Token, (A, B)],
 ) -> XMLParser[Token, B] {
   self.map(fn(pair) { pair.1 })
 }
 
 ///|
 pub fn[Token, A, B] XMLParser::omit_second(
-  self : XMLParser[Token, (A, B)]
+  self : XMLParser[Token, (A, B)],
 ) -> XMLParser[Token, A] {
   self.map(fn(pair) { pair.0 })
 }
 
 ///|
 pub fn[Token, A] XMLParser::from_ref(
-  self : Ref[XMLParser[Token, A]]
+  self : Ref[XMLParser[Token, A]],
 ) -> XMLParser[Token, A] {
   fn(tokens : Seq[Token], ctx : XMLParserContext) { self.val.run(tokens, ctx) }
 }

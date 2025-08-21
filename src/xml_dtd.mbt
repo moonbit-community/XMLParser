@@ -316,7 +316,7 @@ fn pelementDecl() -> Parser[Char, ElementDecl] {
         None => (cp, None)
         _ => abort("unreachable")
       }
-      ContentParticle(pair)
+      ContentParticle(pair.0, pair.1)
     })
   cp_ref.val = cp
   let children : Parser[Char, ChildrenContentSpec] = choice
@@ -334,7 +334,7 @@ fn pelementDecl() -> Parser[Char, ElementDecl] {
         None => (cp, None)
         _ => abort("unreachable")
       }
-      ContentParticle(pair)
+      ContentParticle(pair.0, pair.1)
     })
   let mixed = @combinator.pstring("(")
     .and_then(pwhite_space().optional())
