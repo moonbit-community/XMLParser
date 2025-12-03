@@ -1,7 +1,8 @@
 ///|
-typealias (T?, XMLParserContext) as Context[T]
+type Context[T] = (T?, XMLParserContext)
 
-///| 在解析时只维护index, line_number和column_number暂时只在最后更新
+///|
+/// 在解析时只维护index, line_number和column_number暂时只在最后更新
 pub struct XMLParserContext {
   ///
   input_array : Array[Char]

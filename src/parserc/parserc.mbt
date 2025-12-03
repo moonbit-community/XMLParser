@@ -11,10 +11,11 @@ pub fn[Token, Value] Parser::parse(
   self : Parser[Token, Value],
   sequence : Seq[Token],
 ) -> (Value, Seq[Token])? {
-  self.inner()(sequence)
+  (self.0)(sequence)
 }
 
-///| Parses a sequence of tokens
+///|
+/// Parses a sequence of tokens
 ///
 /// If the parsing succeeds, `Some(result, rest)` is returned  
 /// Otherwise, `None` is returned.
@@ -22,7 +23,7 @@ pub fn[Token, Value] Parser::run(
   self : Parser[Token, Value],
   sequence : Seq[Token],
 ) -> (Value, Seq[Token])? {
-  self.inner()(sequence)
+  (self.0)(sequence)
 }
 
 ///|

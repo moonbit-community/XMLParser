@@ -1,4 +1,5 @@
-///| Parses a token with predicate
+///|
+/// Parses a token with predicate
 ///
 /// The predicate should return `Some(value)` if the tokens fulfills
 /// or `None` otherwise
@@ -18,12 +19,14 @@ pub fn[Token, Value] pvalue(
   })
 }
 
-///| Parser that always fail
+///|
+/// Parser that always fail
 pub fn[Token, A] pfail() -> Parser[Token, A] {
   Parser(fn(_tokens) { None })
 }
 
-///| Parser that always succeed with given value
+///|
+/// Parser that always succeed with given value
 pub fn[Token, A] pconst(a : A) -> Parser[Token, A] {
   Parser(fn(tokens) { Some((a, tokens)) })
 }
@@ -40,7 +43,8 @@ pub fn pchar(char : Char) -> Parser[Char, Char] {
   pchar_such_that(fn(c) { c == char })
 }
 
-///| parser for integer
+///|
+/// parser for integer
 ///
 /// [ "-" ] ( %x30 / (%x31-39) *(%x30-39)
 pub let pint : Parser[Char, Int] = pdigits.map(fn(tuple) {
@@ -53,7 +57,8 @@ pub let pint : Parser[Char, Int] = pdigits.map(fn(tuple) {
   }
 })
 
-///| parser for integer 64 bits
+///|
+/// parser for integer 64 bits
 ///
 /// [ "-" ] ( %x30 / (%x31-39) *(%x30-39)
 pub let pint64 : Parser[Char, Int64] = pdigits.map(fn(tuple) {
@@ -69,7 +74,8 @@ pub let pint64 : Parser[Char, Int64] = pdigits.map(fn(tuple) {
   }
 })
 
-///| parser that tries to match the given string
+///|
+/// parser that tries to match the given string
 pub fn pstring(string : String) -> Parser[Char, String] {
   Parser(fn(seq) {
     let iter = loop (seq, Seq::from_string(string)) {
@@ -95,7 +101,8 @@ pub fn pstring(string : String) -> Parser[Char, String] {
   })
 }
 
-///| parse digit
+///|
+/// parse digit
 ///
 /// %x30-39
 pub let pdigit : Parser[Char, Int] = one_of([0, 1, 2, 3, 4, 5, 6, 7, 8, 9])

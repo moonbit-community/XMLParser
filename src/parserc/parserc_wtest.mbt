@@ -2,10 +2,10 @@
 test "sequence" {
   let parser = sequence([pchar('a'), pchar('b'), pchar('c')])
   inspect(
-    parser.parse(Seq::from_string("abc")),
+    parser.run(Seq::from_string("abc")),
     content="Some((['a', 'b', 'c'], ))",
   )
-  inspect(parser.parse(Seq::from_string("ab")), content="None")
+  inspect(parser.run(Seq::from_string("ab")), content="None")
 }
 
 ///|
@@ -17,22 +17,22 @@ test "repeat" {
   })
   let repeat_n = parser.repeat_n(3)
   inspect(
-    repeat_n.parse(Seq::from_string("0110")),
+    repeat_n.run(Seq::from_string("0110")),
     content="Some(([0, 1, 1], '0'))",
   )
   let repeat_0_to_n = parser.repeat_0_to_n(3)
   inspect(
-    repeat_0_to_n.parse(Seq::from_string("0110")),
+    repeat_0_to_n.run(Seq::from_string("0110")),
     content="Some(([0, 1, 1], '0'))",
   )
   inspect(
-    repeat_0_to_n.parse(Seq::from_string("01210")),
+    repeat_0_to_n.run(Seq::from_string("01210")),
     content="Some(([0, 1], '2''1''0'))",
   )
-  inspect(repeat_0_to_n.parse(Seq::from_string("2")), content="Some(([], '2'))")
+  inspect(repeat_0_to_n.run(Seq::from_string("2")), content="Some(([], '2'))")
   let repeat = parser.repeat()
   inspect(
-    repeat.parse(Seq::from_string("0110")),
+    repeat.run(Seq::from_string("0110")),
     content="Some(([0, 1, 1, 0], ))",
   )
 }
@@ -41,19 +41,19 @@ test "repeat" {
 test "pstring" {
   let parser = pstring("asdf")
   inspect(
-    parser.parse(Seq::from_string("asdfjkl;")),
+    parser.run(Seq::from_string("asdfjkl;")),
     content=(
       #|Some(("asdf", 'j''k''l'';'))
     ),
   )
-  inspect(parser.parse(Seq::from_string("jkl;")), content="None")
+  inspect(parser.run(Seq::from_string("jkl;")), content="None")
 }
 
 ///|
 test "pint" {
-  inspect(pint.parse(Seq::from_string("12345")), content="Some((12345, ))")
-  inspect(pint.parse(Seq::from_string("-0")), content="Some((0, ))")
-  inspect(pint.parse(Seq::from_string("0")), content="Some((0, ))")
-  inspect(pint.parse(Seq::from_string("-01")), content="Some((0, '1'))")
-  inspect(pint.parse(Seq::from_string("-100")), content="Some((-100, ))")
+  inspect(pint.run(Seq::from_string("12345")), content="Some((12345, ))")
+  inspect(pint.run(Seq::from_string("-0")), content="Some((0, ))")
+  inspect(pint.run(Seq::from_string("0")), content="Some((0, ))")
+  inspect(pint.run(Seq::from_string("-01")), content="Some((0, '1'))")
+  inspect(pint.run(Seq::from_string("-100")), content="Some((-100, ))")
 }
