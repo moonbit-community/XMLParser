@@ -124,10 +124,10 @@ pub fn pwhite_space() -> Parser[Char, String] {
 /// ```moonbit
 ///   let result = ptext().run(@combinator.Seq::from_string("Hello World"))
 ///   inspect(result, content="Some((\"Hello World\", ))")
-/// 
+///
 ///   let result = ptext().run(@combinator.Seq::from_string("Text with & and <"))
 ///   inspect(result, content="Some((\"Text with \", '&'' ''a''n''d'' ''<'))") // stops parsing at '&'
-/// 
+///
 ///   let result = ptext().run(@combinator.Seq::from_string(""))
 ///   inspect(result, content="Some((\"\", ))")
 /// ```
@@ -158,7 +158,7 @@ pub fn ptext() -> Parser[Char, String] {
 ///   // Valid XML names
 ///   let result1 = pname().run(@combinator.Seq::from_string("element1"))
 ///   inspect(result1, content="Some((\"element1\", ))")
-/// 
+///
 ///   // Invalid XML names (starting with digit)
 ///   let result2 = pname().run(@combinator.Seq::from_string("1element"))
 ///   inspect(result2, content="None")
@@ -342,18 +342,18 @@ test "pattributes/single" {
   // Test case for single attribute
   let result = pattributes().run(Seq::from_string(" name=\"value\""))
   let map = result.unwrap().0
-  inspect(map.size(), content="1")
+  inspect(map.length(), content="1")
   inspect(map.get("name"), content="Some(\"value\")")
 }
 
 ///|
-test "pattributes/single" {
-  // Test case for single attribute
+test "pattributes/multiple" {
+  // Test case for multiple attributes
   let result = pattributes().run(
     Seq::from_string(" name=\"value\" lang=\"en\""),
   )
   let map = result.unwrap().0
-  inspect(map.size(), content="2")
+  inspect(map.length(), content="2")
   inspect(map.get("name"), content="Some(\"value\")")
 }
 
@@ -380,10 +380,9 @@ fn trim_text(text : String) -> (String, String, String) {
     Some((ws, _)) => ws.rev()
     None => ""
   }
-  let content = text.substring(
-    start=head_WS.length(),
-    end=text.length() - tail_WS.length(),
-  )
+  let start = head_WS.length()
+  let end = text.length() - tail_WS.length()
+  let content = text[start:end].to_string() catch { _ => "" }
   (head_WS, content, tail_WS)
 }
 
@@ -587,7 +586,7 @@ fn peek_char_seq(seq : Seq[Char], n : Int) -> String? {
 ///   let input = "<![CDATA[Some <raw> XML & content]]>"
 ///   let result = pcdata().run(@combinator.Seq::from_string(input))
 ///   inspect(result, content="Some((\"Some <raw> XML & content\", ))")
-/// 
+///
 ///   let input = "<![CDATA[]]>"
 ///   let result = pcdata().run(@combinator.Seq::from_string(input))
 ///   inspect(result, content="Some((\"\", ))")
@@ -687,10 +686,10 @@ pub fn ppiTarget() -> Parser[Char, String] {
 /// ```moonbit
 ///   let result = ppi().run(@combinator.Seq::from_string("<?php echo 'Hello' ?>"))
 ///   inspect(result, content="Some((\"php echo 'Hello' \", ))")
-/// 
+///
 ///   let result = ppi().run(@combinator.Seq::from_string("<??>"))
 ///   inspect(result, content="Some((\"\", ))")
-/// 
+///
 ///   let result = ppi().run(@combinator.Seq::from_string("<?incomplete"))
 ///   inspect(result, content="None")
 /// ```
@@ -830,11 +829,11 @@ pub fn pcharRef() -> Parser[Char, String] {
 ///   // Entity reference
 ///   let entity = preference().run(@combinator.Seq::from_string("&amp;"))
 ///   inspect(entity, content="Some((\"&amp;\", ))")
-/// 
+///
 ///   // Character reference (decimal)
 ///   let decimal = preference().run(@combinator.Seq::from_string("&#32;"))
 ///   inspect(decimal, content="Some((\"#32;\", ))")
-/// 
+///
 ///   // Character reference (hexadecimal)
 ///   let hex = preference().run(@combinator.Seq::from_string("&#x20;"))
 ///   inspect(hex, content="Some((\"#20;\", ))")
@@ -1063,7 +1062,7 @@ test "pxml/basic_xml_no_attributes" {
   inspect(document.encoding, content="UTF-8")
   inspect(document.standalone, content="false")
   inspect(document.root.name, content="root")
-  inspect(document.root.attributes.size(), content="0")
+  inspect(document.root.attributes.length(), content="0")
 }
 
 ///|
@@ -1075,7 +1074,7 @@ test "pxml/basic_xml_with_attributes" {
   inspect(document.encoding, content="ISO-8859-1")
   inspect(document.standalone, content="true")
   inspect(document.root.name, content="root")
-  inspect(document.root.attributes.size(), content="2")
+  inspect(document.root.attributes.length(), content="2")
   inspect(document.root.attributes.get("attr1"), content="Some(\"value1\")")
   inspect(document.root.attributes.get("attr2"), content="Some(\"value2\")")
 }
@@ -1117,7 +1116,8 @@ fn iter_to_seq(iter : Iter[Char]) -> Seq[Char] {
   Seq::from_array(iter.to_array()[:])
 }
 
-///| This function is slower than xml_from_string. Have O(n^2) complexity.
+///|
+/// This function is slower than xml_from_string. Have O(n^2) complexity.
 pub fn xml_from_iter(iter : Iter[Char]) -> XMLDocument? {
   let seq = iter_to_seq(iter)
   let result = pxml().run(seq)

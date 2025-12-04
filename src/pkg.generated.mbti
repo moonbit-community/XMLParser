@@ -1,0 +1,301 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "ruifeng/XMLParser"
+
+import(
+  "ruifeng/XMLParser/parserc"
+)
+
+// Values
+pub fn pEntityRef() -> @parserc.Parser[Char, String]
+
+pub fn pEntityRef_with_ctx() -> @parserc.Parser[Char, (String?, XMLParserContext)]
+
+pub fn pattribute() -> @parserc.Parser[Char, (String, String)]
+
+pub fn pattribute_with_ctx() -> @parserc.Parser[Char, ((String, String)?, XMLParserContext)]
+
+pub fn pattributes() -> @parserc.Parser[Char, Map[String, String]]
+
+pub fn pattributes_with_ctx() -> @parserc.Parser[Char, (Map[String, String]?, XMLParserContext)]
+
+pub fn pcdata() -> @parserc.Parser[Char, String]
+
+pub fn pcdata_with_ctx() -> @parserc.Parser[Char, (String?, XMLParserContext)]
+
+pub fn pcharRef() -> @parserc.Parser[Char, String]
+
+pub fn pcharRef_with_ctx() -> @parserc.Parser[Char, (String?, XMLParserContext)]
+
+pub fn pcomment() -> @parserc.Parser[Char, String]
+
+pub fn pcomment_with_ctx() -> @parserc.Parser[Char, (String?, XMLParserContext)]
+
+pub fn[Token, A] pconst(A) -> XMLParser[Token, A]
+
+pub fn pdtd() -> @parserc.Parser[Char, DocTypeDecl]
+
+pub fn pdtd_with_ctx() -> @parserc.Parser[Char, (String?, XMLParserContext)]
+
+pub fn pelement() -> @parserc.Parser[Char, XMLElement]
+
+pub fn pelement_with_ctx() -> @parserc.Parser[Char, (XMLElement?, XMLParserContext)]
+
+pub fn pname() -> @parserc.Parser[Char, String]
+
+pub fn pname_with_ctx() -> @parserc.Parser[Char, (String?, XMLParserContext)]
+
+pub fn ppi() -> @parserc.Parser[Char, String]
+
+pub fn ppiTarget() -> @parserc.Parser[Char, String]
+
+pub fn ppi_with_ctx() -> @parserc.Parser[Char, (String?, XMLParserContext)]
+
+pub fn pprolog() -> @parserc.Parser[Char, Map[String, String]]
+
+pub fn pprolog_with_ctx() -> @parserc.Parser[Char, (Map[String, String]?, XMLParserContext)]
+
+pub fn preference() -> @parserc.Parser[Char, String]
+
+pub fn preference_with_ctx() -> @parserc.Parser[Char, (String?, XMLParserContext)]
+
+pub fn ptext() -> @parserc.Parser[Char, String]
+
+pub fn ptext_with_ctx() -> @parserc.Parser[Char, (String?, XMLParserContext)]
+
+pub fn pwhite_space() -> @parserc.Parser[Char, String]
+
+pub fn pwhite_space_with_ctx() -> @parserc.Parser[Char, (String?, XMLParserContext)]
+
+pub fn pxml() -> @parserc.Parser[Char, XMLDocument]
+
+pub fn pxml_with_ctx() -> @parserc.Parser[Char, (XMLDocument?, XMLParserContext)]
+
+pub fn xml_from_iter(Iter[Char]) -> XMLDocument?
+
+pub fn xml_from_string(String) -> XMLDocument?
+
+// Errors
+
+// Types and methods
+pub(all) struct AttDef {
+  name : String
+  att_type : AttType
+  default_decl : DefaultDecl
+}
+pub impl Show for AttDef
+
+pub(all) enum AttType {
+  StringType(String)
+  TokenizedType(String)
+  NotationType(Array[String])
+  Enumeration(Array[String])
+}
+pub impl Show for AttType
+
+pub(all) struct AttlistDecl {
+  name : String
+  att_defs : Array[AttDef]
+}
+pub impl Show for AttlistDecl
+
+pub(all) enum ChildrenContentSpecOp {
+  Optional
+  ZeroOrMore
+  OneOrMore
+}
+pub impl Show for ChildrenContentSpecOp
+
+pub(all) struct ContentParticle(SingleContentParticle, ChildrenContentSpecOp?)
+
+
+pub impl Show for ContentParticle
+
+pub(all) enum ContentSpec {
+  EMPTY
+  ANY
+  Mixed(Array[String])
+  Children(ContentParticle)
+}
+pub impl Show for ContentSpec
+
+pub(all) enum DTDStatement {
+  Decl(MarkUpDecl)
+  Sep(String)
+}
+pub impl Show for DTDStatement
+
+pub(all) enum DefaultDecl {
+  Required
+  Implied
+  Fixed(String)
+  Value(String)
+}
+pub impl Show for DefaultDecl
+
+pub(all) struct DocTypeDecl {
+  name : String
+  externalID : ExternalID?
+  intSubset : Array[DTDStatement]?
+}
+pub impl Show for DocTypeDecl
+
+pub(all) struct ElementDecl {
+  name : String
+  content_spec : ContentSpec
+}
+pub impl Show for ElementDecl
+
+pub(all) enum EntityDecl {
+  GEDecl(String, EntityDef)
+  PEDecl(String, EntityDef)
+}
+pub impl Show for EntityDecl
+
+pub(all) enum EntityDef {
+  EntityValue(String)
+  GExternalID(ExternalID, String?)
+  PExternalID(ExternalID)
+}
+pub impl Show for EntityDef
+
+pub(all) enum ExternalID {
+  System(String)
+  Public(String, String)
+}
+pub impl Show for ExternalID
+
+pub(all) struct GetElementVisitor {
+  name : String
+  elements : Array[XMLElement]
+}
+
+pub(all) struct Location {
+  mut index : Int
+  mut line : Int
+  mut column : Int
+  length : Int
+}
+pub impl Show for Location
+
+pub(all) enum MarkUpDecl {
+  ElementDecl(ElementDecl)
+  AttListDecl(AttlistDecl)
+  EntityDecl(EntityDecl)
+  NotationDecl(NotationDecl)
+  PI(String)
+  Comment(String)
+}
+pub impl Show for MarkUpDecl
+
+pub(all) enum Misc {
+  Comment(String)
+  PI(String)
+  WhiteSpace(String)
+}
+
+pub(all) struct NotationDecl {
+  name : String
+  id : NotationDeclID
+}
+pub impl Show for NotationDecl
+
+pub(all) enum NotationDeclID {
+  PublicID(String)
+  ExternalID(ExternalID)
+}
+pub impl Show for NotationDeclID
+
+pub(all) enum SingleContentParticle {
+  Name(String)
+  Seq(Array[ContentParticle])
+  Choice(Array[ContentParticle])
+}
+pub impl Show for SingleContentParticle
+
+pub(all) enum XMLChildren {
+  Element(XMLElement)
+  Reference(String)
+  CDATA(String)
+  PI(String)
+  Comment(String)
+  Text(String)
+  WhiteSpace(String)
+}
+pub impl Show for XMLChildren
+
+pub(all) struct XMLDocument {
+  version : String
+  encoding : String
+  standalone : Bool
+  dtd : DocTypeDecl?
+  root : XMLElement
+}
+pub fn XMLDocument::get_element_by_name(Self, String) -> Array[XMLElement]
+pub impl Show for XMLDocument
+
+pub(all) struct XMLElement {
+  name : String
+  empty_element : Bool
+  attributes : Map[String, String]
+  children : Array[XMLChildren]
+}
+pub fn XMLElement::get_attribute(Self, String) -> String?
+pub fn XMLElement::get_children(Self) -> Array[XMLChildren]
+pub fn XMLElement::get_text(Self) -> String
+pub impl Show for XMLElement
+
+pub(all) enum XMLErrorKind {
+  SyntaxError
+  ValidationError
+  EncodingError
+  MalformedReference
+  MismatchedTags(String, String)
+  InternalParserError
+}
+pub impl Show for XMLErrorKind
+
+pub(all) struct XMLParseError {
+  kind : XMLErrorKind
+  message : String
+  location : Location
+}
+pub fn XMLParseError::is_fatal(Self) -> Bool
+pub impl Show for XMLParseError
+
+pub(all) struct XMLParser[Token, Value]((@parserc.Seq[Token], XMLParserContext) -> ((Value, @parserc.Seq[Token])?, XMLParseError?, XMLParserContext))
+pub fn[Token, A, B] XMLParser::and_then(Self[Token, A], Self[Token, B]) -> Self[Token, (A, B)]
+pub fn[Token, A] XMLParser::from_ref(Ref[Self[Token, A]]) -> Self[Token, A]
+#deprecated
+pub fn[Token, Value] XMLParser::inner(Self[Token, Value]) -> (@parserc.Seq[Token], XMLParserContext) -> ((Value, @parserc.Seq[Token])?, XMLParseError?, XMLParserContext)
+pub fn[Token, A, B] XMLParser::map(Self[Token, A], (A) -> B) -> Self[Token, B]
+pub fn[Token, Value] XMLParser::new((@parserc.Seq[Token], XMLParserContext) -> ((Value, @parserc.Seq[Token])?, XMLParseError?, XMLParserContext)) -> Self[Token, Value]
+pub fn[Token, A, B] XMLParser::omit_first(Self[Token, (A, B)]) -> Self[Token, B]
+pub fn[Token, A, B] XMLParser::omit_second(Self[Token, (A, B)]) -> Self[Token, A]
+pub fn[Token, A] XMLParser::optional(Self[Token, A]) -> Self[Token, A?]
+pub fn[Token, A] XMLParser::or_else(Self[Token, A], Self[Token, A]) -> Self[Token, A]
+pub fn[Token, A, B] XMLParser::repeat_with_sep(Self[Token, A], Self[Token, B]) -> Self[Token, Array[A]]
+pub fn[Token, Value] XMLParser::run(Self[Token, Value], @parserc.Seq[Token], XMLParserContext) -> ((Value, @parserc.Seq[Token])?, XMLParseError?, XMLParserContext)
+
+pub struct XMLParserContext {
+  input_array : Array[Char]
+  index : Int
+  mut line_number : Int
+  mut column_number : Int
+  errors : Array[XMLParseError]
+  warnings : Array[String]
+}
+pub fn XMLParserContext::merge(Self, Self) -> Unit
+pub fn XMLParserContext::raise_error(Self, XMLParseError) -> Unit
+pub impl Show for XMLParserContext
+
+// Type aliases
+
+// Traits
+pub(open) trait XMLNode {
+  accept(Self, &XMLVisitor) -> Unit
+}
+
+pub(open) trait XMLVisitor {
+  visit(Self, XMLElement) -> Unit
+}
+

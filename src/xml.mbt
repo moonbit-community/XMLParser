@@ -1,8 +1,8 @@
 ///|
-typealias @combinator.Parser
+using @combinator {type Parser}
 
 ///|
-typealias @combinator.Seq
+using @combinator {type Seq}
 
 ///|
 pub(all) struct XMLDocument {
@@ -126,10 +126,10 @@ pub impl Show for ContentSpec with output(self, logger) {
 }
 
 ///|
-pub typealias ContentParticle as ChildrenContentSpec
+pub(all) struct ContentParticle(SingleContentParticle, ChildrenContentSpecOp?)
 
 ///|
-pub(all) struct ContentParticle(SingleContentParticle,ChildrenContentSpecOp?)
+type ChildrenContentSpec = ContentParticle
 
 ///|
 pub impl Show for ContentParticle with output(self, logger) {

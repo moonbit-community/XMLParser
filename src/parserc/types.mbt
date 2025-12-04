@@ -1,5 +1,7 @@
-///| A possibility infinite lazy list
+///|
+/// A possibility infinite lazy list
 pub struct Seq[T](ArrayView[T])
 
-///| A parser combinator
+///|
+/// A parser combinator
 pub struct Parser[Token, Value]((Seq[Token]) -> (Value, Seq[Token])?)

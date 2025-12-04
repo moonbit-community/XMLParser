@@ -1,5 +1,5 @@
 ///|
-typealias @qc.Gen
+using @qc {type Gen}
 
 ///|
 impl @qc.Shrink for XMLDocument with shrink(self) {
@@ -37,7 +37,7 @@ impl @quickcheck.Arbitrary for XMLElement with arbitrary(size, rs) {
   let attributes = iterGen
     .run(size, rs)
     .fold(init=Map::new(), fn(map, value) {
-      map.set("key_\{map.size()+1}", value)
+      map.set("key_\{map.length()+1}", value)
       map
     })
   let childrenGen : @qc.Gen[Iter[XMLChildren]] = Gen::spawn()
@@ -124,14 +124,14 @@ impl @quickcheck.Arbitrary for XMLChildren with arbitrary(size, rs) {
 fn trivial(xml : XMLDocument) -> Bool {
   let s = xml.to_string()
   let xml2 = xml_from_string(s)
-  not(xml2.is_empty())
+  not(xml2 is None)
 }
 
 ///|
 fn trivial_iter(xml : XMLDocument) -> Bool {
   let s = xml.to_string()
   let xml2 = xml_from_iter(s.iter())
-  not(xml2.is_empty())
+  not(xml2 is None)
 }
 
 ///|
@@ -147,7 +147,7 @@ fn trivial_ctx(xml : XMLDocument) -> Bool {
       _ => false
     })
     .is_empty()
-  if xml2.is_empty() {
+  if xml2 is None {
     return false
   }
   flag
