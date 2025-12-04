@@ -14,7 +14,7 @@ jobs:
         channel: [latest, nightly]
       fail-fast: false
     runs-on: ${{ matrix.os }}
-    continue-on-error: ${{ channel == 'nightly' }}
+    continue-on-error: ${{ matrix.channel == 'nightly' }}
     steps:
       - uses: actions/checkout@v4
 
