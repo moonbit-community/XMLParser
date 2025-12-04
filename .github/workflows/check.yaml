@@ -10,21 +10,24 @@ jobs:
   build:
     strategy:
       matrix:
-        os: [ubuntu-latest, macos-latest, macos-13, windows-latest]
+        os: [ubuntu-latest, macos-latest, windows-latest]
+        channel: [latest, nightly]
       fail-fast: false
     runs-on: ${{ matrix.os }}
-    continue-on-error: false
+    continue-on-error: ${{ channel == 'nightly' }}
     steps:
       - uses: actions/checkout@v4
 
       - name: install
         if: ${{ matrix.os != 'windows-latest' }}
         run: |
-          curl -fsSL https://cli.moonbitlang.com/install/unix.sh | bash
+          curl -fsSL https://cli.moonbitlang.com/install/unix.sh | bash -s ${{ matrix.channel }}
           echo "$HOME/.moon/bin" >> $GITHUB_PATH
 
       - name: install on windows
         if: ${{ matrix.os == 'windows-latest' }}
+        env:
+          MOONBIT_INSTALL_VERSION: ${{ matrix.channel }}
         run: |
           Set-ExecutionPolicy RemoteSigned -Scope CurrentUser; irm https://cli.moonbitlang.com/install/powershell.ps1 | iex
           "C:\Users\runneradmin\.moon\bin" | Out-File -FilePath $env:GITHUB_PATH -Append
@@ -44,7 +47,7 @@ jobs:
 
       - name: moon info
         run: |
-          moon info --target wasm,wasm-gc,js,native
+          moon info --target all
           git diff --exit-code
       
       - name: download testsuite (Unix)
@@ -56,28 +59,14 @@ jobs:
         shell: pwsh
         run: ./scripts/init.ps1
 
-      - name: Set ulimit and run moon test
-        if: ${{ matrix.os != 'windows-latest' }}
-        run: |
-          moon test --target all
-          moon test --release --target all
-          moon test --target native
-          moon test --target native --release
-
       - name: Setup MSVC
         if: ${{ matrix.os == 'windows-latest' }}
         uses: ilammy/msvc-dev-cmd@v1
 
-      - name: Run moon test on Windows
-        if: ${{ matrix.os == 'windows-latest' }}
+      - name: Run moon test
         run: |
           moon test --target all
           moon test --release --target all
-          moon test --target native
-
-      - name: moon test --doc
-        run: |
-          moon test --doc
 
   typo-check:
     runs-on: ubuntu-latest
@@ -96,148 +85,7 @@ jobs:
 
       - name: check typos
         run: typos
-
-  nightly-check:
-    strategy:
-      matrix:
-        os: [ubuntu-latest, macos-latest, macos-13, windows-latest]
-      fail-fast: false
-
-    continue-on-error: true
-    runs-on: ${{ matrix.os }}
-    steps:
-      - uses: actions/checkout@v4
-
-      - name: install
-        if: ${{ matrix.os != 'windows-latest' }}
-        run: |
-          curl -fsSL https://cli.moonbitlang.com/install/unix.sh | bash -s 'nightly'
-          echo "$HOME/.moon/bin" >> $GITHUB_PATH
-
-      - name: install on windows
-        if: ${{ matrix.os == 'windows-latest' }}
-        run: |
-          irm https://cli.moonbitlang.com/install/powershell.ps1 | iex
-          "C:\Users\runneradmin\.moon\bin" | Out-File -FilePath $env:GITHUB_PATH -Append
-        env:
-          MOONBIT_INSTALL_VERSION: nightly
-
-      - name: moon version
-        run: |
-          moon version --all
-          moonrun --version
-
-      - name: install deps
-        run: | 
-          moon update
-          moon install
-
-      - name: moon check
-        run: moon check 
-      
-      - name: download testsuite (Unix)
-        if: ${{ matrix.os != 'windows-latest' }}
-        run: sh scripts/init.sh
-
-      - name: download testsuite (Windows)
-        if: ${{ matrix.os == 'windows-latest' }}
-        shell: pwsh
-        run: ./scripts/init.ps1
-
-      - name: Set ulimit and run moon test
-        if: ${{ matrix.os != 'windows-latest' }}
-        run: |
-          ulimit -s 8176
-          moon test --target all
-          moon test --release --target all
-          moon test --target native
-          moon test --target native --release
-
-      - name: Setup MSVC
-        if: ${{ matrix.os == 'windows-latest' }}
-        uses: ilammy/msvc-dev-cmd@v1
-
-      - name: Run moon test on Windows
-        if: ${{ matrix.os == 'windows-latest' }}
-        run: |
-          moon test --target all
-          moon test --release --target all
-          moon test --target native
-
-      - name: moon test --doc
-        run: |
-          moon test --doc
-
-  bleeding-check:
-    continue-on-error: true
-    strategy:
-      matrix:
-        os: [macos-latest, ubuntu-latest, windows-latest]
-    runs-on: ${{ matrix.os }}
-    steps:
-      - uses: actions/checkout@v4
-
-      - name: install
-        if: ${{ matrix.os != 'windows-latest' }}
-        run: |
-          curl -fsSL https://cli.moonbitlang.com/install/unix.sh | bash -s 'bleeding'
-          echo "$HOME/.moon/bin" >> $GITHUB_PATH
-
-      - name: install on windows
-        if: ${{ matrix.os == 'windows-latest' }}
-        run: |
-          irm https://cli.moonbitlang.com/install/powershell.ps1 | iex
-          "C:\Users\runneradmin\.moon\bin" | Out-File -FilePath $env:GITHUB_PATH -Append
-        env:
-          MOONBIT_INSTALL_VERSION: bleeding
-
-      - name: moon version
-        run: |
-          moon version --all
-          moonrun --version
-
-      - name: install deps
-        run: | 
-          moon update
-          moon install
-
-      - name: moon check
-        run: moon check 
-
-      - name: download testsuite (Unix)
-        if: ${{ matrix.os != 'windows-latest' }}
-        run: sh scripts/init.sh
-
-      - name: download testsuite (Windows)
-        if: ${{ matrix.os == 'windows-latest' }}
-        shell: pwsh
-        run: ./scripts/init.ps1
-
-      - name: Set ulimit and run moon test
-        if: ${{ matrix.os != 'windows-latest' }}
-        run: |
-          ulimit -s 8176
-          moon test --target all
-          moon test --release --target all
-          moon test --target native
-          moon test --target native --release
-
-      - name: moon test --doc
-        run: |
-          moon test --doc
-
-      - name: Setup MSVC
-        if: ${{ matrix.os == 'windows-latest' }}
-        uses: ilammy/msvc-dev-cmd@v1
-
-      - name: Run moon test on Windows
-        if: ${{ matrix.os == 'windows-latest' }}
-        run: |
-          moon test --target all
-          moon test --release --target all
-          moon test --target native
-          moon test --target native --release
-
+          
   moon-json-format-check:
     runs-on: ubuntu-latest
     steps:
