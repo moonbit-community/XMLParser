@@ -5,3 +5,5 @@ target/
 resource/
 .cursor/*
 ..mi
+_build/
+target
