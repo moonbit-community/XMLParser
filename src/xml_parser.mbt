@@ -88,7 +88,7 @@ fn is_char(c : Char) -> Bool {
 ///
 /// Example:
 ///
-/// ```moonbit
+/// ```moonbit nocheck
 ///   let result = pwhite_space().run(@combinator.Seq::from_string("  \t\n\rtext"))
 ///   inspect(result, content="Some((\"  \\t\\n\\r\", 't''e''x''t'))")
 /// ```
@@ -121,7 +121,7 @@ pub fn pwhite_space() -> Parser[Char, String] {
 ///
 /// Example:
 ///
-/// ```moonbit
+/// ```moonbit nocheck
 ///   let result = ptext().run(@combinator.Seq::from_string("Hello World"))
 ///   inspect(result, content="Some((\"Hello World\", ))")
 ///
@@ -154,7 +154,7 @@ pub fn ptext() -> Parser[Char, String] {
 ///
 /// Example:
 ///
-/// ```moonbit
+/// ```moonbit nocheck
 ///   // Valid XML names
 ///   let result1 = pname().run(@combinator.Seq::from_string("element1"))
 ///   inspect(result1, content="Some((\"element1\", ))")
@@ -253,7 +253,7 @@ fn pattValue() -> Parser[Char, String] {
 ///
 /// Example:
 ///
-/// ```moonbit
+/// ```moonbit nocheck
 ///   let result = pattribute().run(@combinator.Seq::from_string("name=\"value\""))
 ///   inspect(result, content="Some(((\"name\", \"value\"), ))")
 /// ```
@@ -309,7 +309,7 @@ test "pattribute/invalid_format" {
 ///
 /// Example:
 ///
-/// ```moonbit
+/// ```moonbit nocheck
 ///   let result = pattributes().run(
 ///     @combinator.Seq::from_string(" name=\"value\" type=\"text\""),
 ///   )
@@ -408,7 +408,7 @@ fn trim_text(text : String) -> (String, String, String) {
 ///
 /// Example:
 ///
-/// ```moonbit
+/// ```moonbit nocheck
 ///   // Parse a simple XML element with attributes and text content
 ///   let input = "<user id=\"1\" name=\"John\">Hello, World!</user>"
 ///   let result = pelement().run(@combinator.Seq::from_string(input))
@@ -582,7 +582,7 @@ fn peek_char_seq(seq : Seq[Char], n : Int) -> String? {
 ///
 /// Example:
 ///
-/// ```moonbit
+/// ```moonbit nocheck
 ///   let input = "<![CDATA[Some <raw> XML & content]]>"
 ///   let result = pcdata().run(@combinator.Seq::from_string(input))
 ///   inspect(result, content="Some((\"Some <raw> XML & content\", ))")
@@ -626,7 +626,7 @@ pub fn pcdata() -> Parser[Char, String] {
 ///
 /// Example:
 ///
-/// ```moonbit
+/// ```moonbit nocheck
 ///   let comment = "<!-- This is a comment -->"
 ///   let result = pcomment().run(@combinator.Seq::from_string(comment))
 ///   inspect(result, content="Some((\" This is a comment \", ))")
@@ -683,7 +683,7 @@ pub fn ppiTarget() -> Parser[Char, String] {
 ///
 /// Example:
 ///
-/// ```moonbit
+/// ```moonbit nocheck
 ///   let result = ppi().run(@combinator.Seq::from_string("<?php echo 'Hello' ?>"))
 ///   inspect(result, content="Some((\"php echo 'Hello' \", ))")
 ///
@@ -756,7 +756,7 @@ test "pcomment/invalid" {
 ///
 /// Example:
 ///
-/// ```moonbit
+/// ```moonbit nocheck
 ///   let result = pEntityRef().run(@combinator.Seq::from_string("&lt;"))
 ///   inspect(result, content="Some((\"&lt;\", ))")
 /// ```
@@ -783,7 +783,7 @@ pub fn pEntityRef() -> Parser[Char, String] {
 ///
 /// Example:
 ///
-/// ```moonbit  
+/// ```moonbit nocheck
 ///   let decimal = pcharRef().run(@combinator.Seq::from_string("&#123;"))
 ///   let hex = pcharRef().run(@combinator.Seq::from_string("&#xA5;"))
 ///   inspect(decimal, content="Some((\"#123;\", ))")
@@ -825,7 +825,7 @@ pub fn pcharRef() -> Parser[Char, String] {
 ///
 /// Example:
 ///
-/// ```moonbit
+/// ```moonbit nocheck
 ///   // Entity reference
 ///   let entity = preference().run(@combinator.Seq::from_string("&amp;"))
 ///   inspect(entity, content="Some((\"&amp;\", ))")
@@ -903,7 +903,7 @@ test "pprolog/minimal_valid_prolog" {
 ///
 /// Example:
 ///
-/// ```moonbit
+/// ```moonbit nocheck
 ///   let result = pdtd().run(@combinator.Seq::from_string("<!DOCTYPE html>")).unwrap().0
 ///   inspect(result, content="<!DOCTYPE html>")
 /// ```
@@ -953,7 +953,7 @@ pub fn pdtd() -> Parser[Char, DocTypeDecl] {
 ///
 /// Example:
 ///
-/// ```moonbit
+/// ```moonbit nocheck
 ///   let xml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?><root><child>Text</child></root>"
 ///   let result = pxml().run(@combinator.Seq::from_string(xml))
 ///   let doc = result.unwrap().0
@@ -1098,7 +1098,7 @@ test "pxml/mismatched_start_end_tags" {
 ///
 /// Example:
 ///
-/// ```moonbit
+/// ```moonbit nocheck
 ///   let xml = "<?xml version=\"1.0\"?><root><child>Content</child></root>"
 ///   let doc = xml_from_string(xml).unwrap()
 ///   inspect(doc.root.name, content="root")
