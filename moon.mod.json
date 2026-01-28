@@ -2,7 +2,7 @@
   "name": "ruifeng/XMLParser",
   "version": "0.2.5",
   "deps": {
-    "moonbitlang/quickcheck": "0.9.5",
+    "moonbitlang/quickcheck": "0.9.10",
     "moonbitlang/x": "0.4.38"
   },
   "readme": "README.md",

@@ -4,6 +4,7 @@
         "path": "ruifeng/XMLParser/parserc",
         "alias": "combinator"
       },
+      "moonbitlang/core/quickcheck",
       {
         "path": "moonbitlang/quickcheck",
         "alias": "qc"
@@ -13,6 +14,10 @@
       {
         "path": "moonbitlang/x/fs",
         "alias": "fs"
+      },
+      {
+        "path": "moonbitlang/core/strconv",
+        "alias": "strconv"
       }
     ],
     "warn-list": "-1-2-3-5-6-7-8"

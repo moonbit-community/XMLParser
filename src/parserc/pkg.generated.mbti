@@ -1,9 +1,9 @@
 // Generated using `moon info`, DON'T EDIT IT
 package "ruifeng/XMLParser/parserc"
 
-import(
-  "moonbitlang/core/list"
-)
+import {
+  "moonbitlang/core/list",
+}
 
 // Values
 pub fn[Token, A, B, C] lift2((A, B) -> C) -> (Parser[Token, A], Parser[Token, B]) -> Parser[Token, C]
