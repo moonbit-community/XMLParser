@@ -44,13 +44,11 @@ fn is_valid(s : String) -> Bool {
 test "xmlconf valid sa" {
   let dir = "resource/xmlconf/xmltest/valid/sa"
   let files = @fs.read_dir(dir) catch {
-    e => {
-      println(
+    e =>
+      fail(
         "Missing XML conformance test suite. Run scripts/init.sh or scripts/init.ps1. Error: " +
         e.to_string(),
       )
-      panic()
-    }
   }
   let files = files.filter(is_valid)
   let mut cnt = 0
@@ -68,7 +66,7 @@ test "xmlconf valid sa" {
           println(str)
           println(bytes)
           println(result)
-          panic()
+          fail("xmlconf parse failed: " + dir + "/" + file)
         }
       }
     }
