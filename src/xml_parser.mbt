@@ -88,9 +88,11 @@ fn is_char(c : Char) -> Bool {
 ///
 /// Example:
 ///
-/// ```moonbit
+/// ```moonbit check
+/// test {
 ///   let result = pwhite_space().run(@combinator.Seq::from_string("  \t\n\rtext"))
 ///   inspect(result, content="Some((\"  \\t\\n\\r\", 't''e''x''t'))")
+/// }
 /// ```
 pub fn pwhite_space() -> Parser[Char, String] {
   fn is_ws(c : Char) {
@@ -121,15 +123,15 @@ pub fn pwhite_space() -> Parser[Char, String] {
 ///
 /// Example:
 ///
-/// ```moonbit
+/// ```moonbit check
+/// test {
 ///   let result = ptext().run(@combinator.Seq::from_string("Hello World"))
 ///   inspect(result, content="Some((\"Hello World\", ))")
-///
 ///   let result = ptext().run(@combinator.Seq::from_string("Text with & and <"))
 ///   inspect(result, content="Some((\"Text with \", '&'' ''a''n''d'' ''<'))") // stops parsing at '&'
-///
 ///   let result = ptext().run(@combinator.Seq::from_string(""))
 ///   inspect(result, content="Some((\"\", ))")
+/// }
 /// ```
 pub fn ptext() -> Parser[Char, String] {
   @combinator.pchar_such_that(fn(c) { c != '<' && c != '&' })
@@ -154,7 +156,8 @@ pub fn ptext() -> Parser[Char, String] {
 ///
 /// Example:
 ///
-/// ```moonbit
+/// ```moonbit check
+/// test {
 ///   // Valid XML names
 ///   let result1 = pname().run(@combinator.Seq::from_string("element1"))
 ///   inspect(result1, content="Some((\"element1\", ))")
@@ -162,6 +165,7 @@ pub fn ptext() -> Parser[Char, String] {
 ///   // Invalid XML names (starting with digit)
 ///   let result2 = pname().run(@combinator.Seq::from_string("1element"))
 ///   inspect(result2, content="None")
+/// }
 /// ```
 pub fn pname() -> Parser[Char, String] {
   @combinator.pchar_such_that(is_name_start_char)
@@ -253,9 +257,11 @@ fn pattValue() -> Parser[Char, String] {
 ///
 /// Example:
 ///
-/// ```moonbit
+/// ```moonbit check
+/// test {
 ///   let result = pattribute().run(@combinator.Seq::from_string("name=\"value\""))
 ///   inspect(result, content="Some(((\"name\", \"value\"), ))")
+/// }
 /// ```
 pub fn pattribute() -> Parser[Char, (String, String)] {
   pname()
@@ -309,13 +315,15 @@ test "pattribute/invalid_format" {
 ///
 /// Example:
 ///
-/// ```moonbit
+/// ```moonbit check
+/// test {
 ///   let result = pattributes().run(
 ///     @combinator.Seq::from_string(" name=\"value\" type=\"text\""),
 ///   )
 ///   let attrs = result.unwrap().0
 ///   inspect(attrs.get("name"), content="Some(\"value\")")
 ///   inspect(attrs.get("type"), content="Some(\"text\")")
+/// }
 /// ```
 pub fn pattributes() -> Parser[Char, Map[String, String]] {
   pwhite_space()
@@ -408,7 +416,8 @@ fn trim_text(text : String) -> (String, String, String) {
 ///
 /// Example:
 ///
-/// ```moonbit
+/// ```moonbit check
+/// test {
 ///   // Parse a simple XML element with attributes and text content
 ///   let input = "<user id=\"1\" name=\"John\">Hello, World!</user>"
 ///   let result = pelement().run(@combinator.Seq::from_string(input))
@@ -416,6 +425,7 @@ fn trim_text(text : String) -> (String, String, String) {
 ///   inspect(element.name, content="user")
 ///   inspect(element.attributes.get("id"), content="Some(\"1\")")
 ///   inspect(element.attributes.get("name"), content="Some(\"John\")")
+/// }
 /// ```
 pub fn pelement() -> Parser[Char, XMLElement] {
   let element_ref : Ref[Parser[Char, XMLElement]] = {
@@ -582,14 +592,15 @@ fn peek_char_seq(seq : Seq[Char], n : Int) -> String? {
 ///
 /// Example:
 ///
-/// ```moonbit
+/// ```moonbit check
+/// test {
 ///   let input = "<![CDATA[Some <raw> XML & content]]>"
 ///   let result = pcdata().run(@combinator.Seq::from_string(input))
 ///   inspect(result, content="Some((\"Some <raw> XML & content\", ))")
-///
 ///   let input = "<![CDATA[]]>"
 ///   let result = pcdata().run(@combinator.Seq::from_string(input))
 ///   inspect(result, content="Some((\"\", ))")
+/// }
 /// ```
 pub fn pcdata() -> Parser[Char, String] {
   let ptail_cdata : Parser[Char, String] = @combinator.Parser::new(fn(seq) {
@@ -626,10 +637,12 @@ pub fn pcdata() -> Parser[Char, String] {
 ///
 /// Example:
 ///
-/// ```moonbit
+/// ```moonbit check
+/// test {
 ///   let comment = "<!-- This is a comment -->"
 ///   let result = pcomment().run(@combinator.Seq::from_string(comment))
 ///   inspect(result, content="Some((\" This is a comment \", ))")
+/// }
 /// ```
 pub fn pcomment() -> Parser[Char, String] {
   let pvalidNonDashChar = @combinator.pchar_such_that(c => is_char(c) &&
@@ -683,15 +696,15 @@ pub fn ppiTarget() -> Parser[Char, String] {
 ///
 /// Example:
 ///
-/// ```moonbit
+/// ```moonbit check
+/// test {
 ///   let result = ppi().run(@combinator.Seq::from_string("<?php echo 'Hello' ?>"))
 ///   inspect(result, content="Some((\"php echo 'Hello' \", ))")
-///
 ///   let result = ppi().run(@combinator.Seq::from_string("<??>"))
 ///   inspect(result, content="Some((\"\", ))")
-///
 ///   let result = ppi().run(@combinator.Seq::from_string("<?incomplete"))
 ///   inspect(result, content="None")
+/// }
 /// ```
 /// TODO 
 /// 	PI	   ::=   	'<?' PITarget (S (Char* - (Char* '?>' Char*)))? '?>'
@@ -756,9 +769,11 @@ test "pcomment/invalid" {
 ///
 /// Example:
 ///
-/// ```moonbit
+/// ```moonbit check
+/// test {
 ///   let result = pEntityRef().run(@combinator.Seq::from_string("&lt;"))
 ///   inspect(result, content="Some((\"&lt;\", ))")
+/// }
 /// ```
 pub fn pEntityRef() -> Parser[Char, String] {
   @combinator.pchar('&')
@@ -783,11 +798,13 @@ pub fn pEntityRef() -> Parser[Char, String] {
 ///
 /// Example:
 ///
-/// ```moonbit  
+/// ```moonbit check
+/// test {
 ///   let decimal = pcharRef().run(@combinator.Seq::from_string("&#123;"))
 ///   let hex = pcharRef().run(@combinator.Seq::from_string("&#xA5;"))
 ///   inspect(decimal, content="Some((\"#123;\", ))")
 ///   inspect(hex, content="Some((\"#A5;\", ))")
+/// }
 /// ```
 pub fn pcharRef() -> Parser[Char, String] {
   let pdecimal = @combinator.pstring("&#")
@@ -825,7 +842,8 @@ pub fn pcharRef() -> Parser[Char, String] {
 ///
 /// Example:
 ///
-/// ```moonbit
+/// ```moonbit check
+/// test {
 ///   // Entity reference
 ///   let entity = preference().run(@combinator.Seq::from_string("&amp;"))
 ///   inspect(entity, content="Some((\"&amp;\", ))")
@@ -837,6 +855,7 @@ pub fn pcharRef() -> Parser[Char, String] {
 ///   // Character reference (hexadecimal)
 ///   let hex = preference().run(@combinator.Seq::from_string("&#x20;"))
 ///   inspect(hex, content="Some((\"#20;\", ))")
+/// }
 /// ```
 pub fn preference() -> Parser[Char, String] {
   pEntityRef().or_else(pcharRef())
@@ -903,9 +922,13 @@ test "pprolog/minimal_valid_prolog" {
 ///
 /// Example:
 ///
-/// ```moonbit
-///   let result = pdtd().run(@combinator.Seq::from_string("<!DOCTYPE html>")).unwrap().0
+/// ```moonbit check
+/// test {
+///   let result = pdtd()
+///     .run(@combinator.Seq::from_string("<!DOCTYPE html>"))
+///     .unwrap().0
 ///   inspect(result, content="<!DOCTYPE html>")
+/// }
 /// ```
 pub fn pdtd() -> Parser[Char, DocTypeDecl] {
   @combinator.pstring("<!DOCTYPE")
@@ -953,12 +976,14 @@ pub fn pdtd() -> Parser[Char, DocTypeDecl] {
 ///
 /// Example:
 ///
-/// ```moonbit
+/// ```moonbit check
+/// test {
 ///   let xml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?><root><child>Text</child></root>"
 ///   let result = pxml().run(@combinator.Seq::from_string(xml))
 ///   let doc = result.unwrap().0
 ///   inspect(doc.version, content="1.0")
 ///   inspect(doc.root.name, content="root")
+/// }
 /// ```
 pub fn pxml() -> Parser[Char, XMLDocument] {
   pwhite_space()
@@ -1098,10 +1123,12 @@ test "pxml/mismatched_start_end_tags" {
 ///
 /// Example:
 ///
-/// ```moonbit
+/// ```moonbit check
+/// test {
 ///   let xml = "<?xml version=\"1.0\"?><root><child>Content</child></root>"
 ///   let doc = xml_from_string(xml).unwrap()
 ///   inspect(doc.root.name, content="root")
+/// }
 /// ```
 pub fn xml_from_string(s : String) -> XMLDocument? {
   let result = pxml().run(Seq::from_string(s))

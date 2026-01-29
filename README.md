@@ -31,3 +31,11 @@ let xml = xml.unwrap()
 println(xml)
 ```
 
+# XML Conformance Test Suite
+
+Some tests (e.g. `xmlconf valid sa`) require the W3C XML conformance test suite to be downloaded into `./resource/`.
+
+- Unix/macOS: `bash scripts/init.sh`
+- Windows (PowerShell): `./scripts/init.ps1`
+
+Then run `moon test`.

@@ -1,9 +1,9 @@
 // Generated using `moon info`, DON'T EDIT IT
 package "ruifeng/XMLParser"
 
-import(
-  "ruifeng/XMLParser/parserc"
-)
+import {
+  "ruifeng/XMLParser/parserc",
+}
 
 // Values
 pub fn pEntityRef() -> @parserc.Parser[Char, String]
