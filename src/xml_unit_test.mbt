@@ -40,6 +40,9 @@ fn is_valid(s : String) -> Bool {
 
 ///|
 test "xmlconf valid sa" {
+  println(
+    "NOTE: xmlconf tests require downloading the W3C XML conformance test suite into ./resource (run scripts/init.sh or scripts/init.ps1).",
+  )
   let dir = "resource/xmlconf/xmltest/valid/sa"
   let files = @fs.read_dir(dir).filter(is_valid)
   let mut cnt = 0
