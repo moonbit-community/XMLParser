@@ -39,12 +39,20 @@ fn is_valid(s : String) -> Bool {
 }
 
 ///|
+/// Requires the W3C XML conformance test suite under `resource/`.
+/// Run `bash scripts/init.sh` (Unix/macOS) or `./scripts/init.ps1` (Windows) to download it.
 test "xmlconf valid sa" {
-  println(
-    "NOTE: xmlconf tests require downloading the W3C XML conformance test suite into ./resource (run scripts/init.sh or scripts/init.ps1).",
-  )
   let dir = "resource/xmlconf/xmltest/valid/sa"
-  let files = @fs.read_dir(dir).filter(is_valid)
+  let files = @fs.read_dir(dir) catch {
+    e => {
+      println(
+        "Missing XML conformance test suite. Run scripts/init.sh or scripts/init.ps1. Error: " +
+        e.to_string(),
+      )
+      panic()
+    }
+  }
+  let files = files.filter(is_valid)
   let mut cnt = 0
   for file in files {
     if file.has_suffix(".xml") {
@@ -60,12 +68,11 @@ test "xmlconf valid sa" {
           println(str)
           println(bytes)
           println(result)
-          return
+          panic()
         }
       }
     }
   }
-  println("passed: \{cnt}/\{files.length()}")
   inspect(cnt, content=files.length().to_string())
 }
 
