@@ -123,15 +123,14 @@ pub fn[Token, A, B] XMLParser::repeat_with_sep(
         }
       (Some((hd, tl)), err, ctx1) => {
         let result = [hd]
-        let (input, ctx2) = loop (tl, ctx1) {
-          (input, ctx_loop) =>
-            match sep_self.run(input, ctx_loop) {
-              (Some((hd, tl)), err, ctx2) => {
-                result.push(hd)
-                continue (tl, ctx2)
-              }
-              (None, err, ctx2) => (input, ctx2)
+        let (input, ctx2) = for input = tl, ctx_loop = ctx1 {
+          match sep_self.run(input, ctx_loop) {
+            (Some((hd, tl)), err, ctx2) => {
+              result.push(hd)
+              continue tl, ctx2
             }
+            (None, err, ctx2) => break (input, ctx2)
+          }
         }
         (Some((result, input)), err, ctx2)
       }

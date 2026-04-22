@@ -78,24 +78,22 @@ pub let pint64 : Parser[Char, Int64] = pdigits.map(fn(tuple) {
 /// parser that tries to match the given string
 pub fn pstring(string : String) -> Parser[Char, String] {
   Parser(fn(seq) {
-    let iter = loop (seq, Seq::from_string(string)) {
-      (iter, input) => {
-        if not(input.is_empty()) {
-          let (target, rest_target) = match input.uncons() {
-            None => return None
-            Some(s) => s
-          }
-          let (char, rest) = match iter.uncons() {
-            None => return None
-            Some(s) => s
-          }
-          if target != char {
-            return None
-          }
-          continue (rest, rest_target)
+    let iter = for iter = seq, input = Seq::from_string(string) {
+      if not(input.is_empty()) {
+        let (target, rest_target) = match input.uncons() {
+          None => return None
+          Some(s) => s
         }
-        break iter
+        let (char, rest) = match iter.uncons() {
+          None => return None
+          Some(s) => s
+        }
+        if target != char {
+          return None
+        }
+        continue rest, rest_target
       }
+      break iter
     }
     Some((string, iter))
   })
