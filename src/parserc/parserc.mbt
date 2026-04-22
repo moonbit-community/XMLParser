@@ -156,7 +156,7 @@ pub fn[Token, A, B] Parser::repeat_n_with_sep(
         }
         array[i + 1] = hd
         continue i + 1, tl
-      } else {
+      } nobreak {
         Some((array, rest))
       }
     })
@@ -190,15 +190,15 @@ pub fn[Token, A, B] Parser::repeat_0_to_n_with_sep(
           let result = [hd]
           for i = 0, rest = tl; i < n - 1; {
             match sep_self.run(rest) {
-              Some((hd, tl)) => {
-                result.push(hd)
-                continue i + 1, tl
-              }
-              None => break Some((result, rest))
-            }
-          } else {
-            Some((result, rest))
+          Some((hd, tl)) => {
+            result.push(hd)
+            continue i + 1, tl
           }
+          None => break Some((result, rest))
+        }
+      } nobreak {
+        Some((result, rest))
+      }
         }
       }
     })
@@ -223,15 +223,14 @@ pub fn[Token, A, B] Parser::repeat_with_sep(
       None => return Some(([], seq))
       Some((hd, tl)) => {
         let result = [hd]
-        let input = loop tl {
-          input =>
-            match sep_self.run(input) {
-              Some((hd, tl)) => {
-                result.push(hd)
-                continue tl
-              }
-              None => input
+        let input = for input = tl {
+          match sep_self.run(input) {
+            Some((hd, tl)) => {
+              result.push(hd)
+              continue tl
             }
+            None => break input
+          }
         }
         Some((result, input))
       }
