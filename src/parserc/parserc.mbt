@@ -190,15 +190,15 @@ pub fn[Token, A, B] Parser::repeat_0_to_n_with_sep(
           let result = [hd]
           for i = 0, rest = tl; i < n - 1; {
             match sep_self.run(rest) {
-          Some((hd, tl)) => {
-            result.push(hd)
-            continue i + 1, tl
+              Some((hd, tl)) => {
+                result.push(hd)
+                continue i + 1, tl
+              }
+              None => break Some((result, rest))
+            }
+          } nobreak {
+            Some((result, rest))
           }
-          None => break Some((result, rest))
-        }
-      } nobreak {
-        Some((result, rest))
-      }
         }
       }
     })

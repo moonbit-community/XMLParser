@@ -64,7 +64,6 @@ pub fn XMLParserContext::merge(
     errors,
     warnings,
   }
-
 }
 
 ///|
@@ -398,7 +397,6 @@ pub fn pelement_with_ctx() -> Parser[Char, Context[XMLElement]] {
                 None => ()
               }
               let _ = merge_context(ctx_1, ctx)
-
             }
             None => ()
           }
@@ -494,7 +492,6 @@ pub fn pelement_with_ctx() -> Parser[Char, Context[XMLElement]] {
                           1,
                           "Mismatched start and end tags: \{name_start} and \{name_end}",
                         )
-
                       }
                       let element = {
                         name: name_start,

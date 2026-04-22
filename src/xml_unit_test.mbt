@@ -21,7 +21,6 @@ test "dtd testcase 1" {
     #|<!ATTLIST doc a IDREFS #IMPLIED>
     #|]>
   let result = parser.run(@combinator.Seq::from_string(str)).unwrap()
-
 }
 
 ///|

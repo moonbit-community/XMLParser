@@ -248,7 +248,6 @@ test "EnitytDecl" {
   let seq = Seq::from_string(str)
   let parser = pentityDecl()
   let _result = parser.run(seq).unwrap().0
-
 }
 
 ///|

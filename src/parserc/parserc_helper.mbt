@@ -112,10 +112,12 @@ let pdigits : Parser[Char, (Char?, (Int, Array[Int]))] = pchar('-')
     pchar('0')
     .map(fn(_ch) { (0, []) })
     .or_else(
-      pvalue(x => match x {
-        '1' | '2' | '3' | '4' | '5' | '6' | '7' | '8' | '9' as char =>
-          Some(char.to_int() - 0x30)
-        _ => None
+      pvalue(x => {
+        match x {
+          '1' | '2' | '3' | '4' | '5' | '6' | '7' | '8' | '9' as char =>
+            Some(char.to_int() - 0x30)
+          _ => None
+        }
       }).and_then(pdigit.repeat()),
     ),
   )
