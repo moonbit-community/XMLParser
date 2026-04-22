@@ -13,7 +13,14 @@ pub struct XMLParserContext {
   mut column_number : Int
   errors : Array[XMLParseError]
   warnings : Array[String]
-} derive(Show)
+}
+
+///|
+pub impl Show for XMLParserContext with output(self, logger) {
+  logger.write_string(
+    "{ input_array: \{self.input_array}, index: \{self.index}, line_number: \{self.line_number}, column_number: \{self.column_number}, errors: \{self.errors}, warnings: \{self.warnings} }",
+  )
+}
 
 // pub fn XMLParserContext::raise_error(self : XMLParserContext, kind : XMLErrorKind, index : Int, msg : String) -> Unit {
 //   let error = {
