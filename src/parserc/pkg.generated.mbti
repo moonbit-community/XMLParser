@@ -3,6 +3,7 @@ package "ruifeng/XMLParser/parserc"
 
 import {
   "moonbitlang/core/list",
+  "moonbitlang/core/ref",
 }
 
 // Values
@@ -37,9 +38,7 @@ pub struct Parser[Token, Value]((Seq[Token]) -> (Value, Seq[Token])?)
 pub fn[Token, A, B] Parser::and_then(Self[Token, A], Self[Token, B]) -> Self[Token, (A, B)]
 pub fn[Token, A, B] Parser::apply(Self[Token, A], Self[Token, (A) -> B]) -> Self[Token, B]
 pub fn[Token, A, B] Parser::between(Self[Token, A], Self[Token, B]) -> Self[Token, A]
-pub fn[Token, A] Parser::from_ref(Ref[Self[Token, A]]) -> Self[Token, A]
-#deprecated
-pub fn[Token, Value] Parser::inner(Self[Token, Value]) -> (Seq[Token]) -> (Value, Seq[Token])?
+pub fn[Token, A] Parser::from_ref(@ref.Ref[Self[Token, A]]) -> Self[Token, A]
 pub fn[Token, A, B] Parser::map(Self[Token, A], (A) -> B) -> Self[Token, B]
 pub fn[Token, Value] Parser::new((Seq[Token]) -> (Value, Seq[Token])?) -> Self[Token, Value]
 pub fn[Token, A, B] Parser::omit_first(Self[Token, (A, B)]) -> Self[Token, B]
@@ -62,8 +61,6 @@ pub fn[T] Seq::default() -> Self[T]
 pub fn[T] Seq::from_array(ArrayView[T]) -> Self[T]
 pub fn[T] Seq::from_list(@list.List[T]) -> Self[T]
 pub fn Seq::from_string(String) -> Self[Char]
-#deprecated
-pub fn[T] Seq::inner(Self[T]) -> ArrayView[T]
 pub fn[T] Seq::is_empty(Self[T]) -> Bool
 pub fn[T] Seq::length(Self[T]) -> Int
 pub fn[T1, T2] Seq::map(Self[T1], (T1) -> T2) -> Self[T2]

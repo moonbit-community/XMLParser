@@ -2,6 +2,7 @@
 package "ruifeng/XMLParser"
 
 import {
+  "moonbitlang/core/ref",
   "ruifeng/XMLParser/parserc",
 }
 
@@ -106,8 +107,6 @@ pub(all) enum ChildrenContentSpecOp {
 pub impl Show for ChildrenContentSpecOp
 
 pub(all) struct ContentParticle(SingleContentParticle, ChildrenContentSpecOp?)
-
-
 pub impl Show for ContentParticle
 
 pub(all) enum ContentSpec {
@@ -264,9 +263,7 @@ pub impl Show for XMLParseError
 
 pub(all) struct XMLParser[Token, Value]((@parserc.Seq[Token], XMLParserContext) -> ((Value, @parserc.Seq[Token])?, XMLParseError?, XMLParserContext))
 pub fn[Token, A, B] XMLParser::and_then(Self[Token, A], Self[Token, B]) -> Self[Token, (A, B)]
-pub fn[Token, A] XMLParser::from_ref(Ref[Self[Token, A]]) -> Self[Token, A]
-#deprecated
-pub fn[Token, Value] XMLParser::inner(Self[Token, Value]) -> (@parserc.Seq[Token], XMLParserContext) -> ((Value, @parserc.Seq[Token])?, XMLParseError?, XMLParserContext)
+pub fn[Token, A] XMLParser::from_ref(@ref.Ref[Self[Token, A]]) -> Self[Token, A]
 pub fn[Token, A, B] XMLParser::map(Self[Token, A], (A) -> B) -> Self[Token, B]
 pub fn[Token, Value] XMLParser::new((@parserc.Seq[Token], XMLParserContext) -> ((Value, @parserc.Seq[Token])?, XMLParseError?, XMLParserContext)) -> Self[Token, Value]
 pub fn[Token, A, B] XMLParser::omit_first(Self[Token, (A, B)]) -> Self[Token, B]
