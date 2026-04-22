@@ -10,10 +10,12 @@ test "sequence" {
 
 ///|
 test "repeat" {
-  let parser = pvalue(x => match x {
-    '0' => Some(0)
-    '1' => Some(1)
-    _ => None
+  let parser = pvalue(x => {
+    match x {
+      '0' => Some(0)
+      '1' => Some(1)
+      _ => None
+    }
   })
   let repeat_n = parser.repeat_n(3)
   inspect(

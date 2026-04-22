@@ -1,8 +1,0 @@
-{
-  "import": [
-    "moonbitlang/core/list"
-  ],
-  "test-import": [
-    "moonbitlang/core/builtin"
-  ]
-}

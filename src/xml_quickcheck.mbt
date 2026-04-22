@@ -142,9 +142,11 @@ fn trivial_ctx(xml : XMLDocument) -> Bool {
     println(ctx.errors)
   }
   let flag = ctx.errors
-    .filter(e => match e.kind {
-      InternalParserError => true
-      _ => false
+    .filter(e => {
+      match e.kind {
+        InternalParserError => true
+        _ => false
+      }
     })
     .is_empty()
   if xml2 is None {

@@ -645,8 +645,9 @@ pub fn pcdata() -> Parser[Char, String] {
 /// }
 /// ```
 pub fn pcomment() -> Parser[Char, String] {
-  let pvalidNonDashChar = @combinator.pchar_such_that(c => is_char(c) &&
-    c != '-').map(fn(c) { c.to_string() })
+  let pvalidNonDashChar = @combinator.pchar_such_that(c => {
+    is_char(c) && c != '-'
+  }).map(fn(c) { c.to_string() })
   let pdashFollowedByValidChar = @combinator.pchar('-')
     .and_then(pvalidNonDashChar)
     .map(fn(tuple) {
