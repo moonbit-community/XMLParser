@@ -16,8 +16,8 @@
         "alias": "fs"
       },
       {
-        "path": "moonbitlang/core/strconv",
-        "alias": "strconv"
+        "path": "moonbitlang/core/string",
+        "alias": "string"
       }
     ],
     "warn-list": "-1-2-3-5-6-7-8"
