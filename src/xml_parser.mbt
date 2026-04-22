@@ -390,7 +390,7 @@ fn trim_text(text : String) -> (String, String, String) {
   }
   let start = head_WS.length()
   let end = text.length() - tail_WS.length()
-  let content = text[start:end].to_string() catch { _ => "" }
+  let content = text[start:end].to_string()
   (head_WS, content, tail_WS)
 }
 
