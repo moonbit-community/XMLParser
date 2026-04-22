@@ -27,7 +27,7 @@ test "dtd testcase 1" {
 ///|
 fn is_valid(s : String) -> Bool {
   let s = s.replace(old=".xml", new="")
-  let id = try? @strconv.parse_int(s)
+  let id = try? @string.parse_int(s)
   match id {
     Err(_) => false
     Ok(id) =>

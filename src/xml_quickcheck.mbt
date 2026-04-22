@@ -28,7 +28,7 @@ impl @quickcheck.Arbitrary for XMLElement with arbitrary(size, rs) {
     .iter()
     .fold(init="", fn(s, c) { s + c.to_string() })
   fn is_value(s : String) -> Bool {
-    not(s.contains("\"") || s.contains("<") || s.contains("&"))
+    !(s.contains("\"") || s.contains("<") || s.contains("&"))
   }
 
   let iterGen : @qc.Gen[Array[String]] = Gen::spawn()
@@ -93,19 +93,19 @@ impl @quickcheck.Arbitrary for XMLChildren with arbitrary(size, rs) {
 
   // TODO :  按照实际的内容生成
   fn is_text(s : String) -> Bool {
-    not(s.contains("&") || s.contains("<"))
+    !(s.contains("&") || s.contains("<"))
   }
 
   fn is_cdata(s : String) -> Bool {
-    not(s.contains("]]>"))
+    !s.contains("]]>")
   }
 
   fn is_PI(s : String) -> Bool {
-    not(s.contains("?>"))
+    !s.contains("?>")
   }
 
   fn is_comment(s : String) -> Bool {
-    not(s.has_suffix("-")) && not(s.contains("-->"))
+    !s.has_suffix("-") && !s.contains("-->")
   }
 
   let childGen : Gen[XMLChildren] = @qc.one_of([
@@ -124,21 +124,21 @@ impl @quickcheck.Arbitrary for XMLChildren with arbitrary(size, rs) {
 fn trivial(xml : XMLDocument) -> Bool {
   let s = xml.to_string()
   let xml2 = xml_from_string(s)
-  not(xml2 is None)
+  !(xml2 is None)
 }
 
 ///|
 fn trivial_iter(xml : XMLDocument) -> Bool {
   let s = xml.to_string()
   let xml2 = xml_from_iter(s.iter())
-  not(xml2 is None)
+  !(xml2 is None)
 }
 
 ///|
 fn trivial_ctx(xml : XMLDocument) -> Bool {
   let s = xml.to_string()
   let (xml2, ctx) = xml_from_string_with_ctx(s)
-  if not(ctx.errors.is_empty()) {
+  if !ctx.errors.is_empty() {
     println(ctx.errors)
   }
   let flag = ctx.errors
