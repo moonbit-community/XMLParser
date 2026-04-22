@@ -289,14 +289,34 @@ pub(all) enum XMLErrorKind {
   MalformedReference
   MismatchedTags(String, String) // 开始标签和结束标签
   InternalParserError
-} derive(Show)
+}
+
+///|
+pub impl Show for XMLErrorKind with output(self, logger) {
+  match self {
+    SyntaxError => logger.write_string("SyntaxError")
+    ValidationError => logger.write_string("ValidationError")
+    EncodingError => logger.write_string("EncodingError")
+    MalformedReference => logger.write_string("MalformedReference")
+    MismatchedTags(start, end) =>
+      logger.write_string("MismatchedTags(\{start}, \{end})")
+    InternalParserError => logger.write_string("InternalParserError")
+  }
+}
 
 ///|
 pub(all) struct XMLParseError {
   kind : XMLErrorKind
   message : String
   location : Location
-} derive(Show)
+}
+
+///|
+pub impl Show for XMLParseError with output(self, logger) {
+  logger.write_string(
+    "{ kind: \{self.kind}, message: \{self.message}, location: \{self.location} }",
+  )
+}
 
 ///|
 pub(all) struct Location {
@@ -304,7 +324,14 @@ pub(all) struct Location {
   mut line : Int
   mut column : Int
   length : Int
-} derive(Show)
+}
+
+///|
+pub impl Show for Location with output(self, logger) {
+  logger.write_string(
+    "{ index: \{self.index}, line: \{self.line}, column: \{self.column}, length: \{self.length} }",
+  )
+}
 
 ///|
 pub impl Show for XMLDocument with output(self, logger) {
