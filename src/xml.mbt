@@ -54,6 +54,11 @@ pub impl Show for DocTypeDecl with output(self, logger) {
 }
 
 ///|
+pub impl Debug for DocTypeDecl with to_repr(self) {
+  Repr::literal(self.to_string())
+}
+
+///|
 pub(all) enum DTDStatement {
   Decl(MarkUpDecl)
   Sep(String)
@@ -348,6 +353,11 @@ pub impl Show for XMLDocument with to_string(self) {
 }
 
 ///|
+pub impl Debug for XMLDocument with to_repr(self) {
+  Repr::literal("XMLDocument: " + self.to_string())
+}
+
+///|
 pub impl Show for XMLElement with output(self, logger) {
   logger.write_string("XMLElement: " + self.to_string())
 }
@@ -368,6 +378,11 @@ pub impl Show for XMLElement with to_string(self) {
 }
 
 ///|
+pub impl Debug for XMLElement with to_repr(self) {
+  Repr::literal("XMLElement: " + self.to_string())
+}
+
+///|
 pub impl Show for XMLChildren with output(self, logger) {
   logger.write_string("XMLChildren: " + self.to_string())
 }
@@ -383,6 +398,11 @@ pub impl Show for XMLChildren with to_string(self) {
     Text(s) => s
     WhiteSpace(s) => s
   }
+}
+
+///|
+pub impl Debug for XMLChildren with to_repr(self) {
+  Repr::literal("XMLChildren: " + self.to_string())
 }
 
 ///|

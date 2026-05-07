@@ -108,3 +108,8 @@ pub impl[T : Show] Show for Seq[T] with output(self, log) {
   self.0.each(fn(t) { t.output(log) })
   return
 }
+
+///|
+pub impl[T : Show] Debug for Seq[T] with to_repr(self) {
+  Repr::literal(self.to_string())
+}

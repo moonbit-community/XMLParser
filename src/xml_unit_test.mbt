@@ -64,13 +64,13 @@ test "xmlconf valid sa" {
           println("fail " + file)
           println(str)
           println(bytes)
-          println(result)
+          println("None")
           fail("xmlconf parse failed: " + dir + "/" + file)
         }
       }
     }
   }
-  inspect(cnt, content=files.length().to_string())
+  debug_inspect(cnt, content=files.length().to_string())
 }
 
 // ///|
@@ -103,5 +103,5 @@ test "xmlconf valid sa" {
 //     }
 //   }
 //   println("passed: \{cnt}/\{files.length()}")
-//   inspect(cnt, content=files.length().to_string())
+//   debug_inspect(cnt, content=files.length().to_string())
 // }

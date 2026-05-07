@@ -1,9 +1,10 @@
 // Generated using `moon info`, DON'T EDIT IT
-package "ruifeng/XMLParser"
+package "moonbit-community/XMLParser"
 
 import {
+  "moonbit-community/XMLParser/parserc",
+  "moonbitlang/core/debug",
   "moonbitlang/core/ref",
-  "ruifeng/XMLParser/parserc",
 }
 
 // Values
@@ -137,6 +138,7 @@ pub(all) struct DocTypeDecl {
   intSubset : Array[DTDStatement]?
 }
 pub impl Show for DocTypeDecl
+pub impl @debug.Debug for DocTypeDecl
 
 pub(all) struct ElementDecl {
   name : String
@@ -221,6 +223,7 @@ pub(all) enum XMLChildren {
   WhiteSpace(String)
 }
 pub impl Show for XMLChildren
+pub impl @debug.Debug for XMLChildren
 
 pub(all) struct XMLDocument {
   version : String
@@ -231,6 +234,7 @@ pub(all) struct XMLDocument {
 }
 pub fn XMLDocument::get_element_by_name(Self, String) -> Array[XMLElement]
 pub impl Show for XMLDocument
+pub impl @debug.Debug for XMLDocument
 
 pub(all) struct XMLElement {
   name : String
@@ -242,6 +246,7 @@ pub fn XMLElement::get_attribute(Self, String) -> String?
 pub fn XMLElement::get_children(Self) -> Array[XMLChildren]
 pub fn XMLElement::get_text(Self) -> String
 pub impl Show for XMLElement
+pub impl @debug.Debug for XMLElement
 
 pub(all) enum XMLErrorKind {
   SyntaxError

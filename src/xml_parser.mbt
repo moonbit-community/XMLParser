@@ -91,7 +91,12 @@ fn is_char(c : Char) -> Bool {
 /// ```moonbit check
 /// test {
 ///   let result = pwhite_space().run(@combinator.Seq::from_string("  \t\n\rtext"))
-///   inspect(result, content="Some((\"  \\t\\n\\r\", 't''e''x''t'))")
+///   debug_inspect(
+///     result,
+///     content=(
+///       #|Some(("  \t\n\r", text))
+///     ),
+///   )
 /// }
 /// ```
 pub fn pwhite_space() -> Parser[Char, String] {
@@ -126,11 +131,26 @@ pub fn pwhite_space() -> Parser[Char, String] {
 /// ```moonbit check
 /// test {
 ///   let result = ptext().run(@combinator.Seq::from_string("Hello World"))
-///   inspect(result, content="Some((\"Hello World\", ))")
+///   debug_inspect(
+///     result,
+///     content=(
+///       #|Some(("Hello World"))
+///     ),
+///   )
 ///   let result = ptext().run(@combinator.Seq::from_string("Text with & and <"))
-///   inspect(result, content="Some((\"Text with \", '&'' ''a''n''d'' ''<'))") // stops parsing at '&'
+///   debug_inspect(
+///     result,
+///     content=(
+///       #|Some(("Text with ", & and <))
+///     ),
+///   ) // stops parsing at '&'
 ///   let result = ptext().run(@combinator.Seq::from_string(""))
-///   inspect(result, content="Some((\"\", ))")
+///   debug_inspect(
+///     result,
+///     content=(
+///       #|Some((""))
+///     ),
+///   )
 /// }
 /// ```
 pub fn ptext() -> Parser[Char, String] {
@@ -160,11 +180,16 @@ pub fn ptext() -> Parser[Char, String] {
 /// test {
 ///   // Valid XML names
 ///   let result1 = pname().run(@combinator.Seq::from_string("element1"))
-///   inspect(result1, content="Some((\"element1\", ))")
+///   debug_inspect(
+///     result1,
+///     content=(
+///       #|Some(("element1"))
+///     ),
+///   )
 ///
 ///   // Invalid XML names (starting with digit)
 ///   let result2 = pname().run(@combinator.Seq::from_string("1element"))
-///   inspect(result2, content="None")
+///   debug_inspect(result2, content="None")
 /// }
 /// ```
 pub fn pname() -> Parser[Char, String] {
@@ -184,33 +209,52 @@ pub fn pname() -> Parser[Char, String] {
 test "pname/valid_name" {
   // Boundary case: Valid XML name with minimum length
   let result = pname().run(Seq::from_string("a"))
-  println("result is " + result.to_string())
-  inspect(result, content="Some((\"a\", ))")
+  debug_inspect(
+    result,
+    content=(
+      #|Some(("a"))
+    ),
+  )
 
   // Boundary case: Valid XML name with typical characters
   let result = pname().run(Seq::from_string("root"))
-  inspect(result, content="Some((\"root\", ))")
+  debug_inspect(
+    result,
+    content=(
+      #|Some(("root"))
+    ),
+  )
 
   // Boundary case: Valid XML name with mixed characters
   let result = pname().run(Seq::from_string("xml:Root123"))
-  inspect(result, content="Some((\"xml:Root123\", ))")
+  debug_inspect(
+    result,
+    content=(
+      #|Some(("xml:Root123"))
+    ),
+  )
 
   // Boundary case: Valid XML name with extended characters
   let result = pname().run(Seq::from_string("🐇"))
-  inspect(result, content="Some((\"🐇\", ))")
+  debug_inspect(
+    result,
+    content=(
+      #|Some(("🐇"))
+    ),
+  )
 }
 
 ///|
 test "panic pname/invalid_name" {
   // Boundary case: Invalid XML name with invalid start character
   let result = pname().run(Seq::from_string("1invalid"))
-  inspect(result, content="None")
+  debug_inspect(result, content="None")
 
   // Boundary case: Invalid XML name with invalid character in the name
   let result = pname().run(Seq::from_string("root%"))
-  inspect(result, content="None")
+  debug_inspect(result, content="None")
   let result = pname().run(Seq::from_string("\u{FFFFF}"))
-  inspect(result, content="None")
+  debug_inspect(result, content="None")
 }
 
 ///|
@@ -260,7 +304,12 @@ fn pattValue() -> Parser[Char, String] {
 /// ```moonbit check
 /// test {
 ///   let result = pattribute().run(@combinator.Seq::from_string("name=\"value\""))
-///   inspect(result, content="Some(((\"name\", \"value\"), ))")
+///   debug_inspect(
+///     result,
+///     content=(
+///       #|Some((("name", "value")))
+///     ),
+///   )
 /// }
 /// ```
 pub fn pattribute() -> Parser[Char, (String, String)] {
@@ -281,27 +330,37 @@ pub fn pattribute() -> Parser[Char, (String, String)] {
 test "pattribute/valid" {
   // Basic valid attribute
   let result = pattribute().run(Seq::from_string("name=\"1234567890\""))
-  inspect(result, content="Some(((\"name\", \"1234567890\"), ))")
+  debug_inspect(
+    result,
+    content=(
+      #|Some((("name", "1234567890")))
+    ),
+  )
   // Single quotes
   let result2 = pattribute().run(Seq::from_string("name='value'"))
-  inspect(result2, content="Some(((\"name\", \"value\"), ))")
+  debug_inspect(
+    result2,
+    content=(
+      #|Some((("name", "value")))
+    ),
+  )
 }
 
 ///|
 test "pattribute/invalid_format" {
   // Missing quotes around value
   let result = pattribute().run(Seq::from_string("name=value"))
-  inspect(result, content="None")
+  debug_inspect(result, content="None")
 
   // Missing equals sign
   let result2 = pattribute().run(Seq::from_string("name\"value\""))
-  inspect(result2, content="None")
+  debug_inspect(result2, content="None")
 
   // quotes not matching
   let result3 = pattribute().run(Seq::from_string("name=\"value'"))
-  inspect(result3, content="None")
+  debug_inspect(result3, content="None")
   let result4 = pattribute().run(Seq::from_string("name='value\""))
-  inspect(result4, content="None")
+  debug_inspect(result4, content="None")
 }
 
 ///|
@@ -321,8 +380,8 @@ test "pattribute/invalid_format" {
 ///     @combinator.Seq::from_string(" name=\"value\" type=\"text\""),
 ///   )
 ///   let attrs = result.unwrap().0
-///   inspect(attrs.get("name"), content="Some(\"value\")")
-///   inspect(attrs.get("type"), content="Some(\"text\")")
+///   debug_inspect(attrs.get("name"), content="Some(\"value\")")
+///   debug_inspect(attrs.get("type"), content="Some(\"text\")")
 /// }
 /// ```
 pub fn pattributes() -> Parser[Char, Map[String, String]] {
@@ -342,7 +401,12 @@ pub fn pattributes() -> Parser[Char, Map[String, String]] {
 test "pattributes/empty" {
   // Test case for empty attributes
   let result = pattributes().run(Seq::from_string(""))
-  inspect(result, content="Some(({}, ))")
+  debug_inspect(
+    result,
+    content=(
+      #|Some(({}))
+    ),
+  )
 }
 
 ///|
@@ -350,8 +414,8 @@ test "pattributes/single" {
   // Test case for single attribute
   let result = pattributes().run(Seq::from_string(" name=\"value\""))
   let map = result.unwrap().0
-  inspect(map.length(), content="1")
-  inspect(map.get("name"), content="Some(\"value\")")
+  debug_inspect(map.length(), content="1")
+  debug_inspect(map.get("name"), content="Some(\"value\")")
 }
 
 ///|
@@ -361,15 +425,15 @@ test "pattributes/multiple" {
     Seq::from_string(" name=\"value\" lang=\"en\""),
   )
   let map = result.unwrap().0
-  inspect(map.length(), content="2")
-  inspect(map.get("name"), content="Some(\"value\")")
+  debug_inspect(map.length(), content="2")
+  debug_inspect(map.get("name"), content="Some(\"value\")")
 }
 
 ///|
 test "panic pattributes/invalid_format" {
   // Test case for invalid attribute format
   let result = pattributes().run(Seq::from_string("name=value"))
-  inspect(result, content="None")
+  debug_inspect(result, content="None")
 }
 
 ///|
@@ -390,7 +454,7 @@ fn trim_text(text : String) -> (String, String, String) {
   }
   let start = head_WS.length()
   let end = text.length() - tail_WS.length()
-  let content = text[start:end].to_string()
+  let content = text[start:end].to_owned()
   (head_WS, content, tail_WS)
 }
 
@@ -422,9 +486,14 @@ fn trim_text(text : String) -> (String, String, String) {
 ///   let input = "<user id=\"1\" name=\"John\">Hello, World!</user>"
 ///   let result = pelement().run(@combinator.Seq::from_string(input))
 ///   let element = result.unwrap().0
-///   inspect(element.name, content="user")
-///   inspect(element.attributes.get("id"), content="Some(\"1\")")
-///   inspect(element.attributes.get("name"), content="Some(\"John\")")
+///   debug_inspect(
+///     element.name,
+///     content=(
+///       #|"user"
+///     ),
+///   )
+///   debug_inspect(element.attributes.get("id"), content="Some(\"1\")")
+///   debug_inspect(element.attributes.get("name"), content="Some(\"John\")")
 /// }
 /// ```
 pub fn pelement() -> Parser[Char, XMLElement] {
@@ -527,7 +596,12 @@ pub fn pelement() -> Parser[Char, XMLElement] {
 test "pelement/empty" {
   // Test empty element with no attributes
   let result = pelement().run(Seq::from_string("<br/>"))
-  inspect(result, content="Some((XMLElement: <br/>, ))")
+  debug_inspect(
+    result,
+    content=(
+      #|Some((XMLElement: <br/>))
+    ),
+  )
   // Test empty element with multiple attributes and special characters
   let result2 = pelement().run(
     Seq::from_string(
@@ -535,14 +609,19 @@ test "pelement/empty" {
     ),
   )
   let element = result2.unwrap().0
-  inspect(element.name, content="meta")
-  inspect(element.attributes.get("name"), content="Some(\"description\")")
-  inspect(
+  debug_inspect(
+    element.name,
+    content=(
+      #|"meta"
+    ),
+  )
+  debug_inspect(element.attributes.get("name"), content="Some(\"description\")")
+  debug_inspect(
     element.attributes.get("content"),
     content="Some(\"Test &and; Demo\")",
   )
-  inspect(element.attributes.get("charset"), content="Some(\"UTF-8\")")
-  inspect(element.children.length(), content="0")
+  debug_inspect(element.attributes.get("charset"), content="Some(\"UTF-8\")")
+  debug_inspect(element.children.length(), content="0")
 }
 
 ///|
@@ -566,8 +645,13 @@ test "pelement/complex" {
   let result = pelement().run(@combinator.Seq::from_string(xml))
   let element = result.unwrap().0
   // Check root element
-  inspect(element.name, content="root")
-  inspect(element.attributes.get("id"), content="Some(\"main\")")
+  debug_inspect(
+    element.name,
+    content=(
+      #|"root"
+    ),
+  )
+  debug_inspect(element.attributes.get("id"), content="Some(\"main\")")
 }
 
 ///|
@@ -596,10 +680,20 @@ fn peek_char_seq(seq : Seq[Char], n : Int) -> String? {
 /// test {
 ///   let input = "<![CDATA[Some <raw> XML & content]]>"
 ///   let result = pcdata().run(@combinator.Seq::from_string(input))
-///   inspect(result, content="Some((\"Some <raw> XML & content\", ))")
+///   debug_inspect(
+///     result,
+///     content=(
+///       #|Some(("Some <raw> XML & content"))
+///     ),
+///   )
 ///   let input = "<![CDATA[]]>"
 ///   let result = pcdata().run(@combinator.Seq::from_string(input))
-///   inspect(result, content="Some((\"\", ))")
+///   debug_inspect(
+///     result,
+///     content=(
+///       #|Some((""))
+///     ),
+///   )
 /// }
 /// ```
 pub fn pcdata() -> Parser[Char, String] {
@@ -641,7 +735,12 @@ pub fn pcdata() -> Parser[Char, String] {
 /// test {
 ///   let comment = "<!-- This is a comment -->"
 ///   let result = pcomment().run(@combinator.Seq::from_string(comment))
-///   inspect(result, content="Some((\" This is a comment \", ))")
+///   debug_inspect(
+///     result,
+///     content=(
+///       #|Some((" This is a comment "))
+///     ),
+///   )
 /// }
 /// ```
 pub fn pcomment() -> Parser[Char, String] {
@@ -700,11 +799,21 @@ pub fn ppiTarget() -> Parser[Char, String] {
 /// ```moonbit check
 /// test {
 ///   let result = ppi().run(@combinator.Seq::from_string("<?php echo 'Hello' ?>"))
-///   inspect(result, content="Some((\"php echo 'Hello' \", ))")
+///   debug_inspect(
+///     result,
+///     content=(
+///       #|Some(("php echo 'Hello' "))
+///     ),
+///   )
 ///   let result = ppi().run(@combinator.Seq::from_string("<??>"))
-///   inspect(result, content="Some((\"\", ))")
+///   debug_inspect(
+///     result,
+///     content=(
+///       #|Some((""))
+///     ),
+///   )
 ///   let result = ppi().run(@combinator.Seq::from_string("<?incomplete"))
-///   inspect(result, content="None")
+///   debug_inspect(result, content="None")
 /// }
 /// ```
 /// TODO 
@@ -734,7 +843,12 @@ pub fn ppi() -> Parser[Char, String] {
 test "pcomment/empty" {
   // Empty comment
   let result = pcomment().run(Seq::from_string("<!---->"))
-  inspect(result, content="Some((\"\", ))")
+  debug_inspect(
+    result,
+    content=(
+      #|Some((""))
+    ),
+  )
 }
 
 ///|
@@ -743,9 +857,11 @@ test "pcomment/with_content" {
   let result = pcomment().run(
     Seq::from_string("<!-- This is a comment with <tags> and &symbols& -->"),
   )
-  inspect(
+  debug_inspect(
     result,
-    content="Some((\" This is a comment with <tags> and &symbols& \", ))",
+    content=(
+      #|Some((" This is a comment with <tags> and &symbols& "))
+    ),
   )
 }
 
@@ -753,11 +869,11 @@ test "pcomment/with_content" {
 test "pcomment/invalid" {
   // Incomplete comment
   let result = pcomment().run(Seq::from_string("<!--"))
-  inspect(result, content="None")
+  debug_inspect(result, content="None")
 
   // Missing opening sequence
   let result2 = pcomment().run(Seq::from_string("Comment -->"))
-  inspect(result2, content="None")
+  debug_inspect(result2, content="None")
 }
 
 ///|
@@ -773,7 +889,12 @@ test "pcomment/invalid" {
 /// ```moonbit check
 /// test {
 ///   let result = pEntityRef().run(@combinator.Seq::from_string("&lt;"))
-///   inspect(result, content="Some((\"&lt;\", ))")
+///   debug_inspect(
+///     result,
+///     content=(
+///       #|Some(("&lt;"))
+///     ),
+///   )
 /// }
 /// ```
 pub fn pEntityRef() -> Parser[Char, String] {
@@ -803,8 +924,18 @@ pub fn pEntityRef() -> Parser[Char, String] {
 /// test {
 ///   let decimal = pcharRef().run(@combinator.Seq::from_string("&#123;"))
 ///   let hex = pcharRef().run(@combinator.Seq::from_string("&#xA5;"))
-///   inspect(decimal, content="Some((\"#123;\", ))")
-///   inspect(hex, content="Some((\"#A5;\", ))")
+///   debug_inspect(
+///     decimal,
+///     content=(
+///       #|Some(("#123;"))
+///     ),
+///   )
+///   debug_inspect(
+///     hex,
+///     content=(
+///       #|Some(("#A5;"))
+///     ),
+///   )
 /// }
 /// ```
 pub fn pcharRef() -> Parser[Char, String] {
@@ -847,15 +978,30 @@ pub fn pcharRef() -> Parser[Char, String] {
 /// test {
 ///   // Entity reference
 ///   let entity = preference().run(@combinator.Seq::from_string("&amp;"))
-///   inspect(entity, content="Some((\"&amp;\", ))")
+///   debug_inspect(
+///     entity,
+///     content=(
+///       #|Some(("&amp;"))
+///     ),
+///   )
 ///
 ///   // Character reference (decimal)
 ///   let decimal = preference().run(@combinator.Seq::from_string("&#32;"))
-///   inspect(decimal, content="Some((\"#32;\", ))")
+///   debug_inspect(
+///     decimal,
+///     content=(
+///       #|Some(("#32;"))
+///     ),
+///   )
 ///
 ///   // Character reference (hexadecimal)
 ///   let hex = preference().run(@combinator.Seq::from_string("&#x20;"))
-///   inspect(hex, content="Some((\"#20;\", ))")
+///   debug_inspect(
+///     hex,
+///     content=(
+///       #|Some(("#20;"))
+///     ),
+///   )
 /// }
 /// ```
 pub fn preference() -> Parser[Char, String] {
@@ -878,8 +1024,8 @@ pub fn preference() -> Parser[Char, String] {
 ///   let input = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>"
 ///   let result = pprolog().run(Seq::from_string(input))
 ///   let attrs = result.unwrap().0
-///   inspect(attrs.get("version"), content="Some(\"1.0\")")
-///   inspect(attrs.get("encoding"), content="Some(\"UTF-8\")")
+///   debug_inspect(attrs.get("version"), content="Some(\"1.0\")")
+///   debug_inspect(attrs.get("encoding"), content="Some(\"UTF-8\")")
 /// ```
 pub fn pprolog() -> Parser[Char, Map[String, String]] {
   @combinator.pstring("<?xml")
@@ -898,16 +1044,23 @@ test "pprolog/valid_prolog_with_spaces" {
       "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\" ?>",
     ),
   )
-  inspect(
+  debug_inspect(
     result,
-    content="Some(({\"version\": \"1.0\", \"encoding\": \"UTF-8\", \"standalone\": \"yes\"}, ))",
+    content=(
+      #|Some(({ "version": "1.0", "encoding": "UTF-8", "standalone": "yes" }))
+    ),
   )
 }
 
 ///|
 test "pprolog/minimal_valid_prolog" {
   let result = pprolog().run(Seq::from_string("<?xml ?>"))
-  inspect(result, content="Some(({}, ))")
+  debug_inspect(
+    result,
+    content=(
+      #|Some(({}))
+    ),
+  )
 }
 
 ///|
@@ -928,7 +1081,7 @@ test "pprolog/minimal_valid_prolog" {
 ///   let result = pdtd()
 ///     .run(@combinator.Seq::from_string("<!DOCTYPE html>"))
 ///     .unwrap().0
-///   inspect(result, content="<!DOCTYPE html>")
+///   debug_inspect(result, content="<!DOCTYPE html>")
 /// }
 /// ```
 pub fn pdtd() -> Parser[Char, DocTypeDecl] {
@@ -982,8 +1135,18 @@ pub fn pdtd() -> Parser[Char, DocTypeDecl] {
 ///   let xml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?><root><child>Text</child></root>"
 ///   let result = pxml().run(@combinator.Seq::from_string(xml))
 ///   let doc = result.unwrap().0
-///   inspect(doc.version, content="1.0")
-///   inspect(doc.root.name, content="root")
+///   debug_inspect(
+///     doc.version,
+///     content=(
+///       #|"1.0"
+///     ),
+///   )
+///   debug_inspect(
+///     doc.root.name,
+///     content=(
+///       #|"root"
+///     ),
+///   )
 /// }
 /// ```
 pub fn pxml() -> Parser[Char, XMLDocument] {
@@ -1042,13 +1205,28 @@ test "pxml/complex_nested" {
   let doc = result.unwrap().0
 
   // Check basic document properties
-  inspect(doc.version, content="1.0")
-  inspect(doc.encoding, content="UTF-8")
-  inspect(doc.standalone, content="false")
+  debug_inspect(
+    doc.version,
+    content=(
+      #|"1.0"
+    ),
+  )
+  debug_inspect(
+    doc.encoding,
+    content=(
+      #|"UTF-8"
+    ),
+  )
+  debug_inspect(doc.standalone, content="false")
 
   // Check root element
-  inspect(doc.root.name, content="root")
-  inspect(doc.root.attributes.get("id"), content="Some(\"main\")")
+  debug_inspect(
+    doc.root.name,
+    content=(
+      #|"root"
+    ),
+  )
+  debug_inspect(doc.root.attributes.get("id"), content="Some(\"main\")")
 }
 
 ///|
@@ -1072,11 +1250,21 @@ test "pxml/mixed_content" {
     #|
   let result = pxml().run(Seq::from_string(xml))
   let doc = result.unwrap().0
-  inspect(doc.version, content="1.0")
-  inspect(doc.root.name, content="root")
+  debug_inspect(
+    doc.version,
+    content=(
+      #|"1.0"
+    ),
+  )
+  debug_inspect(
+    doc.root.name,
+    content=(
+      #|"root"
+    ),
+  )
 
   // Check that root has children
-  inspect(doc.root.children.is_empty(), content="false")
+  debug_inspect(doc.root.children.is_empty(), content="false")
 }
 
 ///|
@@ -1084,11 +1272,26 @@ test "pxml/basic_xml_no_attributes" {
   let xml = "<root></root>"
   let result = pxml().run(Seq::from_string(xml))
   let document = result.unwrap().0
-  inspect(document.version, content="1.0")
-  inspect(document.encoding, content="UTF-8")
-  inspect(document.standalone, content="false")
-  inspect(document.root.name, content="root")
-  inspect(document.root.attributes.length(), content="0")
+  debug_inspect(
+    document.version,
+    content=(
+      #|"1.0"
+    ),
+  )
+  debug_inspect(
+    document.encoding,
+    content=(
+      #|"UTF-8"
+    ),
+  )
+  debug_inspect(document.standalone, content="false")
+  debug_inspect(
+    document.root.name,
+    content=(
+      #|"root"
+    ),
+  )
+  debug_inspect(document.root.attributes.length(), content="0")
 }
 
 ///|
@@ -1096,13 +1299,34 @@ test "pxml/basic_xml_with_attributes" {
   let xml = "<?xml version=\"1.1\" encoding=\"ISO-8859-1\" standalone=\"yes\"?><root attr1=\"value1\" attr2=\"value2\"></root>"
   let result = pxml().run(Seq::from_string(xml))
   let document = result.unwrap().0
-  inspect(document.version, content="1.1")
-  inspect(document.encoding, content="ISO-8859-1")
-  inspect(document.standalone, content="true")
-  inspect(document.root.name, content="root")
-  inspect(document.root.attributes.length(), content="2")
-  inspect(document.root.attributes.get("attr1"), content="Some(\"value1\")")
-  inspect(document.root.attributes.get("attr2"), content="Some(\"value2\")")
+  debug_inspect(
+    document.version,
+    content=(
+      #|"1.1"
+    ),
+  )
+  debug_inspect(
+    document.encoding,
+    content=(
+      #|"ISO-8859-1"
+    ),
+  )
+  debug_inspect(document.standalone, content="true")
+  debug_inspect(
+    document.root.name,
+    content=(
+      #|"root"
+    ),
+  )
+  debug_inspect(document.root.attributes.length(), content="2")
+  debug_inspect(
+    document.root.attributes.get("attr1"),
+    content="Some(\"value1\")",
+  )
+  debug_inspect(
+    document.root.attributes.get("attr2"),
+    content="Some(\"value2\")",
+  )
 }
 
 ///|
@@ -1128,7 +1352,12 @@ test "pxml/mismatched_start_end_tags" {
 /// test {
 ///   let xml = "<?xml version=\"1.0\"?><root><child>Content</child></root>"
 ///   let doc = xml_from_string(xml).unwrap()
-///   inspect(doc.root.name, content="root")
+///   debug_inspect(
+///     doc.root.name,
+///     content=(
+///       #|"root"
+///     ),
+///   )
 /// }
 /// ```
 pub fn xml_from_string(s : String) -> XMLDocument? {

@@ -1,5 +1,5 @@
 import {
-  "ruifeng/XMLParser/parserc" @combinator,
+  "moonbit-community/XMLParser/parserc" @combinator,
   "moonbitlang/core/quickcheck",
   "moonbitlang/quickcheck" @qc,
 }

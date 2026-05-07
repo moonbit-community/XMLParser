@@ -1,8 +1,8 @@
 // Generated using `moon info`, DON'T EDIT IT
-package "ruifeng/XMLParser"
+package "moonbit-community/XMLParser"
 
 import(
-  "ruifeng/XMLParser/parserc"
+  "moonbit-community/XMLParser/parserc"
 )
 
 // Values
@@ -297,4 +297,3 @@ pub(open) trait XMLNode {
 pub(open) trait XMLVisitor {
   visit(Self, XMLElement) -> Unit
 }
-
