@@ -1,5 +1,5 @@
 // Generated using `moon info`, DON'T EDIT IT
-package "ruifeng/XMLParser/parserc"
+package "moonbit-community/XMLParser/parserc"
 
 import(
   "moonbitlang/core/list"
@@ -75,4 +75,3 @@ impl[T : Show] Show for Seq[T]
 // Type aliases
 
 // Traits
-

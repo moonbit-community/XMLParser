@@ -1,5 +1,5 @@
 {
-  "name": "ruifeng/XMLParser",
+  "name": "moonbit-community/XMLParser",
   "version": "0.2.5",
   "deps": {
     "moonbitlang/quickcheck": "0.9.10",
