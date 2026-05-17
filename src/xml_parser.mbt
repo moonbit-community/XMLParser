@@ -5,7 +5,7 @@ let pdigit : Parser[Char, Char] = @combinator.pchar_such_that(is_digit)
 test "pdigit" {
   let seq = Seq::from_string("123456")
   let result = pdigit.repeat().run(seq).unwrap()
-  println(result)
+  println(to_repr(result))
 }
 
 ///|
@@ -390,7 +390,7 @@ pub fn pattributes() -> Parser[Char, Map[String, String]] {
   .omit_first()
   .repeat()
   .map(fn(attrs) {
-    attrs.fold(init=Map::new(), fn(map, tuple) {
+    attrs.fold(init=Map([]), fn(map, tuple) {
       map.set(tuple.0, tuple.1)
       map
     })
@@ -1164,7 +1164,7 @@ pub fn pxml() -> Parser[Char, XMLDocument] {
     let ((map, dtd), element) = tuple
     let map = match map {
       Some(m) => m
-      None => Map::new()
+      None => Map([])
     }
     {
       version: map.get("version").unwrap_or("1.0"),

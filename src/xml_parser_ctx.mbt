@@ -18,7 +18,7 @@ pub struct XMLParserContext {
 ///|
 pub impl Show for XMLParserContext with output(self, logger) {
   logger.write_string(
-    "{ input_array: \{self.input_array}, index: \{self.index}, line_number: \{self.line_number}, column_number: \{self.column_number}, errors: \{self.errors}, warnings: \{self.warnings} }",
+    "{ input_array: \{to_repr(self.input_array)}, index: \{self.index}, line_number: \{self.line_number}, column_number: \{self.column_number}, errors: \{to_repr(self.errors)}, warnings: \{to_repr(self.warnings)} }",
   )
 }
 
@@ -283,7 +283,7 @@ pub fn pattributes_with_ctx() -> Parser[Char, Context[Map[String, String]]] {
         errors: [],
         warnings: [],
       }
-      let map = pairs.fold(init=Map::new(), fn(map, pair) {
+      let map = pairs.fold(init=Map([]), fn(map, pair) {
         let ((attr_opt, ctx_1), (ws_opt, ctx_2)) = pair
         match attr_opt {
           Some((key, value)) => {
@@ -681,10 +681,10 @@ pub fn pxml_with_ctx() -> Parser[Char, Context[XMLDocument]] {
             let _ = ctx |> merge_context(ctx_prolog)
             match m_opt {
               Some(m) => m
-              None => Map::new()
+              None => Map([])
             }
           }
-          None => Map::new()
+          None => Map([])
         }
         let dtd = match op_dtd {
           Some((dtd_opt, ctx_dtd)) => {
