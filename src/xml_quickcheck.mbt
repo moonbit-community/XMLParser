@@ -36,7 +36,7 @@ impl @quickcheck.Arbitrary for XMLElement with arbitrary(size, rs) {
     .array_with_size(size)
   let attributes = iterGen
     .run(size, rs)
-    .fold(init=Map::new(), fn(map, value) {
+    .fold(init=Map([]), fn(map, value) {
       map.set("key_\{map.length()+1}", value)
       map
     })
@@ -139,7 +139,7 @@ fn trivial_ctx(xml : XMLDocument) -> Bool {
   let s = xml.to_string()
   let (xml2, ctx) = xml_from_string_with_ctx(s)
   if !ctx.errors.is_empty() {
-    println(ctx.errors)
+    println(to_repr(ctx.errors))
   }
   let flag = ctx.errors
     .filter(e => {

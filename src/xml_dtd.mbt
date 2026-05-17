@@ -252,9 +252,7 @@ test "EnitytDecl" {
 
 ///|
 fn pelementDecl() -> Parser[Char, ElementDecl] {
-  let cp_ref : Ref[Parser[Char, ContentParticle]] = Ref::new(
-    @combinator.pfail(),
-  )
+  let cp_ref : Ref[Parser[Char, ContentParticle]] = Ref(@combinator.pfail())
   let choice = @combinator.pchar('(')
     .and_then(pwhite_space().optional())
     .and_then(Parser::from_ref(cp_ref))
