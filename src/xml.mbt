@@ -294,7 +294,7 @@ pub(all) enum XMLErrorKind {
   MalformedReference
   MismatchedTags(String, String) // 开始标签和结束标签
   InternalParserError
-}
+} derive(Debug)
 
 ///|
 pub impl Show for XMLErrorKind with output(self, logger) {
@@ -314,7 +314,7 @@ pub(all) struct XMLParseError {
   kind : XMLErrorKind
   message : String
   location : Location
-}
+} derive(Debug)
 
 ///|
 pub impl Show for XMLParseError with output(self, logger) {
@@ -329,7 +329,7 @@ pub(all) struct Location {
   mut line : Int
   mut column : Int
   length : Int
-}
+} derive(Debug)
 
 ///|
 pub impl Show for Location with output(self, logger) {
