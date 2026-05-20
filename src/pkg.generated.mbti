@@ -175,7 +175,7 @@ pub(all) struct Location {
   mut line : Int
   mut column : Int
   length : Int
-}
+} derive(@debug.Debug)
 pub impl Show for Location
 
 pub(all) enum MarkUpDecl {
@@ -255,14 +255,14 @@ pub(all) enum XMLErrorKind {
   MalformedReference
   MismatchedTags(String, String)
   InternalParserError
-}
+} derive(@debug.Debug)
 pub impl Show for XMLErrorKind
 
 pub(all) struct XMLParseError {
   kind : XMLErrorKind
   message : String
   location : Location
-}
+} derive(@debug.Debug)
 pub fn XMLParseError::is_fatal(Self) -> Bool
 pub impl Show for XMLParseError
 
