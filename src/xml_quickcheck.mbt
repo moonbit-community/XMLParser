@@ -1,5 +1,5 @@
 ///|
-using @qc {type Gen}
+using @gen {type Gen}
 
 ///|
 impl @qc.Shrink for XMLDocument with fn shrink(self) {
@@ -31,7 +31,7 @@ impl @quickcheck.Arbitrary for XMLElement with fn arbitrary(size, rs) {
     !(s.contains("\"") || s.contains("<") || s.contains("&"))
   }
 
-  let iterGen : @qc.Gen[Array[String]] = Gen::spawn()
+  let iterGen : Gen[Array[String]] = Gen::spawn()
     .such_that(is_value)
     .array_with_size(size)
   let attributes = iterGen
@@ -40,14 +40,14 @@ impl @quickcheck.Arbitrary for XMLElement with fn arbitrary(size, rs) {
       map.set("key_\{map.length()+1}", value)
       map
     })
-  let childrenGen : @qc.Gen[Iter[XMLChildren]] = Gen::spawn()
+  let childrenGen : Gen[Iter[XMLChildren]] = Gen::spawn()
   let children = childrenGen
     .run(size, rs)
     .fold(init=[], fn(queue, child) {
       queue.push(child)
       queue
     })
-  let emptyGen : @qc.Gen[Bool] = @qc.one_of([@qc.pure(true), @qc.pure(false)])
+  let emptyGen : Gen[Bool] = @gen.one_of([@gen.pure(true), @gen.pure(false)])
   let empty_element = if children.is_empty() {
     emptyGen.run(size, rs)
   } else {
@@ -63,8 +63,8 @@ impl @quickcheck.Arbitrary for XMLChildren with fn arbitrary(size, rs) {
   }
 
   let strGen : Gen[String] = Gen::spawn().such_that(valid_string)
-  let refGen : Gen[String] = Gen::new(fn(size, rs) {
-    let charGen : @qc.Gen[Char] = Gen::spawn()
+  let refGen : Gen[String] = Gen(fn(size, rs) {
+    let charGen : Gen[Char] = Gen::spawn()
     let name = charGen.such_that(is_name_start_char).run(size, rs).to_string() +
       charGen
       .such_that(is_name_char)
@@ -74,11 +74,11 @@ impl @quickcheck.Arbitrary for XMLChildren with fn arbitrary(size, rs) {
       .fold(init="", fn(s, c) { s + c.to_string() })
     "&" + name + ";"
   })
-  let wsGen : Gen[String] = @qc.one_of([
-      @qc.pure(" "),
-      @qc.pure("\t"),
-      @qc.pure("\r"),
-      @qc.pure("\n"),
+  let wsGen : Gen[String] = @gen.one_of([
+      @gen.pure(" "),
+      @gen.pure("\t"),
+      @gen.pure("\r"),
+      @gen.pure("\n"),
     ])
     .array_with_size(size)
     .fmap(arr => arr.join(""))
@@ -108,7 +108,7 @@ impl @quickcheck.Arbitrary for XMLChildren with fn arbitrary(size, rs) {
     !s.has_suffix("-") && !s.contains("-->")
   }
 
-  let childGen : Gen[XMLChildren] = @qc.one_of([
+  let childGen : Gen[XMLChildren] = @gen.one_of([
     refGen.fmap(fn(s) { Reference(s) }),
     strGen.such_that(is_cdata).fmap(fn(s) { CDATA(s) }),
     strGen.such_that(is_PI).fmap(fn(s) { XMLChildren::PI(s) }),
