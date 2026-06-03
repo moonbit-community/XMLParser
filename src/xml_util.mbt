@@ -4,16 +4,16 @@
 
 ///|
 pub(open) trait XMLVisitor {
-  visit(Self, XMLElement) -> Unit
+  fn visit(Self, XMLElement) -> Unit
 }
 
 ///|
 pub(open) trait XMLNode {
-  accept(Self, &XMLVisitor) -> Unit
+  fn accept(Self, &XMLVisitor) -> Unit
 }
 
 ///|
-impl XMLNode for XMLElement with accept(self, visitor) {
+impl XMLNode for XMLElement with fn accept(self, visitor) {
   visitor.visit(self)
   for child in self.children {
     if child is Element(element) {
@@ -29,7 +29,7 @@ pub(all) struct GetElementVisitor {
 }
 
 ///|
-impl XMLVisitor for GetElementVisitor with visit(self, element) {
+impl XMLVisitor for GetElementVisitor with fn visit(self, element) {
   if element.name == self.name {
     self.elements.push(element)
   }

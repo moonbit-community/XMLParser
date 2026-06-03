@@ -2,12 +2,12 @@
 using @qc {type Gen}
 
 ///|
-impl @qc.Shrink for XMLDocument with shrink(self) {
+impl @qc.Shrink for XMLDocument with fn shrink(self) {
   [].iter()
 }
 
 ///|
-impl @quickcheck.Arbitrary for XMLDocument with arbitrary(size, rs) {
+impl @quickcheck.Arbitrary for XMLDocument with fn arbitrary(size, rs) {
   {
     version: "1.0",
     encoding: "UTF-8",
@@ -18,7 +18,7 @@ impl @quickcheck.Arbitrary for XMLDocument with arbitrary(size, rs) {
 }
 
 ///|
-impl @quickcheck.Arbitrary for XMLElement with arbitrary(size, rs) {
+impl @quickcheck.Arbitrary for XMLElement with fn arbitrary(size, rs) {
   let charGen : Gen[Char] = Gen::spawn()
   let name = charGen.such_that(is_name_start_char).run(size, rs).to_string() +
     charGen
@@ -57,7 +57,7 @@ impl @quickcheck.Arbitrary for XMLElement with arbitrary(size, rs) {
 }
 
 ///|
-impl @quickcheck.Arbitrary for XMLChildren with arbitrary(size, rs) {
+impl @quickcheck.Arbitrary for XMLChildren with fn arbitrary(size, rs) {
   fn valid_string(s : String) -> Bool {
     s.iter().all(fn(c) { is_char(c) })
   }

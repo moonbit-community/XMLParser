@@ -16,7 +16,7 @@ pub struct XMLParserContext {
 }
 
 ///|
-pub impl Show for XMLParserContext with output(self, logger) {
+pub impl Show for XMLParserContext with fn output(self, logger) {
   logger.write_string(
     "{ input_array: \{to_repr(self.input_array)}, index: \{self.index}, line_number: \{self.line_number}, column_number: \{self.column_number}, errors: \{to_repr(self.errors)}, warnings: \{to_repr(self.warnings)} }",
   )

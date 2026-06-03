@@ -99,17 +99,17 @@ pub fn[T] Seq::to_iter(self : Seq[T]) -> Iter[T] {
 }
 
 ///|
-pub impl[T : Show] Show for Seq[T] with to_string(self) {
+pub impl[T : Show] Show for Seq[T] with fn to_string(self) {
   self.0.map(Show::to_string).join("")
 }
 
 ///|
-pub impl[T : Show] Show for Seq[T] with output(self, log) {
+pub impl[T : Show] Show for Seq[T] with fn output(self, log) {
   self.0.each(fn(t) { t.output(log) })
   return
 }
 
 ///|
-pub impl[T : Show] Debug for Seq[T] with to_repr(self) {
+pub impl[T : Show] Debug for Seq[T] with fn to_repr(self) {
   Repr::literal(self.to_string())
 }
