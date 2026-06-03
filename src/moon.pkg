@@ -2,6 +2,7 @@ import {
   "moonbit-community/XMLParser/parserc" @combinator,
   "moonbitlang/core/quickcheck",
   "moonbitlang/quickcheck" @qc,
+  "moonbitlang/quickcheck/gen",
 }
 
 import {
