@@ -294,10 +294,10 @@ pub impl Show for XMLParserContext
 
 // Traits
 pub(open) trait XMLNode {
-  accept(Self, &XMLVisitor) -> Unit
+  fn accept(Self, &XMLVisitor) -> Unit
 }
 
 pub(open) trait XMLVisitor {
-  visit(Self, XMLElement) -> Unit
+  fn visit(Self, XMLElement) -> Unit
 }
 

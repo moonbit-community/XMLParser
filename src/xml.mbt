@@ -40,7 +40,7 @@ pub(all) struct DocTypeDecl {
 }
 
 ///|
-pub impl Show for DocTypeDecl with output(self, logger) {
+pub impl Show for DocTypeDecl with fn output(self, logger) {
   let external_id_str = match self.externalID {
     None => ""
     Some(id) => " " + id.to_string()
@@ -54,7 +54,7 @@ pub impl Show for DocTypeDecl with output(self, logger) {
 }
 
 ///|
-pub impl Debug for DocTypeDecl with to_repr(self) {
+pub impl Debug for DocTypeDecl with fn to_repr(self) {
   Repr::literal(self.to_string())
 }
 
@@ -65,7 +65,7 @@ pub(all) enum DTDStatement {
 }
 
 ///|
-pub impl Show for DTDStatement with output(self, logger) {
+pub impl Show for DTDStatement with fn output(self, logger) {
   match self {
     Decl(decl) => logger.write_string(decl.to_string())
     Sep(s) => logger.write_string(s)
@@ -83,7 +83,7 @@ pub(all) enum MarkUpDecl {
 }
 
 ///|
-pub impl Show for MarkUpDecl with output(self, logger) {
+pub impl Show for MarkUpDecl with fn output(self, logger) {
   match self {
     ElementDecl(e) => logger.write_string(e.to_string())
     AttListDecl(a) => logger.write_string(a.to_string())
@@ -101,7 +101,7 @@ pub(all) struct ElementDecl {
 }
 
 ///|
-pub impl Show for ElementDecl with output(self, logger) {
+pub impl Show for ElementDecl with fn output(self, logger) {
   logger.write_string("<!ELEMENT \{self.name} \{self.content_spec}>")
 }
 
@@ -114,7 +114,7 @@ pub(all) enum ContentSpec {
 }
 
 ///|
-pub impl Show for ContentSpec with output(self, logger) {
+pub impl Show for ContentSpec with fn output(self, logger) {
   match self {
     EMPTY => logger.write_string("EMPTY")
     ANY => logger.write_string("ANY")
@@ -137,7 +137,7 @@ pub(all) struct ContentParticle(SingleContentParticle, ChildrenContentSpecOp?)
 type ChildrenContentSpec = ContentParticle
 
 ///|
-pub impl Show for ContentParticle with output(self, logger) {
+pub impl Show for ContentParticle with fn output(self, logger) {
   match (self.0, self.1) {
     (p, None) => logger.write_string(p.to_string())
     (p, Some(op)) => logger.write_string("\{p}\{op}")
@@ -152,7 +152,7 @@ pub(all) enum ChildrenContentSpecOp {
 }
 
 ///|
-pub impl Show for ChildrenContentSpecOp with output(self, logger) {
+pub impl Show for ChildrenContentSpecOp with fn output(self, logger) {
   match self {
     Optional => logger.write_string("?")
     ZeroOrMore => logger.write_string("*")
@@ -168,7 +168,7 @@ pub(all) enum SingleContentParticle {
 }
 
 ///|
-pub impl Show for SingleContentParticle with output(self, logger) {
+pub impl Show for SingleContentParticle with fn output(self, logger) {
   match self {
     Name(s) => logger.write_string(s)
     Seq(arr) => {
@@ -189,7 +189,7 @@ pub(all) struct AttlistDecl {
 }
 
 ///|
-pub impl Show for AttlistDecl with output(self, logger) {
+pub impl Show for AttlistDecl with fn output(self, logger) {
   let att_str = self.att_defs.map(fn(att) { att.to_string() }).join("")
   logger.write_string("<!ATTLIST \{self.name}\{att_str}>")
 }
@@ -202,7 +202,7 @@ pub(all) struct AttDef {
 }
 
 ///|
-pub impl Show for AttDef with output(self, logger) {
+pub impl Show for AttDef with fn output(self, logger) {
   logger.write_string(" \{self.name} \{self.att_type} \{self.default_decl}")
 }
 
@@ -215,7 +215,7 @@ pub(all) enum DefaultDecl {
 }
 
 ///|
-pub impl Show for DefaultDecl with output(self, logger) {
+pub impl Show for DefaultDecl with fn output(self, logger) {
   match self {
     Required => logger.write_string("#REQUIRED")
     Implied => logger.write_string("#IMPLIED")
@@ -233,7 +233,7 @@ pub(all) enum AttType {
 }
 
 ///|
-pub impl Show for AttType with output(self, logger) {
+pub impl Show for AttType with fn output(self, logger) {
   match self {
     StringType(_) => logger.write_string("CDATA")
     TokenizedType(s) => logger.write_string(s)
@@ -297,7 +297,7 @@ pub(all) enum XMLErrorKind {
 } derive(Debug)
 
 ///|
-pub impl Show for XMLErrorKind with output(self, logger) {
+pub impl Show for XMLErrorKind with fn output(self, logger) {
   match self {
     SyntaxError => logger.write_string("SyntaxError")
     ValidationError => logger.write_string("ValidationError")
@@ -317,7 +317,7 @@ pub(all) struct XMLParseError {
 } derive(Debug)
 
 ///|
-pub impl Show for XMLParseError with output(self, logger) {
+pub impl Show for XMLParseError with fn output(self, logger) {
   logger.write_string(
     "{ kind: \{self.kind}, message: \{self.message}, location: \{self.location} }",
   )
@@ -332,19 +332,19 @@ pub(all) struct Location {
 } derive(Debug)
 
 ///|
-pub impl Show for Location with output(self, logger) {
+pub impl Show for Location with fn output(self, logger) {
   logger.write_string(
     "{ index: \{self.index}, line: \{self.line}, column: \{self.column}, length: \{self.length} }",
   )
 }
 
 ///|
-pub impl Show for XMLDocument with output(self, logger) {
+pub impl Show for XMLDocument with fn output(self, logger) {
   logger.write_string("XMLDocument: " + self.to_string())
 }
 
 ///|
-pub impl Show for XMLDocument with to_string(self) {
+pub impl Show for XMLDocument with fn to_string(self) {
   let dtd_str = match self.dtd {
     Some(dtd) => dtd.to_string()
     None => ""
@@ -353,17 +353,17 @@ pub impl Show for XMLDocument with to_string(self) {
 }
 
 ///|
-pub impl Debug for XMLDocument with to_repr(self) {
+pub impl Debug for XMLDocument with fn to_repr(self) {
   Repr::literal("XMLDocument: " + self.to_string())
 }
 
 ///|
-pub impl Show for XMLElement with output(self, logger) {
+pub impl Show for XMLElement with fn output(self, logger) {
   logger.write_string("XMLElement: " + self.to_string())
 }
 
 ///|
-pub impl Show for XMLElement with to_string(self) {
+pub impl Show for XMLElement with fn to_string(self) {
   let attributes = self.attributes
     .iter()
     .map(kv => "\{kv.0}=\"\{kv.1}\"")
@@ -378,17 +378,17 @@ pub impl Show for XMLElement with to_string(self) {
 }
 
 ///|
-pub impl Debug for XMLElement with to_repr(self) {
+pub impl Debug for XMLElement with fn to_repr(self) {
   Repr::literal("XMLElement: " + self.to_string())
 }
 
 ///|
-pub impl Show for XMLChildren with output(self, logger) {
+pub impl Show for XMLChildren with fn output(self, logger) {
   logger.write_string("XMLChildren: " + self.to_string())
 }
 
 ///|
-pub impl Show for XMLChildren with to_string(self) {
+pub impl Show for XMLChildren with fn to_string(self) {
   match self {
     Element(e) => e.to_string()
     Reference(s) => "\{s}"
@@ -401,12 +401,12 @@ pub impl Show for XMLChildren with to_string(self) {
 }
 
 ///|
-pub impl Debug for XMLChildren with to_repr(self) {
+pub impl Debug for XMLChildren with fn to_repr(self) {
   Repr::literal("XMLChildren: " + self.to_string())
 }
 
 ///|
-pub impl Show for EntityDecl with output(self, logger) {
+pub impl Show for EntityDecl with fn output(self, logger) {
   match self {
     GEDecl(name, def) => logger.write_string("<!ENTITY \{name} \{def}>")
     PEDecl(name, def) => logger.write_string("<!ENTITY % \{name} \{def}>")
@@ -414,7 +414,7 @@ pub impl Show for EntityDecl with output(self, logger) {
 }
 
 ///|
-pub impl Show for EntityDef with output(self, logger) {
+pub impl Show for EntityDef with fn output(self, logger) {
   match self {
     EntityValue(value) => logger.write_string(value)
     PExternalID(id) => logger.write_string(id.to_string())
@@ -425,7 +425,7 @@ pub impl Show for EntityDef with output(self, logger) {
 }
 
 ///|
-pub impl Show for ExternalID with output(self, logger) {
+pub impl Show for ExternalID with fn output(self, logger) {
   match self {
     System(s) => logger.write_string("SYSTEM \{s}")
     Public(p, s) => logger.write_string("PUBLIC \{p} \{s}")
@@ -433,7 +433,7 @@ pub impl Show for ExternalID with output(self, logger) {
 }
 
 ///|
-pub impl Show for NotationDeclID with output(self, logger) {
+pub impl Show for NotationDeclID with fn output(self, logger) {
   match self {
     PublicID(s) => logger.write_string("PUBLIC \{s}")
     ExternalID(id) => logger.write_string(id.to_string())
@@ -441,7 +441,7 @@ pub impl Show for NotationDeclID with output(self, logger) {
 }
 
 ///|
-pub impl Show for NotationDecl with output(self, logger) {
+pub impl Show for NotationDecl with fn output(self, logger) {
   logger.write_string("<!NOTATION \{self.name} \{self.id}>")
 }
 
