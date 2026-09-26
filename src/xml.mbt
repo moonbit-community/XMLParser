@@ -349,7 +349,7 @@ pub impl Show for XMLDocument with fn to_string(self) {
     Some(dtd) => dtd.to_string()
     None => ""
   }
-  "<?xml version=\"\{self.version}\" encoding=\"\{self.encoding}\" standalone=\"\{self.standalone}\" ?>\{dtd_str}\n\{self.root}"
+  "<?xml version=\"\{self.version}\" encoding=\"\{self.encoding}\" standalone=\"\{self.standalone}\" ?>\{dtd_str}\n\{self.root.to_string()}"
 }
 
 ///|
