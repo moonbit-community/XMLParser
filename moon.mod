@@ -4,7 +4,7 @@ version = "0.2.5"
 
 import {
   "moonbitlang/quickcheck@0.14.0",
-  "moonbitlang/x@0.4.38",
+  "moonbitlang/x@0.4.40",
 }
 
 readme = "README.md"
