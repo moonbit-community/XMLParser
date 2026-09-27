@@ -17,7 +17,7 @@ impl XMLNode for XMLElement with fn accept(self, visitor) {
   visitor.visit(self)
   for child in self.children {
     if child is Element(element) {
-      element.accept(visitor)
+      XMLNode::accept(element, visitor)
     }
   }
 }
@@ -41,7 +41,7 @@ pub fn XMLDocument::get_element_by_name(
   name : String,
 ) -> Array[XMLElement] {
   let visitor = GetElementVisitor::{ name, elements: [] }
-  self.root.accept(visitor)
+  XMLNode::accept(self.root, visitor)
   visitor.elements
 }
 

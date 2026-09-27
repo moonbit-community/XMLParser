@@ -66,9 +66,12 @@ pub fn[T] Seq::is_empty(Self[T]) -> Bool
 pub fn[T] Seq::length(Self[T]) -> Int
 pub fn[T1, T2] Seq::map(Self[T1], (T1) -> T2) -> Self[T2]
 pub fn[T] Seq::new(ArrayView[T]) -> Self[T]
+pub fn[T : Show] Seq::output(Self[T], &Logger) -> Unit
 pub fn Seq::peek_char(Self[Char], Int) -> String?
 pub fn[T] Seq::to_array(Self[T]) -> Array[T]
 pub fn[T] Seq::to_iter(Self[T]) -> Iter[T]
+pub fn[T : Show] Seq::to_repr(Self[T]) -> @debug.Repr
+pub fn[T : Show] Seq::to_string(Self[T]) -> String
 pub fn[T] Seq::uncons(Self[T]) -> (T, Self[T])?
 pub impl[T : Show] Show for Seq[T]
 pub impl[T : Show] @debug.Debug for Seq[T]
@@ -76,4 +79,3 @@ pub impl[T : Show] @debug.Debug for Seq[T]
 // Type aliases
 
 // Traits
-

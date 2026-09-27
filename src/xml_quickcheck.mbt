@@ -139,7 +139,7 @@ fn trivial_ctx(xml : XMLDocument) -> Bool {
   let s = xml.to_string()
   let (xml2, ctx) = xml_from_string_with_ctx(s)
   if !ctx.errors.is_empty() {
-    println(to_repr(ctx.errors))
+    println(Repr(ctx.errors))
   }
   let flag = ctx.errors
     .filter(e => {

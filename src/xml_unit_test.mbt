@@ -1,7 +1,7 @@
 ///|
 test "fail" {
   let str = "<?xml version=\"&$\" encoding=\"eXh4Qc\"\u{0f}F\u{1d}[]H\u{19}A\u{00}\" standalone=\"true\" ?>\n<vjolNG04hr key_1=\"4\u{1c}r\u{06}l\u{10}dxSa\u{10}\u{01}\" key_2=\"<)jxL\u{16}x\u{0b}R\u{15}\u{0c}w\u{1b}]w\u{00}eh\" key_3=\".cXWh$oJfX\u{16}\u{1c}Y?J\" key_4=\"$f/1\" key_5=\"4Y\" key_6=\"\u{0c}0N*$\" key_7=\"=\" key_8=\"E;#\" key_9=\"W.\u{07}t%i\u{1e}umy\u{05}'@9\"><![CDATA[]]><X ></X></vjolNG04hr>"
-  let option = xml_from_string(str)
+  let option = @XMLParser.xml_from_string(str)
   // println(option)
 }
 
@@ -13,7 +13,7 @@ test "dtd testcase 1" {
     #|<!ATTLIST doc a1 NMTOKENS #IMPLIED>
     #|<!ELEMENT doc (#PCDATA)>
     #|]>
-  let parser = pdtd()
+  let parser = @XMLParser.pdtd()
   let result = parser.run(@combinator.Seq::from_string(str)).unwrap()
   let str =
     #|<!DOCTYPE doc [
@@ -26,14 +26,10 @@ test "dtd testcase 1" {
 ///|
 fn is_valid(s : String) -> Bool {
   let s = s.replace(old=".xml", new="")
-  let id = try? @string.parse_int(s)
+  let id = @string.parse_int(s) catch { _ => return false }
   match id {
-    Err(_) => false
-    Ok(id) =>
-      match id {
-        49..=51 => false
-        _ => true
-      }
+    49..=51 => false
+    _ => true
   }
 }
 
@@ -55,7 +51,7 @@ test "xmlconf valid sa" {
     if file.has_suffix(".xml") {
       let str = @fs.read_file_to_string(dir + "/" + file)
       let bytes = @fs.read_file_to_bytes(dir + "/" + file)
-      let result = xml_from_string(str)
+      let result = @XMLParser.xml_from_string(str)
       match result {
         Some(_) =>
           // println("ok " + file)
