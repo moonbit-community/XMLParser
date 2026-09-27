@@ -738,6 +738,10 @@ fn xml_from_string_with_ctx(s : String) -> Context[XMLDocument] {
 }
 
 ///|
-/// Keep trait methods callable as regular methods; implicit promotion
-/// is deprecated.
-pub extend XMLParserContext with Show::{to_string, output}
+pub extend XMLParserContext with Show::{to_string}
+
+///|
+/// Implicitly promoted before; kept only for compatibility.
+#doc(hidden)
+#deprecated
+pub extend XMLParserContext with Show::{output}

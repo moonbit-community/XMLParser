@@ -115,9 +115,16 @@ pub impl[T : Show] Debug for Seq[T] with fn to_repr(self) {
 }
 
 ///|
-/// Keep trait methods callable as regular methods; implicit promotion
-/// is deprecated.
-pub extend Seq with Show::{to_string, output}
+pub extend Seq with Show::{to_string}
 
 ///|
+/// Implicitly promoted before; kept only for compatibility.
+#doc(hidden)
+#deprecated
+pub extend Seq with Show::{output}
+
+///|
+/// Implicitly promoted before; kept only for compatibility.
+#doc(hidden)
+#deprecated
 pub extend Seq with Debug::{to_repr}

@@ -84,7 +84,6 @@ pub(all) struct AttDef {
   att_type : AttType
   default_decl : DefaultDecl
 }
-pub fn AttDef::output(Self, &Logger) -> Unit
 pub fn AttDef::to_string(Self) -> String
 pub impl Show for AttDef
 
@@ -94,7 +93,6 @@ pub(all) enum AttType {
   NotationType(Array[String])
   Enumeration(Array[String])
 }
-pub fn AttType::output(Self, &Logger) -> Unit
 pub fn AttType::to_string(Self) -> String
 pub impl Show for AttType
 
@@ -102,7 +100,6 @@ pub(all) struct AttlistDecl {
   name : String
   att_defs : Array[AttDef]
 }
-pub fn AttlistDecl::output(Self, &Logger) -> Unit
 pub fn AttlistDecl::to_string(Self) -> String
 pub impl Show for AttlistDecl
 
@@ -111,12 +108,10 @@ pub(all) enum ChildrenContentSpecOp {
   ZeroOrMore
   OneOrMore
 }
-pub fn ChildrenContentSpecOp::output(Self, &Logger) -> Unit
 pub fn ChildrenContentSpecOp::to_string(Self) -> String
 pub impl Show for ChildrenContentSpecOp
 
 pub(all) struct ContentParticle(SingleContentParticle, ChildrenContentSpecOp?)
-pub fn ContentParticle::output(Self, &Logger) -> Unit
 pub fn ContentParticle::to_string(Self) -> String
 pub impl Show for ContentParticle
 
@@ -126,7 +121,6 @@ pub(all) enum ContentSpec {
   Mixed(Array[String])
   Children(ContentParticle)
 }
-pub fn ContentSpec::output(Self, &Logger) -> Unit
 pub fn ContentSpec::to_string(Self) -> String
 pub impl Show for ContentSpec
 
@@ -134,7 +128,6 @@ pub(all) enum DTDStatement {
   Decl(MarkUpDecl)
   Sep(String)
 }
-pub fn DTDStatement::output(Self, &Logger) -> Unit
 pub fn DTDStatement::to_string(Self) -> String
 pub impl Show for DTDStatement
 
@@ -144,7 +137,6 @@ pub(all) enum DefaultDecl {
   Fixed(String)
   Value(String)
 }
-pub fn DefaultDecl::output(Self, &Logger) -> Unit
 pub fn DefaultDecl::to_string(Self) -> String
 pub impl Show for DefaultDecl
 
@@ -153,8 +145,6 @@ pub(all) struct DocTypeDecl {
   externalID : ExternalID?
   intSubset : Array[DTDStatement]?
 }
-pub fn DocTypeDecl::output(Self, &Logger) -> Unit
-pub fn DocTypeDecl::to_repr(Self) -> @debug.Repr
 pub fn DocTypeDecl::to_string(Self) -> String
 pub impl Show for DocTypeDecl
 pub impl @debug.Debug for DocTypeDecl
@@ -163,7 +153,6 @@ pub(all) struct ElementDecl {
   name : String
   content_spec : ContentSpec
 }
-pub fn ElementDecl::output(Self, &Logger) -> Unit
 pub fn ElementDecl::to_string(Self) -> String
 pub impl Show for ElementDecl
 
@@ -171,7 +160,6 @@ pub(all) enum EntityDecl {
   GEDecl(String, EntityDef)
   PEDecl(String, EntityDef)
 }
-pub fn EntityDecl::output(Self, &Logger) -> Unit
 pub fn EntityDecl::to_string(Self) -> String
 pub impl Show for EntityDecl
 
@@ -180,7 +168,6 @@ pub(all) enum EntityDef {
   GExternalID(ExternalID, String?)
   PExternalID(ExternalID)
 }
-pub fn EntityDef::output(Self, &Logger) -> Unit
 pub fn EntityDef::to_string(Self) -> String
 pub impl Show for EntityDef
 
@@ -188,7 +175,6 @@ pub(all) enum ExternalID {
   System(String)
   Public(String, String)
 }
-pub fn ExternalID::output(Self, &Logger) -> Unit
 pub fn ExternalID::to_string(Self) -> String
 pub impl Show for ExternalID
 
@@ -203,8 +189,6 @@ pub(all) struct Location {
   mut column : Int
   length : Int
 } derive(@debug.Debug)
-pub fn Location::output(Self, &Logger) -> Unit
-pub fn Location::to_repr(Self) -> @debug.Repr
 pub fn Location::to_string(Self) -> String
 pub impl Show for Location
 
@@ -216,7 +200,6 @@ pub(all) enum MarkUpDecl {
   PI(String)
   Comment(String)
 }
-pub fn MarkUpDecl::output(Self, &Logger) -> Unit
 pub fn MarkUpDecl::to_string(Self) -> String
 pub impl Show for MarkUpDecl
 
@@ -230,7 +213,6 @@ pub(all) struct NotationDecl {
   name : String
   id : NotationDeclID
 }
-pub fn NotationDecl::output(Self, &Logger) -> Unit
 pub fn NotationDecl::to_string(Self) -> String
 pub impl Show for NotationDecl
 
@@ -238,7 +220,6 @@ pub(all) enum NotationDeclID {
   PublicID(String)
   ExternalID(ExternalID)
 }
-pub fn NotationDeclID::output(Self, &Logger) -> Unit
 pub fn NotationDeclID::to_string(Self) -> String
 pub impl Show for NotationDeclID
 
@@ -247,7 +228,6 @@ pub(all) enum SingleContentParticle {
   Seq(Array[ContentParticle])
   Choice(Array[ContentParticle])
 }
-pub fn SingleContentParticle::output(Self, &Logger) -> Unit
 pub fn SingleContentParticle::to_string(Self) -> String
 pub impl Show for SingleContentParticle
 
@@ -260,8 +240,6 @@ pub(all) enum XMLChildren {
   Text(String)
   WhiteSpace(String)
 }
-pub fn XMLChildren::output(Self, &Logger) -> Unit
-pub fn XMLChildren::to_repr(Self) -> @debug.Repr
 pub fn XMLChildren::to_string(Self) -> String
 pub impl Show for XMLChildren
 pub impl @debug.Debug for XMLChildren
@@ -274,8 +252,6 @@ pub(all) struct XMLDocument {
   root : XMLElement
 }
 pub fn XMLDocument::get_element_by_name(Self, String) -> Array[XMLElement]
-pub fn XMLDocument::output(Self, &Logger) -> Unit
-pub fn XMLDocument::to_repr(Self) -> @debug.Repr
 pub fn XMLDocument::to_string(Self) -> String
 pub impl Show for XMLDocument
 pub impl @debug.Debug for XMLDocument
@@ -289,8 +265,6 @@ pub(all) struct XMLElement {
 pub fn XMLElement::get_attribute(Self, String) -> String?
 pub fn XMLElement::get_children(Self) -> Array[XMLChildren]
 pub fn XMLElement::get_text(Self) -> String
-pub fn XMLElement::output(Self, &Logger) -> Unit
-pub fn XMLElement::to_repr(Self) -> @debug.Repr
 pub fn XMLElement::to_string(Self) -> String
 pub impl Show for XMLElement
 pub impl @debug.Debug for XMLElement
@@ -303,8 +277,6 @@ pub(all) enum XMLErrorKind {
   MismatchedTags(String, String)
   InternalParserError
 } derive(@debug.Debug)
-pub fn XMLErrorKind::output(Self, &Logger) -> Unit
-pub fn XMLErrorKind::to_repr(Self) -> @debug.Repr
 pub fn XMLErrorKind::to_string(Self) -> String
 pub impl Show for XMLErrorKind
 
@@ -314,8 +286,6 @@ pub(all) struct XMLParseError {
   location : Location
 } derive(@debug.Debug)
 pub fn XMLParseError::is_fatal(Self) -> Bool
-pub fn XMLParseError::output(Self, &Logger) -> Unit
-pub fn XMLParseError::to_repr(Self) -> @debug.Repr
 pub fn XMLParseError::to_string(Self) -> String
 pub impl Show for XMLParseError
 
@@ -340,7 +310,6 @@ pub struct XMLParserContext {
   warnings : Array[String]
 }
 pub fn XMLParserContext::merge(Self, Self) -> Unit
-pub fn XMLParserContext::output(Self, &Logger) -> Unit
 pub fn XMLParserContext::raise_error(Self, XMLParseError) -> Unit
 pub fn XMLParserContext::to_string(Self) -> String
 pub impl Show for XMLParserContext

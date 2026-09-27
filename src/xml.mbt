@@ -458,93 +458,250 @@ pub fn XMLParseError::is_fatal(self : XMLParseError) -> Bool {
 }
 
 ///|
-/// Keep trait methods callable as regular methods; implicit promotion
-/// is deprecated.
-pub extend DocTypeDecl with Show::{to_string, output}
+pub extend DocTypeDecl with Show::{to_string}
 
 ///|
+/// Implicitly promoted before; kept only for compatibility.
+#doc(hidden)
+#deprecated
+pub extend DocTypeDecl with Show::{output}
+
+///|
+/// Implicitly promoted before; kept only for compatibility.
+#doc(hidden)
+#deprecated
 pub extend DocTypeDecl with Debug::{to_repr}
 
 ///|
-pub extend DTDStatement with Show::{to_string, output}
+pub extend DTDStatement with Show::{to_string}
 
 ///|
-pub extend MarkUpDecl with Show::{to_string, output}
+/// Implicitly promoted before; kept only for compatibility.
+#doc(hidden)
+#deprecated
+pub extend DTDStatement with Show::{output}
 
 ///|
-pub extend ElementDecl with Show::{to_string, output}
+pub extend MarkUpDecl with Show::{to_string}
 
 ///|
-pub extend ContentSpec with Show::{to_string, output}
+/// Implicitly promoted before; kept only for compatibility.
+#doc(hidden)
+#deprecated
+pub extend MarkUpDecl with Show::{output}
 
 ///|
-pub extend ContentParticle with Show::{to_string, output}
+pub extend ElementDecl with Show::{to_string}
 
 ///|
-pub extend ChildrenContentSpecOp with Show::{to_string, output}
+/// Implicitly promoted before; kept only for compatibility.
+#doc(hidden)
+#deprecated
+pub extend ElementDecl with Show::{output}
 
 ///|
-pub extend SingleContentParticle with Show::{to_string, output}
+pub extend ContentSpec with Show::{to_string}
 
 ///|
-pub extend AttlistDecl with Show::{to_string, output}
+/// Implicitly promoted before; kept only for compatibility.
+#doc(hidden)
+#deprecated
+pub extend ContentSpec with Show::{output}
 
 ///|
-pub extend AttDef with Show::{to_string, output}
+pub extend ContentParticle with Show::{to_string}
 
 ///|
-pub extend DefaultDecl with Show::{to_string, output}
+/// Implicitly promoted before; kept only for compatibility.
+#doc(hidden)
+#deprecated
+pub extend ContentParticle with Show::{output}
 
 ///|
-pub extend AttType with Show::{to_string, output}
+pub extend ChildrenContentSpecOp with Show::{to_string}
 
 ///|
+/// Implicitly promoted before; kept only for compatibility.
+#doc(hidden)
+#deprecated
+pub extend ChildrenContentSpecOp with Show::{output}
+
+///|
+pub extend SingleContentParticle with Show::{to_string}
+
+///|
+/// Implicitly promoted before; kept only for compatibility.
+#doc(hidden)
+#deprecated
+pub extend SingleContentParticle with Show::{output}
+
+///|
+pub extend AttlistDecl with Show::{to_string}
+
+///|
+/// Implicitly promoted before; kept only for compatibility.
+#doc(hidden)
+#deprecated
+pub extend AttlistDecl with Show::{output}
+
+///|
+pub extend AttDef with Show::{to_string}
+
+///|
+/// Implicitly promoted before; kept only for compatibility.
+#doc(hidden)
+#deprecated
+pub extend AttDef with Show::{output}
+
+///|
+pub extend DefaultDecl with Show::{to_string}
+
+///|
+/// Implicitly promoted before; kept only for compatibility.
+#doc(hidden)
+#deprecated
+pub extend DefaultDecl with Show::{output}
+
+///|
+pub extend AttType with Show::{to_string}
+
+///|
+/// Implicitly promoted before; kept only for compatibility.
+#doc(hidden)
+#deprecated
+pub extend AttType with Show::{output}
+
+///|
+/// Implicitly promoted before; kept only for compatibility.
+#doc(hidden)
+#deprecated
 pub extend XMLErrorKind with Debug::{to_repr}
 
 ///|
-pub extend XMLErrorKind with Show::{to_string, output}
+pub extend XMLErrorKind with Show::{to_string}
 
 ///|
+/// Implicitly promoted before; kept only for compatibility.
+#doc(hidden)
+#deprecated
+pub extend XMLErrorKind with Show::{output}
+
+///|
+/// Implicitly promoted before; kept only for compatibility.
+#doc(hidden)
+#deprecated
 pub extend XMLParseError with Debug::{to_repr}
 
 ///|
-pub extend XMLParseError with Show::{to_string, output}
+pub extend XMLParseError with Show::{to_string}
 
 ///|
+/// Implicitly promoted before; kept only for compatibility.
+#doc(hidden)
+#deprecated
+pub extend XMLParseError with Show::{output}
+
+///|
+/// Implicitly promoted before; kept only for compatibility.
+#doc(hidden)
+#deprecated
 pub extend Location with Debug::{to_repr}
 
 ///|
-pub extend Location with Show::{to_string, output}
+pub extend Location with Show::{to_string}
 
 ///|
-pub extend XMLDocument with Show::{to_string, output}
+/// Implicitly promoted before; kept only for compatibility.
+#doc(hidden)
+#deprecated
+pub extend Location with Show::{output}
 
 ///|
+pub extend XMLDocument with Show::{to_string}
+
+///|
+/// Implicitly promoted before; kept only for compatibility.
+#doc(hidden)
+#deprecated
+pub extend XMLDocument with Show::{output}
+
+///|
+/// Implicitly promoted before; kept only for compatibility.
+#doc(hidden)
+#deprecated
 pub extend XMLDocument with Debug::{to_repr}
 
 ///|
-pub extend XMLElement with Show::{to_string, output}
+pub extend XMLElement with Show::{to_string}
 
 ///|
+/// Implicitly promoted before; kept only for compatibility.
+#doc(hidden)
+#deprecated
+pub extend XMLElement with Show::{output}
+
+///|
+/// Implicitly promoted before; kept only for compatibility.
+#doc(hidden)
+#deprecated
 pub extend XMLElement with Debug::{to_repr}
 
 ///|
-pub extend XMLChildren with Show::{to_string, output}
+pub extend XMLChildren with Show::{to_string}
 
 ///|
+/// Implicitly promoted before; kept only for compatibility.
+#doc(hidden)
+#deprecated
+pub extend XMLChildren with Show::{output}
+
+///|
+/// Implicitly promoted before; kept only for compatibility.
+#doc(hidden)
+#deprecated
 pub extend XMLChildren with Debug::{to_repr}
 
 ///|
-pub extend EntityDecl with Show::{to_string, output}
+pub extend EntityDecl with Show::{to_string}
 
 ///|
-pub extend EntityDef with Show::{to_string, output}
+/// Implicitly promoted before; kept only for compatibility.
+#doc(hidden)
+#deprecated
+pub extend EntityDecl with Show::{output}
 
 ///|
-pub extend ExternalID with Show::{to_string, output}
+pub extend EntityDef with Show::{to_string}
 
 ///|
-pub extend NotationDeclID with Show::{to_string, output}
+/// Implicitly promoted before; kept only for compatibility.
+#doc(hidden)
+#deprecated
+pub extend EntityDef with Show::{output}
 
 ///|
-pub extend NotationDecl with Show::{to_string, output}
+pub extend ExternalID with Show::{to_string}
+
+///|
+/// Implicitly promoted before; kept only for compatibility.
+#doc(hidden)
+#deprecated
+pub extend ExternalID with Show::{output}
+
+///|
+pub extend NotationDeclID with Show::{to_string}
+
+///|
+/// Implicitly promoted before; kept only for compatibility.
+#doc(hidden)
+#deprecated
+pub extend NotationDeclID with Show::{output}
+
+///|
+pub extend NotationDecl with Show::{to_string}
+
+///|
+/// Implicitly promoted before; kept only for compatibility.
+#doc(hidden)
+#deprecated
+pub extend NotationDecl with Show::{output}
