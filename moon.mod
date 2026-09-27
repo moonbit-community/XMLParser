@@ -1,6 +1,6 @@
 name = "moonbit-community/XMLParser"
 
-version = "0.2.5"
+version = "0.2.6"
 
 import {
   "moonbitlang/quickcheck@0.14.0",
