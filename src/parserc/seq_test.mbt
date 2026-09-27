@@ -1,6 +1,6 @@
 ///|
 test "Seq from string" {
-  let sequence = Seq::from_string("沪A")
+  let sequence = @parserc.Seq::from_string("沪A")
   assert_eq(sequence.length(), 2)
   assert_false(sequence.is_empty())
   debug_inspect(
@@ -23,7 +23,7 @@ test "Seq from string" {
     .uncons()
     .unwrap_or_error(Failure::Failure("Shouldn't happen"))
   assert_true(sequence.is_empty())
-  let sequence = Seq::from_string("🀄️")
+  let sequence = @parserc.Seq::from_string("🀄️")
   assert_eq(sequence.length(), 2)
   debug_inspect(
     sequence.uncons(),
@@ -35,7 +35,7 @@ test "Seq from string" {
 
 ///|
 test "Seq from array" {
-  let sequence = Seq::from_array("沪A".iter().collect()[:])
+  let sequence = @parserc.Seq::from_array("沪A".iter().collect()[:])
   assert_eq(sequence.length(), 2)
   assert_false(sequence.is_empty())
   debug_inspect(
@@ -58,7 +58,7 @@ test "Seq from array" {
     .uncons()
     .unwrap_or_error(Failure::Failure("Shouldn't happen"))
   assert_true(sequence.is_empty())
-  let sequence = Seq::from_array("🀄️".iter().collect()[:])
+  let sequence = @parserc.Seq::from_array("🀄️".iter().collect()[:])
   assert_eq(sequence.length(), 2)
   debug_inspect(
     sequence.uncons(),

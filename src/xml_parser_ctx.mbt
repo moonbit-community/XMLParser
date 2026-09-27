@@ -18,7 +18,7 @@ pub struct XMLParserContext {
 ///|
 pub impl Show for XMLParserContext with fn output(self, logger) {
   logger.write_string(
-    "{ input_array: \{to_repr(self.input_array)}, index: \{self.index}, line_number: \{self.line_number}, column_number: \{self.column_number}, errors: \{to_repr(self.errors)}, warnings: \{to_repr(self.warnings)} }",
+    "{ input_array: \{Repr(self.input_array)}, index: \{self.index}, line_number: \{self.line_number}, column_number: \{self.column_number}, errors: \{Repr(self.errors)}, warnings: \{Repr(self.warnings)} }",
   )
 }
 
@@ -736,3 +736,8 @@ fn xml_from_string_with_ctx(s : String) -> Context[XMLDocument] {
       )
   }
 }
+
+///|
+/// Keep trait methods callable as regular methods; implicit promotion
+/// is deprecated.
+pub extend XMLParserContext with Show::{to_string, output}

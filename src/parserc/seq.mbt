@@ -113,3 +113,11 @@ pub impl[T : Show] Show for Seq[T] with fn output(self, log) {
 pub impl[T : Show] Debug for Seq[T] with fn to_repr(self) {
   Repr::literal(self.to_string())
 }
+
+///|
+/// Keep trait methods callable as regular methods; implicit promotion
+/// is deprecated.
+pub extend Seq with Show::{to_string, output}
+
+///|
+pub extend Seq with Debug::{to_repr}

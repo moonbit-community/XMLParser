@@ -456,3 +456,95 @@ pub fn XMLParseError::is_fatal(self : XMLParseError) -> Bool {
     InternalParserError => true
   }
 }
+
+///|
+/// Keep trait methods callable as regular methods; implicit promotion
+/// is deprecated.
+pub extend DocTypeDecl with Show::{to_string, output}
+
+///|
+pub extend DocTypeDecl with Debug::{to_repr}
+
+///|
+pub extend DTDStatement with Show::{to_string, output}
+
+///|
+pub extend MarkUpDecl with Show::{to_string, output}
+
+///|
+pub extend ElementDecl with Show::{to_string, output}
+
+///|
+pub extend ContentSpec with Show::{to_string, output}
+
+///|
+pub extend ContentParticle with Show::{to_string, output}
+
+///|
+pub extend ChildrenContentSpecOp with Show::{to_string, output}
+
+///|
+pub extend SingleContentParticle with Show::{to_string, output}
+
+///|
+pub extend AttlistDecl with Show::{to_string, output}
+
+///|
+pub extend AttDef with Show::{to_string, output}
+
+///|
+pub extend DefaultDecl with Show::{to_string, output}
+
+///|
+pub extend AttType with Show::{to_string, output}
+
+///|
+pub extend XMLErrorKind with Debug::{to_repr}
+
+///|
+pub extend XMLErrorKind with Show::{to_string, output}
+
+///|
+pub extend XMLParseError with Debug::{to_repr}
+
+///|
+pub extend XMLParseError with Show::{to_string, output}
+
+///|
+pub extend Location with Debug::{to_repr}
+
+///|
+pub extend Location with Show::{to_string, output}
+
+///|
+pub extend XMLDocument with Show::{to_string, output}
+
+///|
+pub extend XMLDocument with Debug::{to_repr}
+
+///|
+pub extend XMLElement with Show::{to_string, output}
+
+///|
+pub extend XMLElement with Debug::{to_repr}
+
+///|
+pub extend XMLChildren with Show::{to_string, output}
+
+///|
+pub extend XMLChildren with Debug::{to_repr}
+
+///|
+pub extend EntityDecl with Show::{to_string, output}
+
+///|
+pub extend EntityDef with Show::{to_string, output}
+
+///|
+pub extend ExternalID with Show::{to_string, output}
+
+///|
+pub extend NotationDeclID with Show::{to_string, output}
+
+///|
+pub extend NotationDecl with Show::{to_string, output}
