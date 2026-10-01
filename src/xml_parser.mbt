@@ -90,7 +90,9 @@ fn is_char(c : Char) -> Bool {
 ///
 /// ```moonbit check
 /// test {
-///   let result = @XMLParser.pwhite_space().run(@combinator.Seq::from_string("  \t\n\rtext"))
+///   let result = @XMLParser.pwhite_space().run(
+///     @combinator.Seq::from_string("  \t\n\rtext"),
+///   )
 ///   debug_inspect(
 ///     result,
 ///     content=(
@@ -130,14 +132,18 @@ pub fn pwhite_space() -> Parser[Char, String] {
 ///
 /// ```moonbit check
 /// test {
-///   let result = @XMLParser.ptext().run(@combinator.Seq::from_string("Hello World"))
+///   let result = @XMLParser.ptext().run(
+///     @combinator.Seq::from_string("Hello World"),
+///   )
 ///   debug_inspect(
 ///     result,
 ///     content=(
 ///       #|Some(("Hello World"))
 ///     ),
 ///   )
-///   let result = @XMLParser.ptext().run(@combinator.Seq::from_string("Text with & and <"))
+///   let result = @XMLParser.ptext().run(
+///     @combinator.Seq::from_string("Text with & and <"),
+///   )
 ///   debug_inspect(
 ///     result,
 ///     content=(
@@ -303,7 +309,9 @@ fn pattValue() -> Parser[Char, String] {
 ///
 /// ```moonbit check
 /// test {
-///   let result = @XMLParser.pattribute().run(@combinator.Seq::from_string("name=\"value\""))
+///   let result = @XMLParser.pattribute().run(
+///     @combinator.Seq::from_string("name=\"value\""),
+///   )
 ///   debug_inspect(
 ///     result,
 ///     content=(
@@ -555,7 +563,7 @@ pub fn pelement() -> Parser[Char, XMLElement] {
     .omit_second()
     .map(fn(tuple) {
       let (name, attributes) = tuple
-      { name, empty_element: true, attributes, children: [] }
+      { name, empty_element: true, attributes, children: [], }
     })
   let children_parser = @combinator.pchar('<')
     .and_then(pname())
@@ -584,7 +592,7 @@ pub fn pelement() -> Parser[Char, XMLElement] {
         // raise XMLParseError("Mismatched start and end tags")
         println("Mismatched start and end tags")
       }
-      { name: name_start, empty_element: false, attributes: attrs, children }
+      { name: name_start, empty_element: false, attributes: attrs, children, }
     })
   // 这么组合的性能不够好。 
   let parser = empty_parser.or_else(children_parser)
@@ -798,7 +806,9 @@ pub fn ppiTarget() -> Parser[Char, String] {
 ///
 /// ```moonbit check
 /// test {
-///   let result = @XMLParser.ppi().run(@combinator.Seq::from_string("<?php echo 'Hello' ?>"))
+///   let result = @XMLParser.ppi().run(
+///     @combinator.Seq::from_string("<?php echo 'Hello' ?>"),
+///   )
 ///   debug_inspect(
 ///     result,
 ///     content=(
@@ -812,7 +822,9 @@ pub fn ppiTarget() -> Parser[Char, String] {
 ///       #|Some((""))
 ///     ),
 ///   )
-///   let result = @XMLParser.ppi().run(@combinator.Seq::from_string("<?incomplete"))
+///   let result = @XMLParser.ppi().run(
+///     @combinator.Seq::from_string("<?incomplete"),
+///   )
 ///   debug_inspect(result, content="None")
 /// }
 /// ```
@@ -922,7 +934,9 @@ pub fn pEntityRef() -> Parser[Char, String] {
 ///
 /// ```moonbit check
 /// test {
-///   let decimal = @XMLParser.pcharRef().run(@combinator.Seq::from_string("&#123;"))
+///   let decimal = @XMLParser.pcharRef().run(
+///     @combinator.Seq::from_string("&#123;"),
+///   )
 ///   let hex = @XMLParser.pcharRef().run(@combinator.Seq::from_string("&#xA5;"))
 ///   debug_inspect(
 ///     decimal,
@@ -977,7 +991,9 @@ pub fn pcharRef() -> Parser[Char, String] {
 /// ```moonbit check
 /// test {
 ///   // Entity reference
-///   let entity = @XMLParser.preference().run(@combinator.Seq::from_string("&amp;"))
+///   let entity = @XMLParser.preference().run(
+///     @combinator.Seq::from_string("&amp;"),
+///   )
 ///   debug_inspect(
 ///     entity,
 ///     content=(
@@ -986,7 +1002,9 @@ pub fn pcharRef() -> Parser[Char, String] {
 ///   )
 ///
 ///   // Character reference (decimal)
-///   let decimal = @XMLParser.preference().run(@combinator.Seq::from_string("&#32;"))
+///   let decimal = @XMLParser.preference().run(
+///     @combinator.Seq::from_string("&#32;"),
+///   )
 ///   debug_inspect(
 ///     decimal,
 ///     content=(
@@ -1106,7 +1124,7 @@ pub fn pdtd() -> Parser[Char, DocTypeDecl] {
   .omit_second()
   .map(fn(tuple) {
     let ((name, externalID), intSubset) = tuple
-    { name, externalID, intSubset }
+    { name, externalID, intSubset, }
   })
 }
 

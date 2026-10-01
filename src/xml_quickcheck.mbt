@@ -53,7 +53,7 @@ impl @quickcheck.Arbitrary for XMLElement with fn arbitrary(size, rs) {
   } else {
     false
   }
-  { name, empty_element, attributes, children }
+  { name, empty_element, attributes, children, }
 }
 
 ///|

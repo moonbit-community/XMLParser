@@ -17,6 +17,4 @@ keywords = [ "XML", "parser" ]
 
 description = "An XML parsing library written in MoonBit that converts XML strings into structured data, supporting elements, attributes, comments, CDATA, and processing instructions."
 
-options(
-  source: "src",
-)
+source = "src"
