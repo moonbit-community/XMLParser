@@ -40,7 +40,7 @@ pub fn XMLDocument::get_element_by_name(
   self : XMLDocument,
   name : String,
 ) -> Array[XMLElement] {
-  let visitor = GetElementVisitor::{ name, elements: [] }
+  let visitor = GetElementVisitor::{ name, elements: [], }
   XMLNode::accept(self.root, visitor)
   visitor.elements
 }

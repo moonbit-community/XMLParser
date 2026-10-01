@@ -378,7 +378,7 @@ fn pelementDecl() -> Parser[Char, ElementDecl] {
     .map(fn(tuple) {
       let (name, content_spec) = tuple
       // println(tuple)
-      { name, content_spec }
+      { name, content_spec, }
     })
   return parser
 }
@@ -562,7 +562,7 @@ fn pattListDecl() -> Parser[Char, AttlistDecl] {
     .and_then(pdefaultDecl())
     .map(fn(tuple) {
       let ((name, att_type), default_decl) = tuple
-      { name, att_type, default_decl }
+      { name, att_type, default_decl, }
     })
   let parser = @combinator.pstring("<!ATTLIST")
     .and_then(pwhite_space())
@@ -575,7 +575,7 @@ fn pattListDecl() -> Parser[Char, AttlistDecl] {
     .omit_second()
     .map(fn(tuple) {
       let (name, att_defs) = tuple
-      { name, att_defs }
+      { name, att_defs, }
     })
   parser
 }
@@ -645,7 +645,7 @@ fn pnotationDecl() -> Parser[Char, NotationDecl] {
   .omit_second()
   .map(fn(tuple) {
     let (name, id) = tuple
-    { name, id }
+    { name, id, }
   })
 }
 

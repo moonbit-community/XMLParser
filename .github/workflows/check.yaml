@@ -43,7 +43,11 @@ jobs:
           moon check --deny-warn
 
       - name: moon check
-        run: moon check 
+        run: moon check
+
+      - name: moon fmt
+        if: ${{ matrix.os == 'ubuntu-latest' }}
+        run: moon fmt --check
 
       - name: moon info
         run: |

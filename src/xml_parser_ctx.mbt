@@ -149,7 +149,7 @@ fn raise_error(
   let error = {
     kind,
     message: msg,
-    location: { index, line: 0, column: 0, length: 1 },
+    location: { index, line: 0, column: 0, length: 1, },
   }
   ctx.errors.push(error)
   ctx
@@ -691,7 +691,7 @@ pub fn pxml_with_ctx() -> Parser[Char, Context[XMLDocument]] {
             let _ctx = merge_context(ctx, ctx_dtd)
             match dtd_opt {
               Some(dtd) =>
-                Some({ name: dtd, externalID: None, intSubset: None }) // TODO support dtd for ctx version
+                Some({ name: dtd, externalID: None, intSubset: None, }) // TODO support dtd for ctx version
               None => None
             }
           }
