@@ -325,10 +325,10 @@ pub impl Show for XMLParseError with fn output(self, logger) {
 
 ///|
 pub(all) struct Location {
-  mut index : Int
-  mut line : Int
-  mut column : Int
-  length : Int
+  mut index : Int32
+  mut line : Int32
+  mut column : Int32
+  length : Int32
 } derive(Debug)
 
 ///|

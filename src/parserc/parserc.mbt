@@ -124,7 +124,7 @@ pub fn[Token, A, B] Parser::apply(
 ///|
 pub fn[Token, A] Parser::repeat_n(
   self : Parser[Token, A],
-  n : Int,
+  n : Int32,
 ) -> Parser[Token, Array[A]] {
   self.repeat_n_with_sep(n, pconst(()))
 }
@@ -132,7 +132,7 @@ pub fn[Token, A] Parser::repeat_n(
 ///|
 pub fn[Token, A, B] Parser::repeat_n_with_sep(
   self : Parser[Token, A],
-  n : Int,
+  n : Int32,
   sep : Parser[Token, B],
 ) -> Parser[Token, Array[A]] {
   if n < 0 {
@@ -166,7 +166,7 @@ pub fn[Token, A, B] Parser::repeat_n_with_sep(
 ///|
 pub fn[Token, A] Parser::repeat_0_to_n(
   self : Parser[Token, A],
-  n : Int,
+  n : Int32,
 ) -> Parser[Token, Array[A]] {
   self.repeat_0_to_n_with_sep(n, pconst(()))
 }
@@ -174,7 +174,7 @@ pub fn[Token, A] Parser::repeat_0_to_n(
 ///|
 pub fn[Token, A, B] Parser::repeat_0_to_n_with_sep(
   self : Parser[Token, A],
-  n : Int,
+  n : Int32,
   separator : Parser[Token, B],
 ) -> Parser[Token, Array[A]] {
   if n < 0 {

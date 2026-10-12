@@ -47,7 +47,7 @@ pub fn pchar(char : Char) -> Parser[Char, Char] {
 /// parser for integer
 ///
 /// [ "-" ] ( %x30 / (%x31-39) *(%x30-39)
-pub let pint : Parser[Char, Int] = pdigits.map(fn(tuple) {
+pub let pint : Parser[Char, Int32] = pdigits.map(fn(tuple) {
   let sign = tuple.0
   let digits = tuple.1
   let i = digits.1.fold(fn(a, b) { 10 * a + b }, init=digits.0)
@@ -103,10 +103,10 @@ pub fn pstring(string : String) -> Parser[Char, String] {
 /// parse digit
 ///
 /// %x30-39
-pub let pdigit : Parser[Char, Int] = one_of([0, 1, 2, 3, 4, 5, 6, 7, 8, 9])
+pub let pdigit : Parser[Char, Int32] = one_of([0, 1, 2, 3, 4, 5, 6, 7, 8, 9])
 
 ///|
-let pdigits : Parser[Char, (Char?, (Int, Array[Int]))] = pchar('-')
+let pdigits : Parser[Char, (Char?, (Int32, Array[Int32]))] = pchar('-')
   .optional()
   .and_then(
     pchar('0')
