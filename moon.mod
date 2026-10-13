@@ -3,8 +3,7 @@ name = "moonbit-community/XMLParser"
 version = "0.2.6"
 
 import {
-  "moonbitlang/quickcheck@0.14.0",
-  "moonbitlang/x@0.4.40",
+  "moonbitlang/x@0.5.5",
 }
 
 readme = "README.md"

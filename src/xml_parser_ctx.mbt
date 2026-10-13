@@ -7,10 +7,10 @@ pub struct XMLParserContext {
   ///
   input_array : Array[Char]
   /// the current position in the input sequence(start from 0)
-  index : Int
+  index : Int32
   ///
-  mut line_number : Int
-  mut column_number : Int
+  mut line_number : Int32
+  mut column_number : Int32
   errors : Array[XMLParseError]
   warnings : Array[String]
 }
@@ -143,7 +143,7 @@ fn merge_context(
 fn raise_error(
   ctx : XMLParserContext,
   kind : XMLErrorKind,
-  index : Int,
+  index : Int32,
   msg : String,
 ) -> XMLParserContext {
   let error = {
