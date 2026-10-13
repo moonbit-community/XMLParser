@@ -1,8 +1,37 @@
 ///|
-using @gen {type Gen}
+using @quickcheck {type Generator}
 
 ///|
-impl @qc.Shrink for XMLDocument with fn shrink(self) {
+/// Values of `g` that satisfy `pred` (`Gen::such_that` in quickcheck 0.14,
+/// which the core generators do not have). Same retry schedule: at size `n`
+/// try the sizes `n ..= 2n`, then start over at size `n + 1`.
+fn[T] such_that(g : Generator[T], pred : (T) -> Bool) -> Generator[T] {
+  Generator((size, state) => {
+    for n = size, state = state {
+      let next_round = state.split()
+      for m = n, state = state; m <= 2 * n; {
+        let next_try = state.split()
+        let x = g.run(m, state)
+        if pred(x) {
+          return x
+        }
+        continue m + 1, next_try
+      }
+      continue n + 1, next_round
+    }
+  })
+}
+
+///|
+/// `n` independent values of `g`, and none when `n` is negative: nested
+/// elements are generated at `size - 1`, which goes below zero, and core's
+/// `array_with_size` aborts there (quickcheck 0.14 returned an empty array).
+fn[T] array_of(g : Generator[T], n : Int32) -> Generator[Array[T]] {
+  g.array_with_size(if n < 0 { 0 } else { n })
+}
+
+///|
+impl @quickcheck.Shrink for XMLDocument with fn shrink(self) {
   [].iter()
 }
 
@@ -13,17 +42,15 @@ impl @quickcheck.Arbitrary for XMLDocument with fn arbitrary(size, rs) {
     encoding: "UTF-8",
     standalone: true,
     dtd: None,
-    root: Gen::spawn().run(size, rs),
+    root: @quickcheck.spawn().run(size, rs),
   }
 }
 
 ///|
 impl @quickcheck.Arbitrary for XMLElement with fn arbitrary(size, rs) {
-  let charGen : Gen[Char] = Gen::spawn()
-  let name = charGen.such_that(is_name_start_char).run(size, rs).to_string() +
-    charGen
-    .such_that(is_name_char)
-    .array_with_size(size - 1)
+  let charGen : Generator[Char] = @quickcheck.spawn()
+  let name = such_that(charGen, is_name_start_char).run(size, rs).to_string() +
+    array_of(such_that(charGen, is_name_char), size - 1)
     .run(size - 1, rs)
     .iter()
     .fold(init="", fn(s, c) { s + c.to_string() })
@@ -31,23 +58,27 @@ impl @quickcheck.Arbitrary for XMLElement with fn arbitrary(size, rs) {
     !(s.contains("\"") || s.contains("<") || s.contains("&"))
   }
 
-  let iterGen : Gen[Array[String]] = Gen::spawn()
-    .such_that(is_value)
-    .array_with_size(size)
+  let iterGen : Generator[Array[String]] = array_of(
+    such_that(@quickcheck.spawn(), is_value),
+    size,
+  )
   let attributes = iterGen
     .run(size, rs)
     .fold(init=Map([]), fn(map, value) {
       map.set("key_\{map.length()+1}", value)
       map
     })
-  let childrenGen : Gen[Iter[XMLChildren]] = Gen::spawn()
+  let childrenGen : Generator[Iter[XMLChildren]] = @quickcheck.spawn()
   let children = childrenGen
     .run(size, rs)
     .fold(init=[], fn(queue, child) {
       queue.push(child)
       queue
     })
-  let emptyGen : Gen[Bool] = @gen.one_of([@gen.pure(true), @gen.pure(false)])
+  let emptyGen : Generator[Bool] = @quickcheck.one_of([
+    @quickcheck.pure(true),
+    @quickcheck.pure(false),
+  ])
   let empty_element = if children.is_empty() {
     emptyGen.run(size, rs)
   } else {
@@ -62,27 +93,26 @@ impl @quickcheck.Arbitrary for XMLChildren with fn arbitrary(size, rs) {
     s.iter().all(fn(c) { is_char(c) })
   }
 
-  let strGen : Gen[String] = Gen::spawn().such_that(valid_string)
-  let refGen : Gen[String] = Gen(fn(size, rs) {
-    let charGen : Gen[Char] = Gen::spawn()
-    let name = charGen.such_that(is_name_start_char).run(size, rs).to_string() +
-      charGen
-      .such_that(is_name_char)
-      .array_with_size(size - 1)
+  let strGen : Generator[String] = such_that(@quickcheck.spawn(), valid_string)
+  let refGen : Generator[String] = Generator(fn(size, rs) {
+    let charGen : Generator[Char] = @quickcheck.spawn()
+    let name = such_that(charGen, is_name_start_char).run(size, rs).to_string() +
+      array_of(such_that(charGen, is_name_char), size - 1)
       .run(size - 1, rs)
       .iter()
       .fold(init="", fn(s, c) { s + c.to_string() })
     "&" + name + ";"
   })
-  let wsGen : Gen[String] = @gen.one_of([
-      @gen.pure(" "),
-      @gen.pure("\t"),
-      @gen.pure("\r"),
-      @gen.pure("\n"),
-    ])
-    .array_with_size(size)
-    .fmap(arr => arr.join(""))
-  let elementGen : Gen[XMLElement] = Gen::spawn()
+  let wsGen : Generator[String] = array_of(
+    @quickcheck.one_of([
+      @quickcheck.pure(" "),
+      @quickcheck.pure("\t"),
+      @quickcheck.pure("\r"),
+      @quickcheck.pure("\n"),
+    ]),
+    size,
+  ).map(arr => arr.join(""))
+  let elementGen : Generator[XMLElement] = @quickcheck.spawn()
   //Element(XMLElement)
   //Reference(String)
   //CDATA(String)
@@ -108,14 +138,14 @@ impl @quickcheck.Arbitrary for XMLChildren with fn arbitrary(size, rs) {
     !s.has_suffix("-") && !s.contains("-->")
   }
 
-  let childGen : Gen[XMLChildren] = @gen.one_of([
-    refGen.fmap(fn(s) { Reference(s) }),
-    strGen.such_that(is_cdata).fmap(fn(s) { CDATA(s) }),
-    strGen.such_that(is_PI).fmap(fn(s) { XMLChildren::PI(s) }),
-    strGen.such_that(is_comment).fmap(fn(s) { XMLChildren::Comment(s) }),
-    strGen.such_that(is_text).fmap(fn(s) { Text(s) }),
-    wsGen.fmap(fn(s) { XMLChildren::WhiteSpace(s) }),
-    elementGen.fmap(fn(e) { Element(e) }).resize(size - 1), // limit nesting depth
+  let childGen : Generator[XMLChildren] = @quickcheck.one_of([
+    refGen.map(fn(s) { Reference(s) }),
+    such_that(strGen, is_cdata).map(fn(s) { CDATA(s) }),
+    such_that(strGen, is_PI).map(fn(s) { XMLChildren::PI(s) }),
+    such_that(strGen, is_comment).map(fn(s) { XMLChildren::Comment(s) }),
+    such_that(strGen, is_text).map(fn(s) { Text(s) }),
+    wsGen.map(fn(s) { XMLChildren::WhiteSpace(s) }),
+    elementGen.map(fn(e) { Element(e) }).resize(size - 1), // limit nesting depth
   ])
   childGen.run(size, rs)
 }
@@ -157,7 +187,8 @@ fn trivial_ctx(xml : XMLDocument) -> Bool {
 
 ///|
 test "fuzzing" {
-  @qc.quick_check_fn(trivial)
-  @qc.quick_check_fn(trivial_iter)
-  @qc.quick_check_fn(trivial_ctx)
+  // `max_size=99` keeps the sizes 0, 1, ..., 99 that `quick_check_fn` used.
+  @quickcheck.check(trivial, max_size=99)
+  @quickcheck.check(trivial_iter, max_size=99)
+  @quickcheck.check(trivial_ctx, max_size=99)
 }
