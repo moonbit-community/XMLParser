@@ -1,29 +1,35 @@
-name: publish-package
-run-name: publish to mooncakes
-on: workflow_dispatch
+name: Publish Mooncakes
+on:
+  workflow_dispatch:
+permissions:
+  contents: read
 jobs:
   publish:
     runs-on: ubuntu-latest
+    timeout-minutes: 30
     steps:
       - uses: actions/checkout@v4
-      - name: install
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install MoonBit
         run: |
-          curl -fsSL https://cli.moonbitlang.com/install/unix.sh | bash
-          echo "$HOME/.moon/bin" >> $GITHUB_PATH
-      - name: moon version
-        run: |
-          moon version --all
-      - name: moon build
-        run: |
-          moon update
-          moon build --target all
-      - name: moon check
-        run: |
-          moon check --target all
-      - name: publish
-        run: |
-          echo $SECRET > ~/.moon/credentials.json
-          moon publish
-          rm ~/.moon/credentials.json
+          curl -fsSL https://cli.moonbitlang.com/install/unix.sh | bash -s -- nightly
+          echo "$HOME/.moon/bin" >> "$GITHUB_PATH"
+      - run: moon version --all
+      - run: moon update
+      - run: sh scripts/init.sh
+      - run: moon check --deny-warn --target all
+      - run: moon fmt --check
+      - run: moon info --target all && git diff --exit-code
+      - run: moon test --target all
+      - run: moon test --target all --release
+      - name: Publish verified module
         env:
-          SECRET: ${{ secrets.MOONCAKES_MOONBIT_COMMUNITY_TOKEN }}
+          MOONCAKES_CREDENTIALS: ${{ secrets.MOONCAKES_MOONBIT_COMMUNITY_TOKEN }}
+        run: |
+          test -n "$MOONCAKES_CREDENTIALS" || { echo "Missing organization Mooncakes publishing credentials"; exit 1; }
+          trap 'rm -f "$HOME/.moon/credentials.json"' EXIT
+          printf '%s' "$MOONCAKES_CREDENTIALS" > "$HOME/.moon/credentials.json"
+          moon publish --dry-run
+          moon publish

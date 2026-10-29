@@ -14,7 +14,7 @@ let phexdigit : Parser[Char, Char] = @combinator.pchar_such_that(is_hex_digit)
 ///|
 fn is_digit(c : Char) -> Bool {
   match c {
-    '0'..='9' => true
+    '0'..<='9' => true
     _ => false
   }
 }
@@ -22,7 +22,7 @@ fn is_digit(c : Char) -> Bool {
 ///|
 fn is_hex_digit(c : Char) -> Bool {
   match c {
-    '0'..='9' | 'a'..='f' | 'A'..='F' => true
+    '0'..<='9' | 'a'..<='f' | 'A'..<='F' => true
     _ => false
   }
 }
@@ -30,19 +30,19 @@ fn is_hex_digit(c : Char) -> Bool {
 ///|
 fn is_name_start_char(c : Char) -> Bool {
   match c {
-    ':' | '_' | 'a'..='z' | 'A'..='Z' => true
-    '\u00C0'..='\u00D6' => true
-    '\u00D8'..='\u00F6' => true
-    '\u00F8'..='\u02FF' => true
-    '\u0370'..='\u037D' => true
-    '\u037F'..='\u1FFF' => true
-    '\u200C'..='\u200D' => true
-    '\u2070'..='\u218F' => true
-    '\u2C00'..='\u2FEF' => true
-    '\u3001'..='\uD7FF' => true
-    '\uF900'..='\uFDCF' => true
-    '\uFDF0'..='\uFFFD' => true
-    '\u{10000}'..='\u{EFFFF}' => true
+    ':' | '_' | 'a'..<='z' | 'A'..<='Z' => true
+    '\u00C0'..<='\u00D6' => true
+    '\u00D8'..<='\u00F6' => true
+    '\u00F8'..<='\u02FF' => true
+    '\u0370'..<='\u037D' => true
+    '\u037F'..<='\u1FFF' => true
+    '\u200C'..<='\u200D' => true
+    '\u2070'..<='\u218F' => true
+    '\u2C00'..<='\u2FEF' => true
+    '\u3001'..<='\uD7FF' => true
+    '\uF900'..<='\uFDCF' => true
+    '\uFDF0'..<='\uFFFD' => true
+    '\u{10000}'..<='\u{EFFFF}' => true
     _ => false
   }
 }
@@ -55,10 +55,10 @@ fn is_name_char(c : Char) -> Bool {
   match c {
     '-'
     | '.'
-    | '0'..='9'
+    | '0'..<='9'
     | '\u00B7'
-    | '\u0300'..='\u036F'
-    | '\u203F'..='\u2040' => true
+    | '\u0300'..<='\u036F'
+    | '\u203F'..<='\u2040' => true
     _ => false
   }
 }
@@ -69,9 +69,9 @@ fn is_char(c : Char) -> Bool {
     '\u0009'
     | '\u000A'
     | '\u000D'
-    | '\u0020'..='\uD7FF'
-    | '\uE000'..='\uFFFD'
-    | '\u{10000}'..='\u{10FFFF}' => true
+    | '\u0020'..<='\uD7FF'
+    | '\uE000'..<='\uFFFD'
+    | '\u{10000}'..<='\u{10FFFF}' => true
     _ => false
   }
 }
@@ -663,7 +663,7 @@ test "pelement/complex" {
 }
 
 ///|
-fn peek_char_seq(seq : Seq[Char], n : Int) -> String? {
+fn peek_char_seq(seq : Seq[Char], n : Int32) -> String? {
   // help me return Some(first n char to string) in seq, or return None
   Seq::peek_char(seq, n)
 }

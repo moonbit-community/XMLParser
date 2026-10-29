@@ -184,10 +184,10 @@ pub(all) struct GetElementVisitor {
 }
 
 pub(all) struct Location {
-  mut index : Int
-  mut line : Int
-  mut column : Int
-  length : Int
+  mut index : Int32
+  mut line : Int32
+  mut column : Int32
+  length : Int32
 } derive(@debug.Debug)
 pub fn Location::to_string(Self) -> String
 pub impl Show for Location
@@ -303,9 +303,9 @@ pub fn[Token, Value] XMLParser::run(Self[Token, Value], @parserc.Seq[Token], XML
 
 pub struct XMLParserContext {
   input_array : Array[Char]
-  index : Int
-  mut line_number : Int
-  mut column_number : Int
+  index : Int32
+  mut line_number : Int32
+  mut column_number : Int32
   errors : Array[XMLParseError]
   warnings : Array[String]
 }
