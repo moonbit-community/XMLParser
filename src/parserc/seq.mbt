@@ -54,7 +54,7 @@ pub fn Seq::from_string(str : String) -> Seq[Char] {
     if ch.to_int() >= 0xd800 && ch.to_int() <= 0xdbff {
       let ch2 = str[offset + 1]
       seq.push(
-        Int::unsafe_to_char(
+        Int32::unsafe_to_char(
           0x10000 + ((ch.to_int() - 0xd800) << 10) + ch2.to_int() - 0xdc00,
         ),
       )
@@ -74,13 +74,13 @@ pub fn[T] Seq::from_array(array : ArrayView[T]) -> Seq[T] {
 }
 
 ///|
-pub fn[T] Seq::length(self : Seq[T]) -> Int {
+pub fn[T] Seq::length(self : Seq[T]) -> Int32 {
   self.0.length()
 }
 
 ///|
 /// Look forward `n` characters
-pub fn Seq::peek_char(self : Seq[Char], n : Int) -> String? {
+pub fn Seq::peek_char(self : Seq[Char], n : Int32) -> String? {
   if self.length() >= n {
     Some(self.0[:n].fold(init="", fn(s, c) { s + c.to_string() }))
   } else {

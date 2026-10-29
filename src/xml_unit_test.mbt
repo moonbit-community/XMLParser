@@ -28,7 +28,7 @@ fn is_valid(s : String) -> Bool {
   let s = s.replace(old=".xml", new="")
   let id = @string.parse_int(s) catch { _ => return false }
   match id {
-    49..=51 => false
+    49..<=51 => false
     _ => true
   }
 }
@@ -42,7 +42,7 @@ test "xmlconf valid sa" {
     e =>
       fail(
         "Missing XML conformance test suite. Run scripts/init.sh or scripts/init.ps1. Error: " +
-        e.to_string(),
+        Repr(e).to_string(),
       )
   }
   let files = files.filter(is_valid)
